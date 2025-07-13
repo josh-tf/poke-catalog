@@ -57,6 +57,24 @@ async function makeUniqueId(base: string, userId: string): Promise<string> {
     return id;
 }
 
+function slugify(str: string): string {
+    return str
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+}
+
+async function makeUniqueSlug(name: string, userId: string): Promise<string> {
+    const base = slugify(name);
+    let slug = base;
+    let i = 1;
+    while (await Collection.findOne({ where: { userId, slug } })) {
+        slug = `${base}-${i++}`;
+    }
+    return slug;
+}
+
 const app = express();
 const PORT = 3000;
 
@@ -493,24 +511,35 @@ app.post('/bulk-edit', ensureAuth, async (req, res) => {
 });
 
 // Create collection form
+app.get('/collections', ensureAuth, async (req, res) => {
+    const userId = (req.user as any).id;
+    const collections = await Collection.findAll({ where: { userId } });
+    res.render('collections', { user: req.user, collections });
+});
+
 app.get('/collections/create', ensureAuth, (req, res) => {
     res.render('collection_form', { user: req.user });
 });
 
 // Handle create collection
 app.post('/collections/create', ensureAuth, async (req, res) => {
+    const userId = (req.user as any).id;
+    const slug = await makeUniqueSlug(req.body.name, userId);
     await Collection.create({
         name: req.body.name,
         description: req.body.description,
         public: !!req.body.public,
-        userId: (req.user as any).id,
+        userId,
+        slug,
     });
-    res.redirect('/');
+    res.redirect('/collections');
 });
 
 // View collection
-app.get('/collections/:id', async (req, res) => {
-    const collection = await Collection.findByPk(req.params.id, {
+app.get('/collections/:userId/:slug', async (req, res) => {
+    const { userId, slug } = req.params;
+    const collection = await Collection.findOne({
+        where: { userId, slug },
         include: [User],
     });
     if (!collection) {
@@ -525,7 +554,60 @@ app.get('/collections/:id', async (req, res) => {
     const items = await Item.findAll({
         where: { collectionId: collection.id },
     });
-    res.render('collection', { user: req.user, collection, items });
+    const shareUrl = `${req.protocol}://${req.get('host')}/collections/${collection.userId}/${collection.slug}`;
+    res.render('collection', { user: req.user, collection, items, shareUrl });
+});
+
+app.get('/collections/:userId/:slug/edit', ensureAuth, async (req, res) => {
+    const { userId, slug } = req.params;
+    if ((req.user as any).id !== userId) {
+        return res.status(403).send('Forbidden');
+    }
+    const collection = await Collection.findOne({ where: { userId, slug } });
+    if (!collection) {
+        return res.status(404).send('Not found');
+    }
+    const items = await Item.findAll({ where: { userId } });
+    res.render('collection_edit', { user: req.user, collection, items });
+});
+
+app.post('/collections/:userId/:slug/edit', ensureAuth, async (req, res) => {
+    const { userId, slug } = req.params;
+    if ((req.user as any).id !== userId) {
+        return res.status(403).send('Forbidden');
+    }
+    const collection = await Collection.findOne({ where: { userId, slug } });
+    if (!collection) {
+        return res.status(404).send('Not found');
+    }
+
+    const newSlug =
+        collection.name === req.body.name
+            ? slug
+            : await makeUniqueSlug(req.body.name, userId);
+    await collection.update({
+        name: req.body.name,
+        description: req.body.description,
+        public: !!req.body.public,
+        slug: newSlug,
+    });
+
+    const selected = Array.isArray(req.body.items)
+        ? req.body.items
+        : req.body.items
+          ? [req.body.items]
+          : [];
+    const items = await Item.findAll({ where: { userId } });
+    for (const item of items) {
+        const shouldBelong = selected.includes(item.id);
+        if (shouldBelong && item.collectionId !== collection.id) {
+            await item.update({ collectionId: collection.id });
+        } else if (!shouldBelong && item.collectionId === collection.id) {
+            await item.update({ collectionId: null });
+        }
+    }
+
+    res.redirect(`/collections/${userId}/${newSlug}`);
 });
 
 // User profile with comments
@@ -534,12 +616,24 @@ app.get('/user/:id', async (req, res) => {
     if (!userProfile) {
         return res.status(404).send('Not found');
     }
+
+    const showAll = (req.user as any)?.id === userProfile.id;
+    const collections = await Collection.findAll({
+        where: { userId: userProfile.id, ...(showAll ? {} : { public: true }) },
+    });
+    const items = await loadCatalog(userProfile.id);
     const comments = await ProfileComment.findAll({
         where: { userId: userProfile.id },
         include: [{ model: User, as: 'commenter' }],
         order: [['createdAt', 'DESC']],
     });
-    res.render('profile', { user: req.user, userProfile, comments });
+    res.render('profile', {
+        user: req.user,
+        userProfile,
+        comments,
+        collections,
+        items,
+    });
 });
 
 app.post('/user/:id/comment', ensureAuth, async (req, res) => {
