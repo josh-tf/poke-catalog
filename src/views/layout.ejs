@@ -16,6 +16,20 @@
                     extend: {
                         fontFamily: {
                             jakarta: ['"Plus Jakarta Sans"', 'sans-serif'],
+                            pokemon: ['"Pokemon Solid"', 'sans-serif'],
+                            pixel: ['"Press Start 2P"', 'monospace'],
+                        },
+                        colors: {
+                            pokemon: {
+                                fire: '#F08030',
+                                water: '#6890F0',
+                                grass: '#78C850',
+                                electric: '#F8D030',
+                                psychic: '#F85888',
+                                dragon: '#7038F8',
+                                dark: '#705848',
+                                fairy: '#EE99AC',
+                            },
                         },
                     },
                 },
@@ -36,31 +50,38 @@
         <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     </head>
 
-    <body class="font-jakarta bg-gray-50 text-gray-900">
+    <body
+        class="font-jakarta bg-gradient-to-br from-white to-pokemon-fairy text-gray-900"
+    >
         <!-- Navbar -->
         <nav
-            class="bg-blue-600 text-white px-4 py-3 flex justify-between items-center"
+            class="bg-pokemon-fire text-white px-4 py-3 flex justify-between items-center shadow"
         >
-            <a href="/" class="text-xl font-bold">Poké Catalog</a>
+            <a href="/" class="text-xl font-pixel tracking-wider"
+                >Poké Catalog</a
+            >
             <div class="flex items-center gap-3">
                 <% if (user) { %>
-                <span class="text-sm">Logged in as <%= user.username %></span>
+                <span class="text-sm font-medium"
+                    >Logged in as
+                    <%= user.username %></span
+                >
                 <% if (user.avatar) { %>
                 <img
                     src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png"
                     alt="Avatar"
-                    class="w-8 h-8 rounded-full"
+                    class="w-8 h-8 rounded-full border-2 border-white"
                 />
                 <% } %>
                 <a
                     href="/logout"
-                    class="bg-white text-blue-600 px-3 py-1 rounded text-sm font-medium"
+                    class="bg-white text-pokemon-fire px-3 py-1 rounded text-sm font-bold hover:bg-pokemon-fire hover:text-white transition"
                     >Logout</a
                 >
                 <% } else { %>
                 <a
                     href="/login"
-                    class="bg-white text-blue-600 px-3 py-1 rounded text-sm font-medium"
+                    class="bg-white text-pokemon-fire px-3 py-1 rounded text-sm font-bold hover:bg-pokemon-fire hover:text-white transition"
                     >Login with Discord</a
                 >
                 <% } %>
@@ -74,25 +95,25 @@
                 <nav class="space-y-2">
                     <a
                         href="/"
-                        class="flex items-center text-blue-600 font-medium hover:bg-blue-50 px-3 py-2 rounded"
+                        class="flex items-center text-pokemon-fire font-medium hover:bg-pokemon-fire hover:text-white px-3 py-2 rounded transition"
                     >
                         <i class="ti ti-home mr-2"></i> Dashboard
                     </a>
                     <a
                         href="/catalog"
-                        class="flex items-center hover:bg-gray-100 px-3 py-2 rounded"
+                        class="flex items-center text-pokemon-water hover:bg-pokemon-water hover:text-white px-3 py-2 rounded transition"
                     >
                         <i class="ti ti-book mr-2"></i> Catalog
                     </a>
                     <a
                         href="/add"
-                        class="flex items-center hover:bg-gray-100 px-3 py-2 rounded"
+                        class="flex items-center text-pokemon-grass hover:bg-pokemon-grass hover:text-white px-3 py-2 rounded transition"
                     >
                         <i class="ti ti-plus mr-2"></i> Add Item
                     </a>
                     <a
                         href="/user/<%= user ? user.id : '' %>"
-                        class="flex items-center hover:bg-gray-100 px-3 py-2 rounded"
+                        class="flex items-center text-pokemon-electric hover:bg-pokemon-electric hover:text-black px-3 py-2 rounded transition"
                     >
                         <i class="ti ti-user mr-2"></i> Profile
                     </a>

@@ -1,4 +1,6 @@
-<h1 class="text-2xl font-bold mb-6">Poké Catalog</h1>
+<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
+    Poké Catalog
+</h1>
 
 <!-- Action Bar -->
 <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
@@ -6,28 +8,32 @@
     <div class="flex flex-wrap items-center gap-2">
         <a
             href="/add"
-            class="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium"
-            >➕ Add New Item</a
+            class="bg-pokemon-fire hover:bg-pokemon-fire/90 text-white px-4 py-2 rounded text-sm font-pixel shadow transition"
         >
+            ➕ Add New Item
+        </a>
         <a
             href="/bulk-add"
-            class="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium"
-            >📥 Bulk Upload</a
+            class="bg-pokemon-electric hover:bg-pokemon-electric/90 text-black px-4 py-2 rounded text-sm font-pixel shadow transition"
         >
+            📥 Bulk Upload
+        </a>
     </div>
 
     <!-- Middle: View Switch -->
     <div class="flex items-center gap-2">
         <a
             href="/catalog?view=list"
-            class="border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm hover:bg-gray-100"
-            >List View</a
+            class="border border-gray-400 text-gray-800 font-pixel px-4 py-2 rounded text-sm hover:bg-gray-200 transition"
         >
+            List View
+        </a>
         <a
             href="/catalog?view=grid"
-            class="border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm hover:bg-gray-100"
-            >Grid View</a
+            class="border border-gray-400 text-gray-800 font-pixel px-4 py-2 rounded text-sm hover:bg-gray-200 transition"
         >
+            Grid View
+        </a>
     </div>
 
     <!-- Right: Filters -->
@@ -37,7 +43,7 @@
         <select
             name="sort"
             onchange="this.form.submit()"
-            class="text-sm px-3 py-2 border border-gray-300 rounded bg-white"
+            class="text-sm px-3 py-2 border border-gray-300 rounded bg-white font-pixel text-gray-800"
         >
             <% if (sort === 'title') { %>
             <option value="title" selected>Title</option>
@@ -61,7 +67,7 @@
         <select
             name="order"
             onchange="this.form.submit()"
-            class="text-sm px-3 py-2 border border-gray-300 rounded bg-white"
+            class="text-sm px-3 py-2 border border-gray-300 rounded bg-white font-pixel text-gray-800"
         >
             <% if (order === 'asc') { %>
             <option value="asc" selected>Asc</option>
@@ -79,7 +85,7 @@
         <select
             name="category"
             onchange="this.form.submit()"
-            class="text-sm px-3 py-2 border border-gray-300 rounded bg-white"
+            class="text-sm px-3 py-2 border border-gray-300 rounded bg-white font-pixel text-gray-800"
         >
             <% if (!category) { %>
             <option value="" selected>All Categories</option>
@@ -215,7 +221,10 @@
 
 <!-- Category Chart -->
 <div class="mt-6 bg-white rounded shadow p-6">
-    <h4 class="text-lg font-semibold mb-3">Items by Category</h4>
+    <h4 class="text-lg font-pixel text-pokemon-grass mb-3">
+        Items by Category
+    </h4>
+
     <div id="categoryChart" class="min-h-[250px]"></div>
 </div>
 

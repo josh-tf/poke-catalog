@@ -1,15 +1,17 @@
-<h1 class="text-2xl font-bold mb-6">Add Details</h1>
+<h1 class="text-3xl font-pixel text-pokemon-electric mb-6 tracking-wide">
+    Add Details
+</h1>
 
 <form method="POST" action="/bulk-add/save" class="space-y-6">
     <% files.forEach((file, idx) => { %>
     <div
-        class="bulk-item border border-gray-200 rounded-lg p-4 bg-white shadow-sm"
+        class="bulk-item border-2 border-pokemon-psychic rounded-lg p-4 bg-white shadow-lg font-pixel"
     >
         <!-- Image -->
         <img
             src="/uploads/<%= file.name %>"
             alt="Uploaded image"
-            class="w-auto max-h-40 object-contain mb-4 border rounded"
+            class="w-auto max-h-40 object-contain mb-4 border border-gray-300 rounded bg-gray-50"
         />
 
         <input type="hidden" name="image" value="/uploads/<%= file.name %>" />
@@ -17,7 +19,7 @@
         <!-- ID Field -->
         <div class="mb-3">
             <input
-                class="w-full border border-gray-300 rounded px-3 py-2 text-sm id-input"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-electric id-input"
                 name="id"
                 placeholder="ID (e.g. sv1v-087)"
             />
@@ -27,7 +29,7 @@
         <!-- Title Field -->
         <div class="mb-3">
             <input
-                class="w-full border border-gray-300 rounded px-3 py-2 text-sm title-input"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-fire title-input"
                 name="title"
                 placeholder="Title"
             />
@@ -36,7 +38,7 @@
         <!-- Description Field -->
         <div class="mb-3">
             <input
-                class="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-water"
                 name="desc"
                 placeholder="Description"
             />
@@ -47,7 +49,7 @@
             <select
                 name="category"
                 required
-                class="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pokemon-grass"
             >
                 <option value="Cards">Cards</option>
                 <option value="Graded">Graded</option>
@@ -62,7 +64,7 @@
                 type="number"
                 step="0.01"
                 name="pricePaid"
-                class="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-fairy"
                 placeholder="Price Paid"
             />
         </div>
@@ -73,7 +75,7 @@
                 type="number"
                 step="0.01"
                 name="marketValue"
-                class="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-dragon"
                 placeholder="Market Value"
             />
         </div>
@@ -81,16 +83,19 @@
     <% }) %>
 
     <!-- Submit & Back -->
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-4 mt-4">
         <button
             type="submit"
-            class="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded"
+            class="bg-pokemon-grass hover:bg-pokemon-grass/90 text-white font-pixel px-4 py-2 rounded shadow transition"
         >
             💾 Save All
         </button>
-        <a href="/" class="text-sm text-gray-700 hover:text-gray-900 underline"
-            >⬅ Back</a
+        <a
+            href="/"
+            class="text-sm text-gray-700 hover:text-gray-900 underline font-pixel"
         >
+            ⬅ Back
+        </a>
     </div>
 </form>
 

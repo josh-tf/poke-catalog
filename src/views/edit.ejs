@@ -1,24 +1,29 @@
-<div class="max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-md">
-  <h1 class="text-2xl font-bold mb-6">Edit Item</h1>
-  <form method="POST" action="/item/<%= item.id %>/edit" enctype="multipart/form-data" class="space-y-4">
+<div class="max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-lg border-t-4 border-pokemon-electric">
+  <h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
+    Edit Item
+  </h1>
 
+  <form method="POST" action="/item/<%= item.id %>/edit" enctype="multipart/form-data" class="space-y-5 font-pixel">
+
+    <!-- Title -->
     <div>
-      <label class="block text-sm font-medium mb-1">Title</label>
+      <label class="block text-sm mb-1 text-pokemon-electric">Title</label>
       <input
         type="text"
         name="title"
         value="<%= item.title %>"
         required
-        class="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+        class="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-fire"
       />
     </div>
 
+    <!-- Category -->
     <div>
-      <label class="block text-sm font-medium mb-1">Category</label>
+      <label class="block text-sm mb-1 text-pokemon-electric">Category</label>
       <select
         name="category"
         required
-        class="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+        class="w-full rounded border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pokemon-grass"
       >
         <% categories.forEach(cat => { %>
           <option value="<%= cat %>" <%= item.category === cat ? 'selected' : '' %>><%= cat %></option>
@@ -26,65 +31,70 @@
       </select>
     </div>
 
+    <!-- Description -->
     <div>
-      <label class="block text-sm font-medium mb-1">Description</label>
+      <label class="block text-sm mb-1 text-pokemon-electric">Description</label>
       <input
         type="text"
         name="desc"
         value="<%= item.desc || '' %>"
         placeholder="Description"
-        class="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+        class="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-water"
       />
     </div>
 
+    <!-- Notes -->
     <div>
-      <label class="block text-sm font-medium mb-1">Notes</label>
+      <label class="block text-sm mb-1 text-pokemon-electric">Notes</label>
       <input
         type="text"
         name="notes"
         value="<%= item.notes || '' %>"
         placeholder="Notes"
-        class="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+        class="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-psychic"
       />
     </div>
 
+    <!-- Flags -->
     <div>
-      <label class="block text-sm font-medium mb-1">Flags (comma separated)</label>
+      <label class="block text-sm mb-1 text-pokemon-electric">Flags (comma separated)</label>
       <input
         type="text"
         name="flags"
         value="<%= item.flags ? item.flags.join(', ') : '' %>"
         placeholder="e.g. rare, sealed"
-        class="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+        class="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-dark"
       />
     </div>
 
+    <!-- Price Paid & Market Value -->
     <div class="grid grid-cols-2 gap-4">
       <div>
-        <label class="block text-sm font-medium mb-1">Price Paid</label>
+        <label class="block text-sm mb-1 text-pokemon-electric">Price Paid</label>
         <input
           type="number"
           step="0.01"
           name="pricePaid"
           value="<%= item.pricePaid %>"
-          class="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+          class="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-fairy"
         />
       </div>
       <div>
-        <label class="block text-sm font-medium mb-1">Market Value</label>
+        <label class="block text-sm mb-1 text-pokemon-electric">Market Value</label>
         <input
           type="number"
           step="0.01"
           name="marketValue"
           value="<%= item.marketValue %>"
-          class="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+          class="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-dragon"
         />
       </div>
     </div>
 
+    <!-- Existing Images -->
     <% if (item.images && item.images.length > 0) { %>
       <div>
-        <p class="text-sm font-medium mb-2">Images</p>
+        <p class="text-sm mb-2 text-pokemon-electric">Images</p>
         <div class="space-y-2">
           <% item.images.forEach(img => { %>
             <div class="flex items-center gap-3">
@@ -93,10 +103,10 @@
                 name="removeImages"
                 value="<%= img %>"
                 id="img-<%= Buffer.from(img).toString('base64') %>"
-                class="h-4 w-4 text-red-600 border-gray-300 rounded"
+                class="h-4 w-4 text-pokemon-fire border-gray-300 rounded"
               />
               <label for="img-<%= Buffer.from(img).toString('base64') %>" class="flex items-center gap-3">
-                <img src="<%= img %>" alt="Image" class="h-20 rounded border border-gray-200" />
+                <img src="<%= img %>" alt="Image" class="h-20 rounded border border-gray-200 bg-gray-50" />
                 <span class="text-sm">Remove</span>
               </label>
             </div>
@@ -105,23 +115,25 @@
       </div>
     <% } %>
 
+    <!-- New Image Upload -->
     <div>
-      <label class="block text-sm font-medium mb-1">Upload New Images</label>
+      <label class="block text-sm mb-1 text-pokemon-electric">Upload New Images</label>
       <input
         type="file"
         name="newImages"
         accept="image/*"
         multiple
-        class="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+        class="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-pokemon-electric file:text-black hover:file:bg-pokemon-electric/90 transition"
       />
     </div>
 
-    <div class="flex items-center gap-4">
+    <!-- Buttons -->
+    <div class="flex items-center gap-4 pt-2">
       <button
         type="submit"
-        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow"
+        class="bg-pokemon-grass hover:bg-pokemon-grass/90 text-white px-4 py-2 rounded shadow transition"
       >
-        Save
+        💾 Save
       </button>
       <a
         href="/item/<%= item.id %>"
