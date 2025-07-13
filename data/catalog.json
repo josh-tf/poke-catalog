@@ -1,0 +1,96 @@
+[
+    {
+        "id": "sv1v-087",
+        "title": "Slowpoke AR",
+        "desc": "Slowpoke art rare from SV1V",
+        "notes": "My first AR card",
+        "flags": ["sealed", "favourite"],
+        "pricePaid": 5,
+        "marketValue": 12.5
+    },
+    {
+        "id": "sv1v-087",
+        "title": "Slowpoke AR",
+        "desc": "Slowpoke art rare from SV1V",
+        "notes": "My first AR card",
+        "flags": ["sealed", "favourite"],
+        "pricePaid": 5,
+        "marketValue": 12.5
+    },
+    {
+        "id": "sv1v-087",
+        "title": "Slowpoke AR",
+        "desc": "Slowpoke art rare from SV1V",
+        "notes": "My first AR card",
+        "flags": ["sealed", "favourite"],
+        "pricePaid": 5,
+        "marketValue": 12.5
+    },
+    {
+        "id": "sv1v-087",
+        "title": "Slowpoke AR",
+        "desc": "Slowpoke art rare from SV1V",
+        "notes": "My first AR card",
+        "flags": ["sealed", "favourite"],
+        "pricePaid": 5,
+        "marketValue": 12.5
+    },
+    {
+        "id": "sv1v-087",
+        "title": "Slowpoke AR",
+        "desc": "Slowpoke art rare from SV1V",
+        "notes": "My first AR card",
+        "flags": ["sealed", "favourite"],
+        "pricePaid": 5,
+        "marketValue": 12.5
+    },
+    {
+        "id": "test",
+        "title": "trtrr",
+        "desc": "rrr",
+        "notes": "rr",
+        "flags": [],
+        "pricePaid": 1,
+        "marketValue": 2
+    },
+    {
+        "id": "spriga",
+        "title": "Spriganig",
+        "desc": "test",
+        "notes": "",
+        "flags": [],
+        "pricePaid": 0,
+        "marketValue": 0,
+        "images": []
+    },
+    {
+        "id": "trr",
+        "title": "rr",
+        "desc": "rr",
+        "notes": "",
+        "flags": [],
+        "pricePaid": 0,
+        "marketValue": 0,
+        "images": []
+    },
+    {
+        "id": "www",
+        "title": "www",
+        "desc": "",
+        "notes": "",
+        "flags": [],
+        "pricePaid": 0,
+        "marketValue": 0,
+        "images": []
+    },
+    {
+        "id": "ww",
+        "title": "ww",
+        "desc": "",
+        "notes": "",
+        "flags": [],
+        "pricePaid": 0,
+        "marketValue": 0,
+        "images": ["/uploads/daa56af436e306adc33ea90d5d67aefd"]
+    }
+]

@@ -1,0 +1,12 @@
+{
+    "ignores": [
+        "ejs",
+        "@types/ejs",
+        "depcheck",
+        "lint-staged",
+        "nodemon",
+        "prettier-plugin-organize-imports",
+        "ts-node"
+    ],
+    "skipMissing": []
+}
