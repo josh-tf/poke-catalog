@@ -22,7 +22,7 @@
     <div class="text-gray-800 space-y-4 text-sm leading-relaxed">
         <p>
             <span class="font-semibold text-pokemon-electric">Category:</span>
-            <%= item.category || '(none)' %>
+            <%= item.category?.trim() || '(none)' %>
         </p>
 
         <p>
@@ -36,28 +36,33 @@
             <span class="block font-semibold text-pokemon-electric mb-1"
                 >Notes:</span
             >
+            <%
+  const notesContent = item.notes?.trim();
+  const hasNotes = !!notesContent;
+%>
             <div
-                class="bg-yellow-100 border border-yellow-300 rounded p-3 shadow-inner whitespace-pre-wrap min-h-[3rem]"
+                class="bg-yellow-100 border border-yellow-300 rounded-lg px-4 py-3 shadow-inner text-gray-700 text-sm leading-relaxed flex flex-col justify-start <%= hasNotes ? 'whitespace-pre-wrap' : 'whitespace-normal' %>"
+                style="min-height: 3rem"
             >
-                <%= item.notes?.trim() || '(none)' %>
+                <%- notesContent || '(none)' %>
             </div>
         </div>
 
         <p>
             <span class="font-semibold text-pokemon-electric">Flags:</span>
-            <%= item.flags && item.flags.length ? item.flags.join(', ') : '(none)' %>
+            <%= item.flags?.length ? item.flags.join(', ') : '(none)' %>
         </p>
 
         <p>
             <span class="font-semibold text-pokemon-electric">Price Paid:</span>
-            $<%= item.pricePaid ?? '(none)' %>
+            <%= typeof item.pricePaid === 'number' ? `$${item.pricePaid.toFixed(2)}` : '(none)' %>
         </p>
 
         <p>
             <span class="font-semibold text-pokemon-electric"
                 >Market Value:</span
             >
-            $<%= item.marketValue ?? '(none)' %>
+            <%= typeof item.marketValue === 'number' ? `$${item.marketValue.toFixed(2)}` : '(none)' %>
         </p>
     </div>
 

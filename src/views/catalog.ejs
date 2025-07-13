@@ -4,7 +4,8 @@
 
 <!-- Action Bar -->
 <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
-    <!-- Left: Actions -->
+
+    <!-- Left: Action Buttons -->
     <div class="flex flex-wrap items-center gap-2">
         <a
             href="/add"
@@ -20,8 +21,9 @@
         </a>
     </div>
 
-    <!-- Middle: View Switch -->
-    <div class="flex items-center gap-2">
+    <!-- Middle: View Options + Search -->
+    <div class="flex flex-wrap items-center gap-2">
+        <!-- View Toggle -->
         <a
             href="/catalog?view=list"
             class="border border-gray-400 text-gray-800 font-pixel px-4 py-2 rounded text-sm hover:bg-gray-200 transition"
@@ -34,97 +36,61 @@
         >
             Grid View
         </a>
+
+        <!-- Search Bar -->
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search items..."
+            class="text-sm px-3 py-2 border border-gray-300 rounded bg-white font-pixel text-gray-800 w-64"
+        />
     </div>
 
     <!-- Right: Filters -->
     <form method="get" class="flex flex-wrap items-center gap-2">
         <input type="hidden" name="view" value="<%= view %>" />
 
+        <!-- Sort Field -->
         <select
             name="sort"
             onchange="this.form.submit()"
             class="text-sm px-3 py-2 border border-gray-300 rounded bg-white font-pixel text-gray-800"
         >
-            <% if (sort === 'title') { %>
-            <option value="title" selected>Title</option>
-            <% } else { %>
-            <option value="title">Title</option>
-            <% } %>
-
-            <% if (sort === 'pricePaid') { %>
-            <option value="pricePaid" selected>Price Paid</option>
-            <% } else { %>
-            <option value="pricePaid">Price Paid</option>
-            <% } %>
-
-            <% if (sort === 'marketValue') { %>
-            <option value="marketValue" selected>Market Value</option>
-            <% } else { %>
-            <option value="marketValue">Market Value</option>
-            <% } %>
+            <option value="title" <%= sort === 'title' ? 'selected' : '' %>>Title</option>
+            <option value="pricePaid" <%= sort === 'pricePaid' ? 'selected' : '' %>>Price Paid</option>
+            <option value="marketValue" <%= sort === 'marketValue' ? 'selected' : '' %>>Market Value</option>
         </select>
 
+        <!-- Order -->
         <select
             name="order"
             onchange="this.form.submit()"
             class="text-sm px-3 py-2 border border-gray-300 rounded bg-white font-pixel text-gray-800"
         >
-            <% if (order === 'asc') { %>
-            <option value="asc" selected>Asc</option>
-            <% } else { %>
-            <option value="asc">Asc</option>
-            <% } %>
-
-            <% if (order === 'desc') { %>
-            <option value="desc" selected>Desc</option>
-            <% } else { %>
-            <option value="desc">Desc</option>
-            <% } %>
+            <option value="asc" <%= order === 'asc' ? 'selected' : '' %>>Asc</option>
+            <option value="desc" <%= order === 'desc' ? 'selected' : '' %>>Desc</option>
         </select>
 
+        <!-- Category Filter -->
         <select
             name="category"
             onchange="this.form.submit()"
             class="text-sm px-3 py-2 border border-gray-300 rounded bg-white font-pixel text-gray-800"
         >
-            <% if (!category) { %>
-            <option value="" selected>All Categories</option>
-            <% } else { %>
-            <option value="">All Categories</option>
-            <% } %>
-
-            <% if (category === 'Cards') { %>
-            <option value="Cards" selected>Cards</option>
-            <% } else { %>
-            <option value="Cards">Cards</option>
-            <% } %>
-
-            <% if (category === 'Graded') { %>
-            <option value="Graded" selected>Graded</option>
-            <% } else { %>
-            <option value="Graded">Graded</option>
-            <% } %>
-
-            <% if (category === 'Booster Box') { %>
-            <option value="Booster Box" selected>Booster Box</option>
-            <% } else { %>
-            <option value="Booster Box">Booster Box</option>
-            <% } %>
-
-            <% if (category === 'Collection Boxes') { %>
-            <option value="Collection Boxes" selected>Collection Boxes</option>
-            <% } else { %>
-            <option value="Collection Boxes">Collection Boxes</option>
-            <% } %>
+            <option value="" <%= !category ? 'selected' : '' %>>All Categories</option>
+            <option value="Cards" <%= category === 'Cards' ? 'selected' : '' %>>Cards</option>
+            <option value="Graded" <%= category === 'Graded' ? 'selected' : '' %>>Graded</option>
+            <option value="Booster Box" <%= category === 'Booster Box' ? 'selected' : '' %>>Booster Box</option>
+            <option value="Collection Boxes" <%= category === 'Collection Boxes' ? 'selected' : '' %>>Collection Boxes</option>
         </select>
     </form>
 </div>
 
 <!-- Grid or List View -->
 <% if (view === 'grid') { %>
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+<div id="catalogGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
     <% items.forEach(item => { %>
-    <div class="bg-white rounded shadow overflow-hidden">
+    <div class="catalog-item bg-white rounded shadow overflow-hidden">
         <% if (item.images?.length > 0) { %>
         <img
             src="<%= item.images[0] %>"
@@ -145,97 +111,72 @@
     </div>
     <% }) %>
 </div>
+<script>
+  let searchInput = document.getElementById('searchInput');
+  let allItems = Array.from(document.querySelectorAll('.catalog-item'));
+
+  if (searchInput && allItems.length > 0) {
+    searchInput.addEventListener('input', () => {
+      const query = searchInput.value.toLowerCase();
+    allItems.forEach(el => {
+      const title = el.querySelector('a').textContent.toLowerCase();
+      el.style.display = title.includes(query) ? '' : 'none';
+    });
+  });
+}
+</script>
 <% } else { %>
 <form method="GET" action="/bulk-edit" class="space-y-4 mb-6">
     <% items.forEach(item => { %>
-    <div class="bg-white border border-gray-200 rounded px-4 py-3">
+    <div class="catalog-item bg-white border border-gray-200 rounded px-4 py-3">
         <label class="flex items-center gap-4 w-full cursor-pointer">
-            <!-- Checkbox -->
-            <input
-                type="checkbox"
-                name="ids"
-                value="<%= item.id %>"
-                class="shrink-0 mt-1"
-            />
+            <input type="checkbox" name="ids" value="<%= item.id %>" class="shrink-0 mt-1" />
 
-            <!-- Image -->
             <% if (item.images?.length > 0) { %>
-            <img
-                src="<%= item.images[0] %>"
-                alt="Card image"
-                class="h-20 w-20 object-contain bg-gray-100 rounded border shrink-0"
-            />
+            <img src="<%= item.images[0] %>" alt="Card image" class="h-20 w-20 object-contain bg-gray-100 rounded border shrink-0" />
             <% } else { %>
-            <div
-                class="h-20 w-20 flex items-center justify-center bg-gray-100 text-gray-400 border rounded text-xs shrink-0"
-            >
-                No Image
-            </div>
+            <div class="h-20 w-20 flex items-center justify-center bg-gray-100 text-gray-400 border rounded text-xs shrink-0">No Image</div>
             <% } %>
 
-            <!-- Content -->
             <div class="flex justify-between items-center flex-1">
-                <!-- Left: Info -->
                 <div>
-                    <a
-                        href="/item/<%= item.id %>"
-                        class="block text-blue-600 font-medium hover:underline text-base"
-                    >
-                        <%= item.title %>
-                    </a>
-                    <div class="text-sm text-gray-600">
-                        <%= item.category %> <% if (item.desc) { %> — <%=
-                        item.desc %><% } %>
-                    </div>
-                    <div class="text-xs text-gray-500">
-                        ID: <%= item.id %>, Flags: <%= Array.isArray(item.flags)
-                        && item.flags.length > 0 ? item.flags.join(', ') :
-                        'None' %>
-                    </div>
+                    <a href="/item/<%= item.id %>" class="block text-blue-600 font-medium hover:underline text-base"><%= item.title %></a>
+                    <div class="text-sm text-gray-600"><%= item.category %> <% if (item.desc) { %> — <%= item.desc %><% } %></div>
+                    <div class="text-xs text-gray-500">ID: <%= item.id %>, Flags: <%= Array.isArray(item.flags) && item.flags.length > 0 ? item.flags.join(', ') : 'None' %></div>
                 </div>
-
-                <!-- Right: Price Info -->
                 <div class="text-right text-sm text-gray-700 min-w-[120px]">
-                    <div>
-                        Paid:
-                        <span class="font-medium">$<%= item.pricePaid %></span>
-                    </div>
-                    <div>
-                        Market:
-                        <span class="font-medium"
-                            >$<%= item.marketValue %></span
-                        >
-                    </div>
+                    <div>Paid: <span class="font-medium">$<%= item.pricePaid %></span></div>
+                    <div>Market: <span class="font-medium">$<%= item.marketValue %></span></div>
                 </div>
             </div>
         </label>
     </div>
     <% }) %>
-    <button
-        class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
-    >
-        Bulk Edit
-    </button>
+    <button class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Bulk Edit</button>
 </form>
+
+<script>
+  searchInput.addEventListener('input', () => {
+    const query = searchInput.value.toLowerCase();
+    allItems.forEach(el => {
+      const title = el.querySelector('a').textContent.toLowerCase();
+      el.style.display = title.includes(query) ? '' : 'none';
+    });
+  });
+</script>
 <% } %>
 
 <!-- Category Chart -->
 <div class="mt-6 bg-white rounded shadow p-6">
-    <h4 class="text-lg font-pixel text-pokemon-grass mb-3">
-        Items by Category
-    </h4>
-
+    <h4 class="text-lg font-pixel text-pokemon-grass mb-3">Items by Category</h4>
     <div id="categoryChart" class="min-h-[250px]"></div>
 </div>
 
 <script type="application/json" id="category-data">
     <%- JSON.stringify(categoryData) %>
 </script>
-
 <script>
-    const categoryData = JSON.parse(
-        document.getElementById('category-data').textContent,
-    );
+    const categoryData = JSON.parse(document.getElementById('category-data').textContent);
     const labels = Object.keys(categoryData);
     const series = labels.map((l) => categoryData[l]);
     const options = {
@@ -250,9 +191,6 @@
         legend: { position: 'bottom' },
     };
     if (document.querySelector('#categoryChart')) {
-        new ApexCharts(
-            document.querySelector('#categoryChart'),
-            options,
-        ).render();
+        new ApexCharts(document.querySelector('#categoryChart'), options).render();
     }
 </script>

@@ -1,146 +1,287 @@
 <h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
     <%= userProfile.username %>'s Profile
 </h1>
-<div class="mb-6">
-    <% if (userProfile.avatar) { %>
+
+<% if (userProfile.avatar) { %>
+<div class="mb-8">
     <img
         src="https://cdn.discordapp.com/avatars/<%= userProfile.id %>/<%= userProfile.avatar %>.png"
         alt="avatar"
-        class="w-24 h-24 rounded-full"
+        class="w-24 h-24 rounded-full ring ring-pokemon-psychic ring-offset-2"
     />
-    <% } %>
 </div>
-<div class="mb-6">
-    <h2 class="text-lg font-semibold mb-2">Comments</h2>
-    <% if (comments.length === 0) { %>
-    <p>No comments yet.</p>
-    <% } else { %>
-    <ul class="space-y-2">
-        <% comments.forEach(c => { %>
-        <li>
-            <strong><%= c.commenter.username %>:</strong>
-            <%= c.content %>
-        </li>
-        <% }) %>
-    </ul>
-    <% } %>
-</div>
-<div class="mb-6">
-    <h2 class="text-lg font-semibold mb-2">Catalog Items</h2>
+<% } %>
+
+<!-- Catalog Items -->
+<div class="mb-12">
+    <div
+        class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4"
+    >
+        <h2 class="text-lg font-semibold">Catalog Items</h2>
+        <div class="flex flex-wrap gap-2">
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Search items..."
+                class="border p-2 rounded text-sm"
+            />
+            <select id="sortSelect" class="border p-2 rounded text-sm">
+                <option value="recent" selected>Recently added</option>
+                <option value="az">Name (A-Z)</option>
+                <option value="za">Name (Z-A)</option>
+            </select>
+        </div>
+    </div>
+
     <% if (items.length === 0) { %>
-    <p>No items.</p>
+    <p class="text-gray-500">No items.</p>
     <% } else { %>
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         <% items.forEach(i => { %>
-        <div>
+        <div class="text-center">
             <% if (i.images && i.images.length > 0) { %>
             <img
                 src="<%= i.images[0] %>"
                 data-id="<%= i.id %>"
-                class="w-full h-24 object-contain bg-gray-100 cursor-pointer item-thumb"
+                class="w-full h-24 object-contain rounded-md bg-gray-100 p-1 shadow-sm cursor-pointer item-thumb"
             />
             <% } else { %>
             <div
                 data-id="<%= i.id %>"
-                class="w-full h-24 flex items-center justify-center bg-gray-100 text-sm text-gray-500 cursor-pointer item-thumb"
+                class="w-full h-24 flex items-center justify-center rounded-md bg-gray-100 text-sm text-gray-500 cursor-pointer item-thumb"
             >
                 No Image
             </div>
             <% } %>
-            <p class="text-sm text-center mt-1"><%= i.title %></p>
+            <p class="text-sm mt-2"><%= i.title %></p>
         </div>
         <% }) %>
     </div>
+
     <script type="application/json" id="items-data">
         <%- JSON.stringify(items) %>
     </script>
+
     <div
         id="itemModal"
-        class="fixed inset-0 bg-black/50 hidden items-center justify-center"
+        class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50"
     >
-        <div class="bg-white p-4 rounded shadow max-w-sm w-full">
-            <h3 id="modalTitle" class="text-lg font-semibold mb-2"></h3>
-            <p id="modalDesc" class="mb-2"></p>
-            <div id="modalExtra" class="space-y-1 text-sm mb-2 hidden">
+        <div id="itemModalBackdrop" class="absolute inset-0"></div>
+
+        <div
+            id="itemModalContent"
+            class="relative z-10 bg-white p-6 rounded shadow max-w-sm w-full"
+        >
+            <h3 id="modalTitle" class="text-lg font-semibold mb-3"></h3>
+            <div id="modalImages" class="flex gap-2 overflow-x-auto mb-4"></div>
+            <p
+                id="modalDesc"
+                class="mb-2 text-sm text-gray-700 whitespace-pre-wrap"
+            ></p>
+            <p
+                id="modalNotes"
+                class="mb-3 text-sm text-gray-600 whitespace-pre-wrap"
+            ></p>
+
+            <div id="modalExtra" class="space-y-1 text-sm mb-3 hidden">
                 <div>Paid: $<span id="modalPaid"></span></div>
                 <div>Market: $<span id="modalMarket"></span></div>
-                <a id="viewLink" href="#" class="text-blue-600 underline"
-                    >View Item</a
-                >
-                <a
-                    id="editLink"
-                    href="#"
-                    class="ml-2 text-blue-600 underline"
-                    >Edit Item</a
-                >
+                <div class="flex gap-2">
+                    <a id="viewLink" href="#" class="text-blue-600 underline"
+                        >View Item</a
+                    >
+                    <a id="editLink" href="#" class="text-blue-600 underline"
+                        >Edit Item</a
+                    >
+                </div>
             </div>
+
             <button
                 type="button"
                 onclick="document.getElementById('itemModal').classList.add('hidden')"
-                class="px-3 py-1 bg-gray-300 rounded"
+                class="px-3 py-1 bg-gray-300 rounded mt-2"
             >
                 Close
             </button>
         </div>
     </div>
+
     <script>
-        const itemData = JSON.parse(
-            document.getElementById('items-data').textContent,
-        );
-        const isOwner = <%= showAll ? 'true' : 'false' %>;
-        document.querySelectorAll('.item-thumb').forEach((el) => {
-            el.addEventListener('click', () => {
-                const id = el.dataset.id;
-                const item = itemData.find((i) => i.id === id);
-                if (!item) return;
-                document.getElementById('modalTitle').textContent = item.title;
-                document.getElementById('modalDesc').textContent = item.desc || '';
-                if (isOwner) {
-                    document.getElementById('modalPaid').textContent =
-                        item.pricePaid || '';
-                    document.getElementById('modalMarket').textContent =
-                        item.marketValue || '';
-                    document.getElementById('viewLink').href = '/item/' + item.id;
-                    document.getElementById('editLink').href =
-                        '/item/' + item.id + '/edit';
-                    document.getElementById('modalExtra').classList.remove('hidden');
-                } else {
-                    document.getElementById('modalExtra').classList.add('hidden');
+                        const itemData = JSON.parse(document.getElementById('items-data').textContent);
+                        const isOwner = <%= showAll ? 'true' : 'false' %>;
+
+                const sortSelect = document.getElementById('sortSelect');
+                const itemGrid = document.querySelector('.grid');
+
+        const searchInput = document.getElementById('searchInput');
+
+        function filterAndSortItems() {
+          const search = searchInput.value.trim().toLowerCase();
+          const sortValue = sortSelect.value;
+
+          let filtered = itemData.filter(item =>
+            item.title.toLowerCase().includes(search)
+          );
+
+          if (sortValue === 'az') {
+            filtered.sort((a, b) => a.title.localeCompare(b.title));
+          } else if (sortValue === 'za') {
+            filtered.sort((a, b) => b.title.localeCompare(a.title));
+          } // else keep original order (recent)
+
+          renderItems(filtered);
+        }
+
+        searchInput.addEventListener('input', filterAndSortItems);
+        sortSelect.addEventListener('change', filterAndSortItems);
+
+
+                function renderItems(sortedItems) {
+                  itemGrid.innerHTML = sortedItems.map(i => `
+                    <div class="text-center">
+                      ${i.images?.[0]
+                        ? `<img src="${i.images[0]}" data-id="${i.id}" class="w-full h-24 object-contain rounded-md bg-gray-100 p-1 shadow-sm cursor-pointer item-thumb" />`
+                        : `<div data-id="${i.id}" class="w-full h-24 flex items-center justify-center rounded-md bg-gray-100 text-sm text-gray-500 cursor-pointer item-thumb">No Image</div>`
+                      }
+                      <p class="text-sm mt-2">${i.title}</p>
+                    </div>
+                  `).join('');
+
+                  // rebind modal listeners
+                  document.querySelectorAll('.item-thumb').forEach(el => {
+                    el.addEventListener('click', () => {
+                      const id = el.dataset.id;
+                      const item = itemData.find(i => i.id === id);
+                      if (!item) return;
+
+                      document.getElementById('modalTitle').textContent = item.title;
+                      document.getElementById('modalDesc').textContent = item.desc || '';
+                      document.getElementById('modalNotes').textContent = item.notes || '';
+
+                      const modalImages = document.getElementById('modalImages');
+                      modalImages.innerHTML = '';
+                      if (item.images?.length > 0) {
+                        item.images.forEach((url) => {
+                          const img = document.createElement('img');
+                          img.src = url;
+                          img.alt = item.title;
+                          img.className = 'h-24 rounded-md bg-gray-100 p-1 shadow-sm object-contain cursor-pointer';
+                          modalImages.appendChild(img);
+                        });
+                      }
+
+                      if (isOwner) {
+                        document.getElementById('modalPaid').textContent = item.pricePaid || '';
+                        document.getElementById('modalMarket').textContent = item.marketValue || '';
+                        document.getElementById('viewLink').href = '/item/' + item.id;
+                        document.getElementById('editLink').href = '/item/' + item.id + '/edit';
+                        document.getElementById('modalExtra').classList.remove('hidden');
+                      } else {
+                        document.getElementById('modalExtra').classList.add('hidden');
+                      }
+
+                      document.getElementById('itemModal').classList.remove('hidden');
+                    });
+                  });
                 }
-                document
-                    .getElementById('itemModal')
-                    .classList.remove('hidden');
-            });
-        });
+
+                sortSelect.addEventListener('change', () => {
+                  const value = sortSelect.value;
+                  let sorted = [...itemData];
+                  if (value === 'az') {
+                    sorted.sort((a, b) => a.title.localeCompare(b.title));
+                  } else if (value === 'za') {
+                    sorted.sort((a, b) => b.title.localeCompare(a.title));
+                  } else {
+                    // assuming newer items are later in the array
+                    sorted = [...itemData];
+                  }
+                  renderItems(sorted);
+                });
+
+
+                        document.querySelectorAll('.item-thumb').forEach((el) => {
+                          el.addEventListener('click', () => {
+                            const id = el.dataset.id;
+                            const item = itemData.find((i) => i.id === id);
+                            if (!item) return;
+
+                            document.getElementById('modalTitle').textContent = item.title;
+                            document.getElementById('modalDesc').textContent = item.desc || '';
+                            document.getElementById('modalNotes').textContent = item.notes || '';
+
+                            const modalImages = document.getElementById('modalImages');
+                            modalImages.innerHTML = '';
+                            if (item.images && item.images.length > 0) {
+                              item.images.forEach((url) => {
+                                const img = document.createElement('img');
+                                img.src = url;
+                                img.alt = item.title;
+                                img.className = 'h-24 rounded-md bg-gray-100 p-1 shadow-sm object-contain cursor-pointer';
+                                modalImages.appendChild(img);
+                              });
+                            }
+
+                            if (isOwner) {
+                              document.getElementById('modalPaid').textContent = item.pricePaid || '';
+                              document.getElementById('modalMarket').textContent = item.marketValue || '';
+                              document.getElementById('viewLink').href = '/item/' + item.id;
+                              document.getElementById('editLink').href = '/item/' + item.id + '/edit';
+                              document.getElementById('modalExtra').classList.remove('hidden');
+                            } else {
+                              document.getElementById('modalExtra').classList.add('hidden');
+                            }
+
+                            document.getElementById('itemModal').classList.remove('hidden');
+                          });
+                        });
+
+                        // Click-out to close
+                        document.getElementById('itemModalBackdrop').addEventListener('click', () => {
+                          document.getElementById('itemModal').classList.add('hidden');
+                        });
+
+                        // Escape key to close
+                        document.addEventListener('keydown', (e) => {
+                          if (e.key === 'Escape') {
+                            document.getElementById('itemModal').classList.add('hidden');
+                          }
+                        });
     </script>
     <% } %>
 </div>
-<div class="mb-6">
+
+<!-- Collections -->
+<div class="mb-12">
     <h2 class="text-lg font-semibold mb-2">Collections</h2>
+
     <% if (collections.length === 0) { %>
-    <p>No collections.</p>
+    <p class="text-gray-500">No collections.</p>
     <% } else { %>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <% collections.forEach(c => { %>
-        <div class="border rounded p-2 bg-white shadow">
-            <div class="flex gap-1 mb-2">
-                <% if (c.images && c.images.length > 0) { %>
+        <div class="border rounded p-4 bg-white shadow-sm">
+            <% if (c.images && c.images.length > 0) { %>
+            <div class="flex flex-wrap gap-2 mb-3">
                 <% c.images.forEach(img => { %>
-                <img src="<%= img %>" class="w-8 h-8 object-contain" />
+                <img
+                    src="<%= img %>"
+                    class="w-10 h-10 object-contain rounded-md bg-gray-100 p-1 shadow-sm"
+                />
                 <% }) %>
-                <% } %>
             </div>
+            <% } %>
             <h3 class="font-semibold">
                 <a
                     href="/collections/<%= c.userId %>/<%= c.slug %>"
                     class="text-blue-600 hover:underline"
-                    ><%= c.name %></a
                 >
+                    <%= c.name %>
+                </a>
             </h3>
-            <p class="text-sm">
-                <%= c.itemCount %> items
-                <% if (!c.public) { %>
-                <span class="text-gray-500">(private)</span>
+            <p class="text-sm text-gray-600">
+                <%= c.itemCount %> items <% if (!c.public) { %>
+                <span class="text-gray-400">(private)</span>
                 <% } %>
             </p>
         </div>
@@ -148,16 +289,19 @@
     </div>
     <% } %>
 </div>
+
+<!-- Comments Section -->
 <% if (user) { %>
 <form
     method="POST"
     action="/user/<%= userProfile.id %>/comment"
-    class="space-y-2"
+    class="space-y-2 mb-6"
 >
+    <h2 class="text-lg font-semibold mb-2">Leave a Comment</h2>
     <textarea
         name="content"
         rows="3"
-        class="w-full border p-2"
+        class="w-full border p-2 rounded"
         required
     ></textarea>
     <button class="px-4 py-2 bg-blue-600 text-white rounded">
@@ -165,3 +309,35 @@
     </button>
 </form>
 <% } %>
+
+<div class="mb-10">
+    <h2 class="text-lg font-semibold mb-4">Comments</h2>
+
+    <% if (comments.length === 0) { %>
+    <p class="text-gray-500">No comments yet.</p>
+    <% } else { %>
+    <ul class="space-y-4">
+        <% comments.forEach(c => { %>
+        <li class="border rounded-xl p-4 bg-gray-50 shadow-inner">
+            <div class="flex items-center gap-3 mb-2">
+                <% if (c.commenter.avatar) { %>
+                <img
+                    src="https://cdn.discordapp.com/avatars/<%= c.commenter.id %>/<%= c.commenter.avatar %>.png"
+                    alt="avatar"
+                    class="w-8 h-8 rounded-full ring-2 ring-pokemon-psychic"
+                />
+                <% } %>
+                <span class="text-sm text-gray-600">
+                    <strong><%= c.commenter.username %></strong> said:
+                </span>
+            </div>
+            <div
+                class="bg-white border border-gray-200 rounded-md p-3 text-sm text-gray-800 whitespace-pre-wrap shadow-sm"
+            >
+                <%= c.content %>
+            </div>
+        </li>
+        <% }) %>
+    </ul>
+    <% } %>
+</div>

@@ -2,39 +2,45 @@
     <%= collection.name %>
 </h1>
 <p class="mb-4"><%= collection.description %></p>
+
 <% if (user && user.id === collection.userId) { %>
-<a
-    href="/collections/<%= collection.userId %>/<%= collection.slug %>/edit"
-    class="text-blue-600 underline mr-4"
-    >Edit</a
->
+<div class="flex flex-wrap items-center gap-2 mb-4">
+    <a
+        href="/collections/<%= collection.userId %>/<%= collection.slug %>/edit"
+        class="text-blue-600 underline"
+    >
+        Edit
+    </a>
+    <% if (collection.public) { %>
+    <button id="shareBtn" class="bg-blue-600 text-white px-3 py-1 rounded">
+        Share
+    </button>
+    <% } %>
+</div>
+<% } %>
+
 <% if (collection.public) { %>
-<button id="shareBtn" class="bg-blue-600 text-white px-2 py-1 rounded">
-    Share
-</button>
 <div
     id="shareModal"
-    class="fixed inset-0 bg-black/50 flex items-center justify-center hidden"
+    class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50"
 >
-    <div class="bg-white p-4 rounded shadow">
+    <div class="bg-white p-4 rounded shadow w-full max-w-md">
         <p class="mb-2">Share this URL:</p>
         <input
             id="shareUrl"
-            class="w-full border p-2"
+            class="w-full border p-2 rounded"
             readonly
             value="<%= shareUrl %>"
         />
-        <div class="mt-2 text-right">
+        <div class="mt-3 text-right space-x-2">
             <button
-                type="button"
                 class="px-3 py-1 bg-blue-600 text-white rounded"
                 onclick="navigator.clipboard.writeText(document.getElementById('shareUrl').value)"
             >
                 Copy
             </button>
             <button
-                type="button"
-                class="ml-2 px-3 py-1"
+                class="px-3 py-1 bg-gray-300 rounded"
                 onclick="document.getElementById('shareModal').classList.add('hidden')"
             >
                 Close
@@ -48,98 +54,226 @@
     });
 </script>
 <% } %>
-<% } %>
+
 <% if (items.length === 0) { %>
 <p>No items yet.</p>
 <% } else { %>
-<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-6">
-    <% items.forEach(i => { %>
-    <div>
-        <% if (i.images && i.images.length > 0) { %>
-        <img
-            src="<%= i.images[0] %>"
-            data-id="<%= i.id %>"
-            class="w-full h-24 object-contain bg-gray-100 cursor-pointer item-thumb"
-        />
-        <% } else { %>
-        <div
-            data-id="<%= i.id %>"
-            class="w-full h-24 flex items-center justify-center bg-gray-100 text-sm text-gray-500 cursor-pointer item-thumb"
-        >
-            No Image
-        </div>
-        <% } %>
-        <p class="text-sm text-center mt-1"><%= i.title %></p>
-    </div>
-    <% }) %>
+<div
+    class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4"
+>
+    <input
+        type="text"
+        id="searchInput"
+        placeholder="Search items..."
+        class="border p-2 rounded text-sm w-full md:w-64"
+    />
+    <select id="sortSelect" class="border p-2 rounded text-sm w-full md:w-48">
+        <option value="recent" selected>Recently added</option>
+        <option value="az">Name (A-Z)</option>
+        <option value="za">Name (Z-A)</option>
+    </select>
 </div>
+
+<div
+    id="itemGrid"
+    class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-6"
+></div>
+
 <script type="application/json" id="items-data">
     <%- JSON.stringify(items) %>
 </script>
+
+<script>
+    const itemData = JSON.parse(
+        document.getElementById('items-data').textContent,
+    );
+    const isOwner =
+        '<%= user && user.id === collection.userId ? "true" : "false" %>';
+    const itemGrid = document.getElementById('itemGrid');
+    const searchInput = document.getElementById('searchInput');
+    const sortSelect = document.getElementById('sortSelect');
+
+    function renderItems(data) {
+        itemGrid.innerHTML = data
+            .map(
+                (i) => `
+        <div class="text-center">
+          ${
+              i.images?.[0]
+                  ? `<img src="${i.images[0]}" data-id="${i.id}" class="w-full h-24 object-contain rounded-md bg-gray-100 p-1 shadow-sm cursor-pointer item-thumb" />`
+                  : `<div data-id="${i.id}" class="w-full h-24 flex items-center justify-center rounded-md bg-gray-100 text-sm text-gray-500 cursor-pointer item-thumb">No Image</div>`
+          }
+          <p class="text-sm mt-2">${i.title}</p>
+        </div>
+      `,
+            )
+            .join('');
+
+        document.querySelectorAll('.item-thumb').forEach((el) => {
+            el.addEventListener('click', () => {
+                const id = el.dataset.id;
+                const item = itemData.find((i) => i.id === id);
+                if (!item) return;
+
+                document.getElementById('modalTitle').textContent = item.title;
+                const modalImages = document.getElementById('modalImages');
+                modalImages.innerHTML = '';
+
+                if (item.images?.length > 0) {
+                    item.images.forEach((url) => {
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.alt = item.title;
+                        img.className =
+                            'h-24 rounded-md bg-gray-100 p-1 shadow-sm object-contain cursor-pointer';
+                        img.addEventListener('click', () => {
+                            document.getElementById('previewImg').src = url;
+                            document
+                                .getElementById('imagePreview')
+                                .classList.remove('hidden');
+                        });
+                        modalImages.appendChild(img);
+                    });
+                }
+
+                document.getElementById('modalDesc').textContent =
+                    item.desc || '';
+                document.getElementById('modalNotes').textContent =
+                    item.notes || '';
+
+                if (isOwner) {
+                    document.getElementById('modalPaid').textContent =
+                        item.pricePaid || '';
+                    document.getElementById('modalMarket').textContent =
+                        item.marketValue || '';
+                    document.getElementById('viewLink').href =
+                        '/item/' + item.id;
+                    document.getElementById('editLink').href =
+                        '/item/' + item.id + '/edit';
+                    document
+                        .getElementById('modalExtra')
+                        .classList.remove('hidden');
+                } else {
+                    document
+                        .getElementById('modalExtra')
+                        .classList.add('hidden');
+                }
+
+                document.getElementById('itemModal').classList.remove('hidden');
+            });
+        });
+    }
+
+    function filterAndSortItems() {
+        const search = searchInput.value.trim().toLowerCase();
+        const sort = sortSelect.value;
+        let filtered = itemData.filter((i) =>
+            i.title.toLowerCase().includes(search),
+        );
+
+        if (sort === 'az')
+            filtered.sort((a, b) => a.title.localeCompare(b.title));
+        else if (sort === 'za')
+            filtered.sort((a, b) => b.title.localeCompare(a.title));
+
+        renderItems(filtered);
+    }
+
+    searchInput.addEventListener('input', filterAndSortItems);
+    sortSelect.addEventListener('change', filterAndSortItems);
+
+    filterAndSortItems(); // initial render
+</script>
+
 <div
     id="itemModal"
-    class="fixed inset-0 bg-black/50 hidden items-center justify-center"
+    class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50"
 >
-    <div class="bg-white p-4 rounded shadow max-w-sm w-full">
-        <h3 id="modalTitle" class="text-lg font-semibold mb-2"></h3>
-        <p id="modalDesc" class="mb-2"></p>
-        <div id="modalExtra" class="space-y-1 text-sm mb-2 hidden">
+    <div id="itemModalBackdrop" class="absolute inset-0"></div>
+    <div
+        id="itemModalContent"
+        class="relative z-10 bg-white p-6 rounded shadow max-w-sm w-full"
+    >
+        <h3 id="modalTitle" class="text-lg font-semibold mb-3"></h3>
+        <div id="modalImages" class="flex gap-2 overflow-x-auto mb-4"></div>
+        <p
+            id="modalDesc"
+            class="mb-2 text-sm text-gray-700 whitespace-pre-wrap"
+        ></p>
+        <p
+            id="modalNotes"
+            class="mb-3 text-sm text-gray-600 whitespace-pre-wrap"
+        ></p>
+        <div id="modalExtra" class="space-y-1 text-sm mb-3 hidden">
             <div>Paid: $<span id="modalPaid"></span></div>
             <div>Market: $<span id="modalMarket"></span></div>
-            <a id="viewLink" href="#" class="text-blue-600 underline"
-                >View Item</a
-            >
-            <a
-                id="editLink"
-                href="#"
-                class="ml-2 text-blue-600 underline"
-                >Edit Item</a
-            >
+            <div class="flex gap-2">
+                <a id="viewLink" href="#" class="text-blue-600 underline"
+                    >View Item</a
+                >
+                <a id="editLink" href="#" class="text-blue-600 underline"
+                    >Edit Item</a
+                >
+            </div>
         </div>
         <button
             type="button"
             onclick="document.getElementById('itemModal').classList.add('hidden')"
-            class="px-3 py-1 bg-gray-300 rounded"
+            class="px-3 py-1 bg-gray-300 rounded mt-2"
         >
             Close
         </button>
     </div>
 </div>
+
+<div
+    id="imagePreview"
+    class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50"
+>
+    <div id="previewBackdrop" class="absolute inset-0"></div>
+    <div
+        id="previewContent"
+        class="relative z-10 bg-white p-4 rounded-lg shadow-lg max-w-[80%] border border-gray-300"
+    >
+        <img
+            id="previewImg"
+            src=""
+            alt=""
+            class="max-h-[80vh] w-full object-contain rounded"
+        />
+        <button
+            onclick="document.getElementById('imagePreview').classList.add('hidden')"
+            class="absolute top-2 right-2 text-gray-700 hover:text-black bg-gray-100 hover:bg-gray-200 rounded-full px-3 py-1 text-sm shadow"
+        >
+            ✕
+        </button>
+    </div>
+</div>
+
 <script>
-    const itemData = JSON.parse(
-        document.getElementById('items-data').textContent,
-    );
-    const isOwner = <%= user && user.id === collection.userId ? 'true' : 'false' %>;
-    document.querySelectorAll('.item-thumb').forEach((el) => {
-        el.addEventListener('click', () => {
-            const id = el.dataset.id;
-            const item = itemData.find((i) => i.id === id);
-            if (!item) return;
-            document.getElementById('modalTitle').textContent = item.title;
-            document.getElementById('modalDesc').textContent = item.desc || '';
-            if (isOwner) {
-                document.getElementById('modalPaid').textContent =
-                    item.pricePaid || '';
-                document.getElementById('modalMarket').textContent =
-                    item.marketValue || '';
-                document.getElementById('viewLink').href = '/item/' + item.id;
-                document.getElementById('editLink').href =
-                    '/item/' + item.id + '/edit';
-                document.getElementById('modalExtra').classList.remove('hidden');
-            } else {
-                document.getElementById('modalExtra').classList.add('hidden');
-            }
-            document
-                .getElementById('itemModal')
-                .classList.remove('hidden');
+    document.getElementById('previewBackdrop').addEventListener('click', () => {
+        document.getElementById('imagePreview').classList.add('hidden');
+    });
+    document
+        .getElementById('itemModalBackdrop')
+        .addEventListener('click', () => {
+            document.getElementById('itemModal').classList.add('hidden');
         });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            document.getElementById('itemModal').classList.add('hidden');
+            document.getElementById('imagePreview').classList.add('hidden');
+        }
     });
 </script>
 
 <div class="bg-white rounded shadow p-6">
-    <h4 class="text-lg font-pixel text-pokemon-grass mb-3">Items by Category</h4>
+    <h4 class="text-lg font-pixel text-pokemon-grass mb-3">
+        Items by Category
+    </h4>
     <div id="categoryChart" class="min-h-[250px]"></div>
 </div>
+
 <script type="application/json" id="category-data">
     <%- JSON.stringify(categoryData) %>
 </script>
@@ -149,9 +283,10 @@
     );
     const labels = Object.keys(categoryData);
     const series = labels.map((l) => categoryData[l]);
+
     const options = {
-        series: series,
-        labels: labels,
+        series,
+        labels,
         chart: {
             type: 'donut',
             height: 250,
@@ -160,6 +295,7 @@
         dataLabels: { enabled: false },
         legend: { position: 'bottom' },
     };
+
     if (document.querySelector('#categoryChart')) {
         new ApexCharts(
             document.querySelector('#categoryChart'),

@@ -9,10 +9,13 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <% collections.forEach(c => { %>
         <div class="border rounded p-2 bg-white shadow">
-            <div class="flex gap-1 mb-2">
-                <% if (c.thumbs && c.thumbs.length > 0) { %>
-                <% c.thumbs.forEach(t => { %>
-                <img src="<%= t %>" class="w-10 h-10 object-contain" />
+            <div class="flex flex-wrap gap-2 mb-2">
+                <% if (c.thumbs && c.thumbs.length > 0) { %> <%
+                c.thumbs.forEach(t => { %>
+                <img
+                    src="<%= t %>"
+                    class="w-10 h-10 object-contain rounded-md bg-gray-100 p-1 shadow-sm"
+                />
                 <% }) %>
                 <% } %>
             </div>

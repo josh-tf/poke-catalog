@@ -596,11 +596,13 @@ app.get('/collections/:userId/:slug', async (req, res) => {
     if (!collection) {
         return res.status(404).send('Not found');
     }
-    if (
-        !collection.public &&
-        (!req.isAuthenticated || (req.user as any).id !== collection.userId)
-    ) {
-        return res.status(403).send('Forbidden');
+    if (!collection.public) {
+        if (!req.isAuthenticated || !(req.user as any)?.id) {
+            return res.redirect('/login');
+        }
+        if ((req.user as any).id !== collection.userId) {
+            return res.redirect('/');
+        }
     }
     const items = await Item.findAll({
         where: { collectionId: collection.id },
@@ -634,6 +636,33 @@ app.get('/collections/:userId/:slug', async (req, res) => {
         shareUrl,
         categoryData,
     });
+});
+
+app.get('/collections/:userId', async (req, res) => {
+    const { userId } = req.params;
+    const showAll = (req.user as any)?.id === userId;
+
+    const collections = await Collection.findAll({
+        where: {
+            userId,
+            ...(showAll ? {} : { public: true }),
+        },
+    });
+
+    const enriched = [];
+    for (const col of collections) {
+        const count = await Item.count({ where: { collectionId: col.id } });
+        const items = await Item.findAll({
+            where: { collectionId: col.id },
+            limit: 4,
+        });
+        const images = items
+            .map((i) => parseJsonArray<string>(i.images)?.[0])
+            .filter(Boolean);
+        enriched.push({ ...col.get(), itemCount: count, images });
+    }
+
+    res.render('collections', { user: req.user, collections: enriched });
 });
 
 app.get('/collections/:userId/:slug/edit', ensureAuth, async (req, res) => {
