@@ -1,41 +1,123 @@
-<%- include('partials/header', { title: 'Add Poké Item', user }) %>
-<h1 class="mb-4">Add New Poké Item</h1>
-<form method="POST" action="/add" enctype="multipart/form-data" class="mb-3">
-  <div class="mb-2">
-    <input id="id-input" class="form-control" name="id" placeholder="Card ID (e.g. sv1v-087)" required />
-    <div class="form-text id-feedback"></div>
-  </div>
-  <div class="mb-2">
-    <select class="form-select" name="category" required>
-      <option value="Cards">Cards</option>
-      <option value="Graded">Graded</option>
-      <option value="Boosters">Boosters</option>
-      <option value="Collection Boxes">Collection Boxes</option>
-    </select>
-  </div>
-  <div class="mb-2">
-    <input id="title-input" class="form-control" name="title" placeholder="Title" required />
-  </div>
-  <div class="mb-2">
-    <input class="form-control" name="desc" placeholder="Description" />
-  </div>
-  <div class="mb-2">
-    <input class="form-control" name="notes" placeholder="Notes" />
-  </div>
-  <div class="mb-2">
-    <input class="form-control" name="flags" placeholder="Flags (comma separated)" />
-  </div>
-  <div class="mb-2">
-    <input class="form-control" name="pricePaid" type="number" step="0.01" placeholder="Price Paid" />
-  </div>
-  <div class="mb-2">
-    <input class="form-control" name="marketValue" type="number" step="0.01" placeholder="Market Value" />
-  </div>
-  <div class="mb-2">
-    <input class="form-control" type="file" name="images" accept="image/*" multiple />
-  </div>
-  <button class="btn btn-success">💾 Save</button>
+<h1 class="text-2xl font-bold mb-6">Add New Poké Item</h1>
+
+<form
+    method="POST"
+    action="/add"
+    enctype="multipart/form-data"
+    class="space-y-4 mb-6"
+>
+    <!-- Card ID -->
+    <div>
+        <input
+            id="id-input"
+            name="id"
+            placeholder="Card ID (e.g. sv1v-087)"
+            required
+            class="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <div class="text-sm text-gray-500 id-feedback mt-1"></div>
+    </div>
+
+    <!-- Category -->
+    <div>
+        <select
+            name="category"
+            required
+            class="w-full border border-gray-300 rounded px-4 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+            <option value="Cards">Cards</option>
+            <option value="Graded">Graded</option>
+            <option value="Boosters">Boosters</option>
+            <option value="Collection Boxes">Collection Boxes</option>
+        </select>
+    </div>
+
+    <!-- Title -->
+    <div>
+        <input
+            id="title-input"
+            name="title"
+            placeholder="Title"
+            required
+            class="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+    </div>
+
+    <!-- Description -->
+    <div>
+        <input
+            name="desc"
+            placeholder="Description"
+            class="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+    </div>
+
+    <!-- Notes -->
+    <div>
+        <input
+            name="notes"
+            placeholder="Notes"
+            class="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+    </div>
+
+    <!-- Flags -->
+    <div>
+        <input
+            name="flags"
+            placeholder="Flags (comma separated)"
+            class="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+    </div>
+
+    <!-- Price Paid -->
+    <div>
+        <input
+            name="pricePaid"
+            type="number"
+            step="0.01"
+            placeholder="Price Paid"
+            class="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+    </div>
+
+    <!-- Market Value -->
+    <div>
+        <input
+            name="marketValue"
+            type="number"
+            step="0.01"
+            placeholder="Market Value"
+            class="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+    </div>
+
+    <!-- Image Upload -->
+    <div>
+        <input
+            type="file"
+            name="images"
+            accept="image/*"
+            multiple
+            class="w-full border border-gray-300 rounded px-4 py-2 text-sm file:mr-3 file:py-1 file:px-3 file:border file:rounded file:border-gray-300 file:bg-gray-100 file:text-sm file:text-gray-700 hover:file:bg-gray-200"
+        />
+    </div>
+
+    <!-- Submit -->
+    <div class="flex gap-3">
+        <button
+            type="submit"
+            class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded"
+        >
+            💾 Save
+        </button>
+        <a
+            href="/"
+            class="bg-gray-200 hover:bg-gray-300 text-sm text-gray-800 px-4 py-2 rounded inline-block"
+        >
+            ⬅ Back
+        </a>
+    </div>
 </form>
-<a class="btn btn-secondary" href="/">⬅ Back</a>
+
 <script src="/form.js"></script>
-<%- include('partials/footer') %>

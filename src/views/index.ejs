@@ -1,102 +1,249 @@
-<%- include('partials/header', { title: 'Poké Catalog', user }) %>
-<h1 class="mb-4">Poké Catalog</h1>
-<div class="mb-3 d-flex gap-2">
-  <a class="btn btn-primary" href="/add">➕ Add New Item</a>
-  <a class="btn btn-primary" href="/bulk-add">📥 Bulk Upload</a>
-  <a class="btn btn-outline-secondary" href="/?view=list">List View</a>
-  <a class="btn btn-outline-secondary" href="/?view=grid">Grid View</a>
-</div>
-<form class="row g-2 mb-4" method="get">
-  <input type="hidden" name="view" value="<%= view %>" />
-  <div class="col-auto">
-    <select name="sort" class="form-select" onchange="this.form.submit()">
-      <option value="title" <%= sort === 'title' ? 'selected' : '' %>>Title</option>
-      <option value="pricePaid" <%= sort === 'pricePaid' ? 'selected' : '' %>>Price Paid</option>
-      <option value="marketValue" <%= sort === 'marketValue' ? 'selected' : '' %>>Market Value</option>
-    </select>
-  </div>
-  <div class="col-auto">
-    <select name="order" class="form-select" onchange="this.form.submit()">
-      <option value="asc" <%= order === 'asc' ? 'selected' : '' %>>Asc</option>
-      <option value="desc" <%= order === 'desc' ? 'selected' : '' %>>Desc</option>
-    </select>
-  </div>
-  <div class="col-auto">
-    <select name="category" class="form-select" onchange="this.form.submit()">
-      <option value="" <%= !category ? 'selected' : '' %>>All Categories</option>
-      <option value="Cards" <%= category === 'Cards' ? 'selected' : '' %>>Cards</option>
-      <option value="Graded" <%= category === 'Graded' ? 'selected' : '' %>>Graded</option>
-      <option value="Boosters" <%= category === 'Boosters' ? 'selected' : '' %>>Boosters</option>
-      <option value="Collection Boxes" <%= category === 'Collection Boxes' ? 'selected' : '' %>>Collection Boxes</option>
-    </select>
-  </div>
-</form>
+<h1 class="text-2xl font-bold mb-6">Poké Catalog</h1>
 
-<div class="card p-4 mb-4">
-  <h4 class="text-lg font-semibold mb-3">Items by Category</h4>
-  <div id="categoryChart" class="min-h-[250px]"></div>
-</div>
-
-<% if (view === 'grid') { %>
-<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
-  <% items.forEach(item => { %>
-  <div class="col">
-    <div class="card h-100">
-      <% if (item.images && item.images.length > 0) { %>
-      <img src="<%= item.images[0] %>" class="card-img-top" style="max-height: 200px; object-fit: contain;" />
-      <% } %>
-      <div class="card-body">
-        <h5 class="card-title"><a href="/item/<%= item.id %>"><%= item.title %></a></h5>
-        <p class="card-text"><%= item.category %></p>
-      </div>
+<!-- Action Bar -->
+<div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <!-- Left: Actions -->
+    <div class="flex flex-wrap items-center gap-2">
+        <a
+            href="/add"
+            class="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium"
+            >➕ Add New Item</a
+        >
+        <a
+            href="/bulk-add"
+            class="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium"
+            >📥 Bulk Upload</a
+        >
     </div>
-  </div>
-  <% }) %>
+
+    <!-- Middle: View Switch -->
+    <div class="flex items-center gap-2">
+        <a
+            href="/?view=list"
+            class="border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm hover:bg-gray-100"
+            >List View</a
+        >
+        <a
+            href="/?view=grid"
+            class="border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm hover:bg-gray-100"
+            >Grid View</a
+        >
+    </div>
+
+    <!-- Right: Filters -->
+    <form method="get" class="flex flex-wrap items-center gap-2">
+        <input type="hidden" name="view" value="<%= view %>" />
+
+        <select
+            name="sort"
+            onchange="this.form.submit()"
+            class="text-sm px-3 py-2 border border-gray-300 rounded bg-white"
+        >
+            <% if (sort === 'title') { %>
+            <option value="title" selected>Title</option>
+            <% } else { %>
+            <option value="title">Title</option>
+            <% } %>
+
+            <% if (sort === 'pricePaid') { %>
+            <option value="pricePaid" selected>Price Paid</option>
+            <% } else { %>
+            <option value="pricePaid">Price Paid</option>
+            <% } %>
+
+            <% if (sort === 'marketValue') { %>
+            <option value="marketValue" selected>Market Value</option>
+            <% } else { %>
+            <option value="marketValue">Market Value</option>
+            <% } %>
+        </select>
+
+        <select
+            name="order"
+            onchange="this.form.submit()"
+            class="text-sm px-3 py-2 border border-gray-300 rounded bg-white"
+        >
+            <% if (order === 'asc') { %>
+            <option value="asc" selected>Asc</option>
+            <% } else { %>
+            <option value="asc">Asc</option>
+            <% } %>
+
+            <% if (order === 'desc') { %>
+            <option value="desc" selected>Desc</option>
+            <% } else { %>
+            <option value="desc">Desc</option>
+            <% } %>
+        </select>
+
+        <select
+            name="category"
+            onchange="this.form.submit()"
+            class="text-sm px-3 py-2 border border-gray-300 rounded bg-white"
+        >
+            <% if (!category) { %>
+            <option value="" selected>All Categories</option>
+            <% } else { %>
+            <option value="">All Categories</option>
+            <% } %>
+
+            <% if (category === 'Cards') { %>
+            <option value="Cards" selected>Cards</option>
+            <% } else { %>
+            <option value="Cards">Cards</option>
+            <% } %>
+
+            <% if (category === 'Graded') { %>
+            <option value="Graded" selected>Graded</option>
+            <% } else { %>
+            <option value="Graded">Graded</option>
+            <% } %>
+
+            <% if (category === 'Boosters') { %>
+            <option value="Boosters" selected>Boosters</option>
+            <% } else { %>
+            <option value="Boosters">Boosters</option>
+            <% } %>
+
+            <% if (category === 'Collection Boxes') { %>
+            <option value="Collection Boxes" selected>Collection Boxes</option>
+            <% } else { %>
+            <option value="Collection Boxes">Collection Boxes</option>
+            <% } %>
+        </select>
+    </form>
+</div>
+
+<!-- Grid or List View -->
+<% if (view === 'grid') { %>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+    <% items.forEach(item => { %>
+    <div class="bg-white rounded shadow overflow-hidden">
+        <% if (item.images?.length > 0) { %>
+        <img
+            src="<%= item.images[0] %>"
+            alt="Item Image"
+            class="w-full h-48 object-contain bg-gray-100"
+        />
+        <% } %>
+        <div class="p-4">
+            <h5 class="text-lg font-semibold">
+                <a
+                    href="/item/<%= item.id %>"
+                    class="text-blue-600 hover:underline"
+                    ><%= item.title %></a
+                >
+            </h5>
+            <p class="text-sm text-gray-600"><%= item.category %></p>
+        </div>
+    </div>
+    <% }) %>
 </div>
 <% } else { %>
-<form method="GET" action="/bulk-edit">
-<ul class="list-group mb-3">
-  <% items.forEach(item => { %>
-  <li class="list-group-item">
-    <input class="form-check-input me-2" type="checkbox" name="ids" value="<%= item.id %>" />
-    <% if (item.images && item.images.length > 0) { %>
-    <div class="mb-2 d-flex flex-wrap gap-2">
-      <% item.images.forEach(image => { %>
-      <img src="<%= image %>" alt="Card image" class="img-thumbnail" style="max-height: 150px" />
-      <% }) %>
+<form method="GET" action="/bulk-edit" class="space-y-4 mb-6">
+    <% items.forEach(item => { %>
+    <div class="bg-white border border-gray-200 rounded px-4 py-3">
+        <label class="flex items-center gap-4 w-full cursor-pointer">
+            <!-- Checkbox -->
+            <input
+                type="checkbox"
+                name="ids"
+                value="<%= item.id %>"
+                class="shrink-0 mt-1"
+            />
+
+            <!-- Image -->
+            <% if (item.images?.length > 0) { %>
+            <img
+                src="<%= item.images[0] %>"
+                alt="Card image"
+                class="h-20 w-20 object-contain bg-gray-100 rounded border shrink-0"
+            />
+            <% } else { %>
+            <div
+                class="h-20 w-20 flex items-center justify-center bg-gray-100 text-gray-400 border rounded text-xs shrink-0"
+            >
+                No Image
+            </div>
+            <% } %>
+
+            <!-- Content -->
+            <div class="flex justify-between items-center flex-1">
+                <!-- Left: Info -->
+                <div>
+                    <a
+                        href="/item/<%= item.id %>"
+                        class="block text-blue-600 font-medium hover:underline text-base"
+                    >
+                        <%= item.title %>
+                    </a>
+                    <div class="text-sm text-gray-600">
+                        <%= item.category %> <% if (item.desc) { %> — <%=
+                        item.desc %><% } %>
+                    </div>
+                    <div class="text-xs text-gray-500">
+                        ID: <%= item.id %>, Flags: <%= Array.isArray(item.flags)
+                        && item.flags.length > 0 ? item.flags.join(', ') :
+                        'None' %>
+                    </div>
+                </div>
+
+                <!-- Right: Price Info -->
+                <div class="text-right text-sm text-gray-700 min-w-[120px]">
+                    <div>
+                        Paid:
+                        <span class="font-medium">$<%= item.pricePaid %></span>
+                    </div>
+                    <div>
+                        Market:
+                        <span class="font-medium"
+                            >$<%= item.marketValue %></span
+                        >
+                    </div>
+                </div>
+            </div>
+        </label>
     </div>
-    <% } %>
-    <strong><a href="/item/<%= item.id %>"><%= item.title %></a></strong> — <%= item.category %>
-    <% if (item.desc) { %> — <%= item.desc %> <% } %>
-    <br />
-    <small>
-      ID: <%= item.id %>, Flags: <%= Array.isArray(item.flags) && item.flags.length > 0 ? item.flags.join(', ') : 'None' %>
-    </small>
-    <br />
-    <small>Paid: $<%= item.pricePaid %>, Market: $<%= item.marketValue %></small>
-  </li>
-  <% }) %>
-</ul>
-<button class="btn btn-warning">Bulk Edit</button>
+    <% }) %>
+    <button
+        class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+    >
+        Bulk Edit
+    </button>
 </form>
 <% } %>
-<script>
-  const categoryData = <%- JSON.stringify(categoryData) %>;
-  const labels = Object.keys(categoryData);
-  const series = labels.map(l => categoryData[l]);
-  const options = {
-    series: series,
-    labels: labels,
-    chart: {
-      type: 'donut',
-      height: 250,
-      fontFamily: 'Plus Jakarta Sans, sans-serif'
-    },
-    dataLabels: { enabled: false },
-    legend: { position: 'bottom' }
-  };
-  if (document.querySelector('#categoryChart')) {
-    new ApexCharts(document.querySelector('#categoryChart'), options).render();
-  }
+
+<!-- Category Chart -->
+<div class="mt-6 bg-white rounded shadow p-6">
+    <h4 class="text-lg font-semibold mb-3">Items by Category</h4>
+    <div id="categoryChart" class="min-h-[250px]"></div>
+</div>
+
+<script type="application/json" id="category-data">
+    <%- JSON.stringify(categoryData) %>
 </script>
-<%- include('partials/footer') %>
+
+<script>
+    const categoryData = JSON.parse(
+        document.getElementById('category-data').textContent,
+    );
+    const labels = Object.keys(categoryData);
+    const series = labels.map((l) => categoryData[l]);
+    const options = {
+        series: series,
+        labels: labels,
+        chart: {
+            type: 'donut',
+            height: 250,
+            fontFamily: 'Plus Jakarta Sans, sans-serif',
+        },
+        dataLabels: { enabled: false },
+        legend: { position: 'bottom' },
+    };
+    if (document.querySelector('#categoryChart')) {
+        new ApexCharts(
+            document.querySelector('#categoryChart'),
+            options,
+        ).render();
+    }
+</script>

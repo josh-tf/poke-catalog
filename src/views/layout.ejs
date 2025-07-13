@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>
+            <%= typeof title !== 'undefined' ? title : 'Poké Catalog' %>
+        </title>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <!-- Tailwind CSS -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            jakarta: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        },
+                    },
+                },
+            };
+        </script>
+
+        <!-- Fonts & Icons -->
+        <link
+            href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"
+        />
+
+        <!-- ApexCharts -->
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    </head>
+
+    <body class="font-jakarta bg-gray-50 text-gray-900">
+        <!-- Navbar -->
+        <nav
+            class="bg-blue-600 text-white px-4 py-3 flex justify-between items-center"
+        >
+            <a href="/" class="text-xl font-bold">Poké Catalog</a>
+            <div class="flex items-center gap-3">
+                <% if (user) { %>
+                <span class="text-sm">Logged in as <%= user.username %></span>
+                <% if (user.avatar) { %>
+                <img
+                    src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png"
+                    alt="Avatar"
+                    class="w-8 h-8 rounded-full"
+                />
+                <% } %>
+                <a
+                    href="/logout"
+                    class="bg-white text-blue-600 px-3 py-1 rounded text-sm font-medium"
+                    >Logout</a
+                >
+                <% } else { %>
+                <a
+                    href="/login"
+                    class="bg-white text-blue-600 px-3 py-1 rounded text-sm font-medium"
+                    >Login with Discord</a
+                >
+                <% } %>
+            </div>
+        </nav>
+
+        <!-- Page Layout -->
+        <div class="flex min-h-screen">
+            <!-- Sidebar -->
+            <aside class="w-64 border-r hidden md:block p-4 bg-white">
+                <nav class="space-y-2">
+                    <a
+                        href="/"
+                        class="flex items-center text-blue-600 font-medium hover:bg-blue-50 px-3 py-2 rounded"
+                    >
+                        <i class="ti ti-home mr-2"></i> Dashboard
+                    </a>
+                    <a
+                        href="/catalog"
+                        class="flex items-center hover:bg-gray-100 px-3 py-2 rounded"
+                    >
+                        <i class="ti ti-book mr-2"></i> Catalog
+                    </a>
+                    <a
+                        href="/add"
+                        class="flex items-center hover:bg-gray-100 px-3 py-2 rounded"
+                    >
+                        <i class="ti ti-plus mr-2"></i> Add Item
+                    </a>
+                    <a
+                        href="/profile"
+                        class="flex items-center hover:bg-gray-100 px-3 py-2 rounded"
+                    >
+                        <i class="ti ti-user mr-2"></i> Profile
+                    </a>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="flex-1 p-6"><%- body %></main>
+        </div>
+    </body>
+</html>

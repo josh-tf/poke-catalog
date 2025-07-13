@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import express, { NextFunction, Request, Response } from 'express';
+import expressLayouts from 'express-ejs-layouts';
 import session from 'express-session';
 import multer from 'multer';
 import passport from 'passport';
@@ -18,6 +19,8 @@ dotenv.config();
 
 const app = express();
 const PORT = 3000;
+
+const categories = ['Cards', 'Graded', 'Boosters', 'Collection Boxes'];
 
 // ----- Authentication Setup -----
 const CLIENT_ID = process.env.DISCORD_CLIENT_ID || '';
@@ -83,11 +86,20 @@ app.get('/logout', (req, res, next) => {
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.use(expressLayouts);
+app.set('layout', 'layout');
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
 
 const upload = multer({
     dest: path.join(__dirname, '../public/uploads'),
+});
+
+app.use((req, res, next) => {
+    res.locals.title = 'Poké Catalog';
+    res.locals.user = req.user;
+    next();
 });
 
 // Home page - list items
@@ -237,7 +249,7 @@ app.get('/item/:id', ensureAuth, (req, res) => {
     if (!item) {
         return res.status(404).send('Not found');
     }
-    res.render('item', { user: req.user, item });
+    res.render('item', { user: req.user, item, categories });
 });
 
 // Edit item form
@@ -246,7 +258,7 @@ app.get('/item/:id/edit', ensureAuth, (req, res) => {
     if (!item) {
         return res.status(404).send('Not found');
     }
-    res.render('edit', { user: req.user, item });
+    res.render('edit', { user: req.user, item, categories });
 });
 
 // Handle edit
@@ -302,7 +314,7 @@ app.get('/bulk-edit', ensureAuth, (req, res) => {
           : [];
     const userId = (req.user as any).id;
     const items = loadCatalog(userId).filter((i) => ids.includes(i.id));
-    res.render('bulk_edit', { user: req.user, items });
+    res.render('bulk_edit', { user: req.user, items, categories });
 });
 
 // Apply bulk edits

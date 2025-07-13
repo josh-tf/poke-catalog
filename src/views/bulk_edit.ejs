@@ -1,19 +1,43 @@
-<%- include('partials/header', { title: 'Bulk Edit', user }) %>
-<h1 class="mb-4">Bulk Edit</h1>
-<form method="POST" action="/bulk-edit">
-  <% items.forEach(item => { %>
-  <input type="hidden" name="ids" value="<%= item.id %>" />
-  <% }) %>
-  <div class="mb-2">
-    <select class="form-select" name="category">
-      <option value="">-- Change Category --</option>
-      <option value="Cards">Cards</option>
-      <option value="Graded">Graded</option>
-      <option value="Boosters">Boosters</option>
-      <option value="Collection Boxes">Collection Boxes</option>
-    </select>
-  </div>
-  <button class="btn btn-success">Update Items</button>
+<h1 class="text-2xl font-bold mb-6">Bulk Edit</h1>
+
+<form method="POST" action="/bulk-edit" class="space-y-4 mb-6">
+    <% items.forEach(item => { %>
+    <input type="hidden" name="ids" value="<%= item.id %>" />
+    <% }) %>
+
+    <!-- Category Dropdown -->
+    <div>
+        <label
+            for="category"
+            class="block text-sm font-medium text-gray-700 mb-1"
+            >Update Category</label
+        >
+        <select
+            id="category"
+            name="category"
+            class="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white"
+        >
+            <option value="">-- Change Category --</option>
+            <option value="Cards">Cards</option>
+            <option value="Graded">Graded</option>
+            <option value="Boosters">Boosters</option>
+            <option value="Collection Boxes">Collection Boxes</option>
+        </select>
+    </div>
+
+    <!-- Submit + Back Buttons -->
+    <div class="flex gap-3">
+        <button
+            type="submit"
+            class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded"
+        >
+            ✅ Update Items
+        </button>
+        <a
+            href="/"
+            class="bg-gray-200 hover:bg-gray-300 text-sm text-gray-800 px-4 py-2 rounded inline-block"
+        >
+            ⬅ Back
+        </a>
+    </div>
 </form>
-<a class="btn btn-secondary mt-3" href="/">⬅ Back</a>
-<%- include('partials/footer') %>

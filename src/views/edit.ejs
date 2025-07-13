@@ -1,49 +1,109 @@
-<%- include('partials/header', { title: 'Edit ' + item.title, user }) %>
 <h1 class="mb-4">Edit Item</h1>
-<form method="POST" action="/item/<%= item.id %>/edit" enctype="multipart/form-data" class="mb-3">
-  <div class="mb-2">
-    <input class="form-control" name="title" value="<%= item.title %>" required />
-  </div>
-  <div class="mb-2">
-    <select class="form-select" name="category" required>
-      <option value="Cards" <%= item.category==='Cards'?'selected':'' %>>Cards</option>
-      <option value="Graded" <%= item.category==='Graded'?'selected':'' %>>Graded</option>
-      <option value="Boosters" <%= item.category==='Boosters'?'selected':'' %>>Boosters</option>
-      <option value="Collection Boxes" <%= item.category==='Collection Boxes'?'selected':'' %>>Collection Boxes</option>
-    </select>
-  </div>
-  <div class="mb-2">
-    <input class="form-control" name="desc" value="<%= item.desc || '' %>" placeholder="Description" />
-  </div>
-  <div class="mb-2">
-    <input class="form-control" name="notes" value="<%= item.notes || '' %>" placeholder="Notes" />
-  </div>
-  <div class="mb-2">
-    <input class="form-control" name="flags" value="<%= item.flags ? item.flags.join(', ') : '' %>" placeholder="Flags (comma separated)" />
-  </div>
-  <div class="mb-2">
-    <input class="form-control" name="pricePaid" type="number" step="0.01" value="<%= item.pricePaid %>" placeholder="Price Paid" />
-  </div>
-  <div class="mb-2">
-    <input class="form-control" name="marketValue" type="number" step="0.01" value="<%= item.marketValue %>" placeholder="Market Value" />
-  </div>
-  <% if (item.images && item.images.length > 0) { %>
-  <div class="mb-2">
-    <p>Images:</p>
-    <% item.images.forEach(img => { %>
-    <div class="form-check">
-      <input class="form-check-input" type="checkbox" name="removeImages" value="<%= img %>" id="img-<%= Buffer.from(img).toString('base64') %>">
-      <label class="form-check-label" for="img-<%= Buffer.from(img).toString('base64') %>">
-        <img src="<%= img %>" class="img-thumbnail me-2" style="max-height:100px"> Remove
-      </label>
+<form
+    method="POST"
+    action="/item/<%= item.id %>/edit"
+    enctype="multipart/form-data"
+    class="mb-3"
+>
+    <div class="mb-2">
+        <input
+            class="form-control"
+            name="title"
+            value="<%= item.title %>"
+            required
+        />
     </div>
-    <% }) %>
-  </div>
-  <% } %>
-  <div class="mb-2">
-    <input class="form-control" type="file" name="newImages" accept="image/*" multiple />
-  </div>
-  <button class="btn btn-success">Save</button>
+    <div class="mb-2">
+        <select class="form-select" name="category" required>
+            <% categories.forEach(cat => { %>
+            <% if (item.category === cat) { %>
+            <option value="<%= cat %>" selected><%= cat %></option>
+            <% } else { %>
+            <option value="<%= cat %>"><%= cat %></option>
+            <% } %>
+            <% }) %>
+        </select>
+    </div>
+    <div class="mb-2">
+        <input
+            class="form-control"
+            name="desc"
+            value="<%= item.desc || '' %>"
+            placeholder="Description"
+        />
+    </div>
+    <div class="mb-2">
+        <input
+            class="form-control"
+            name="notes"
+            value="<%= item.notes || '' %>"
+            placeholder="Notes"
+        />
+    </div>
+    <div class="mb-2">
+        <input
+            class="form-control"
+            name="flags"
+            value="<%= item.flags ? item.flags.join(', ') : '' %>"
+            placeholder="Flags (comma separated)"
+        />
+    </div>
+    <div class="mb-2">
+        <input
+            class="form-control"
+            name="pricePaid"
+            type="number"
+            step="0.01"
+            value="<%= item.pricePaid %>"
+            placeholder="Price Paid"
+        />
+    </div>
+    <div class="mb-2">
+        <input
+            class="form-control"
+            name="marketValue"
+            type="number"
+            step="0.01"
+            value="<%= item.marketValue %>"
+            placeholder="Market Value"
+        />
+    </div>
+    <% if (item.images && item.images.length > 0) { %>
+    <div class="mb-2">
+        <p>Images:</p>
+        <% item.images.forEach(img => { %>
+        <div class="form-check">
+            <input
+                class="form-check-input"
+                type="checkbox"
+                name="removeImages"
+                value="<%= img %>"
+                id="img-<%= Buffer.from(img).toString('base64') %>"
+            />
+            <label
+                class="form-check-label"
+                for="img-<%= Buffer.from(img).toString('base64') %>"
+            >
+                <img
+                    src="<%= img %>"
+                    class="img-thumbnail me-2"
+                    style="max-height: 100px"
+                />
+                Remove
+            </label>
+        </div>
+        <% }) %>
+    </div>
+    <% } %>
+    <div class="mb-2">
+        <input
+            class="form-control"
+            type="file"
+            name="newImages"
+            accept="image/*"
+            multiple
+        />
+    </div>
+    <button class="btn btn-success">Save</button>
 </form>
 <a class="btn btn-secondary" href="/item/<%= item.id %>">⬅ Back</a>
-<%- include('partials/footer') %>

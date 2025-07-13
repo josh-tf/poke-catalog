@@ -10,7 +10,9 @@ function slugify(text) {
 function attachSlugAndCheck(titleInput, idInput) {
     let manual = false;
     const feedback = idInput.parentElement.querySelector('.id-feedback');
-    if (!feedback) {return;}
+    if (!feedback) {
+        return;
+    }
 
     idInput.addEventListener('input', () => {
         manual = true;
@@ -45,6 +47,7 @@ async function checkId(idInput, feedback) {
             feedback.classList.add('text-success');
         }
     } catch (err) {
+        // eslint-disable-next-line
         console.error(err);
     }
 }
