@@ -13,7 +13,7 @@ import {
     updateItem,
     updateMany,
 } from './catalog';
-import { CatalogItem } from './types';
+import { CatalogItem, Category } from './types';
 dotenv.config();
 
 const app = express();
@@ -115,7 +115,32 @@ app.get('/', (req, res) => {
         return order === 'desc' ? -result : result;
     });
 
-    res.render('index', { user: req.user, items, view, sort, order, category });
+    const categories: Category[] = [
+        'Cards',
+        'Graded',
+        'Boosters',
+        'Collection Boxes',
+    ];
+    const categoryData: Record<Category, number> = {
+        Cards: 0,
+        Graded: 0,
+        Boosters: 0,
+        'Collection Boxes': 0,
+    };
+    for (const item of items) {
+        categoryData[item.category]++;
+    }
+
+    res.render('index', {
+        user: req.user,
+        items,
+        view,
+        sort,
+        order,
+        category,
+        categoryData,
+        categories,
+    });
 });
 
 // Check if an item ID already exists
