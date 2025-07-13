@@ -2,6 +2,22 @@ import { Op } from 'sequelize';
 import { Item } from './models';
 import { CatalogItem } from './types';
 
+function parseJsonArray<T>(input: string | null): T[] | undefined {
+    if (!input) {
+        return undefined;
+    }
+    try {
+        return JSON.parse(input);
+    } catch {
+        try {
+            return JSON.parse(input.replace(/'/g, '"'));
+        } catch (e) {
+            console.warn('⚠️ Failed to parse JSON array:', input, e);
+            return undefined;
+        }
+    }
+}
+
 export async function loadCatalog(userId: string): Promise<CatalogItem[]> {
     const items = await Item.findAll({ where: { userId } });
     return items.map((i) => ({
@@ -10,10 +26,10 @@ export async function loadCatalog(userId: string): Promise<CatalogItem[]> {
         category: i.category as any,
         desc: i.desc || undefined,
         notes: i.notes || undefined,
-        flags: i.flags ? JSON.parse(i.flags) : undefined,
+        flags: parseJsonArray<string>(i.flags),
         pricePaid: i.pricePaid || undefined,
         marketValue: i.marketValue || undefined,
-        images: i.images ? JSON.parse(i.images) : undefined,
+        images: parseJsonArray<string>(i.images),
     }));
 }
 
@@ -37,16 +53,17 @@ export async function getItem(
     if (!item) {
         return null;
     }
+
     return {
         id: item.id,
         title: item.title,
         category: item.category as any,
         desc: item.desc || undefined,
         notes: item.notes || undefined,
-        flags: item.flags ? JSON.parse(item.flags) : undefined,
+        flags: parseJsonArray<string>(item.flags),
         pricePaid: item.pricePaid || undefined,
         marketValue: item.marketValue || undefined,
-        images: item.images ? JSON.parse(item.images) : undefined,
+        images: parseJsonArray<string>(item.images),
     };
 }
 

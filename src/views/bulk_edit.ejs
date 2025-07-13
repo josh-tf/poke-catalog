@@ -10,8 +10,9 @@
         <label
             for="category"
             class="block text-sm font-medium text-gray-700 mb-1"
-            >Update Category</label
         >
+            Update Category
+        </label>
         <select
             id="category"
             name="category"
@@ -20,19 +21,32 @@
             <option value="">-- Change Category --</option>
             <option value="Cards">Cards</option>
             <option value="Graded">Graded</option>
-            <option value="Boosters">Boosters</option>
+            <option value="Booster Box">Booster Box</option>
             <option value="Collection Boxes">Collection Boxes</option>
         </select>
     </div>
 
-    <!-- Submit + Back Buttons -->
+    <!-- Submit + Back + Delete Buttons -->
     <div class="flex gap-3">
         <button
             type="submit"
+            name="action"
+            value="update"
             class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded"
         >
             ✅ Update Items
         </button>
+
+        <button
+            type="submit"
+            name="action"
+            value="delete"
+            class="bg-red-600 hover:bg-red-700 text-white text-sm font-medium px-4 py-2 rounded"
+            onclick="return confirm('Are you sure you want to delete all selected items?')"
+        >
+            🗑️ Delete Items
+        </button>
+
         <a
             href="/"
             class="bg-gray-200 hover:bg-gray-300 text-sm text-gray-800 px-4 py-2 rounded inline-block"

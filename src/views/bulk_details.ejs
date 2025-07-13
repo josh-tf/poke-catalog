@@ -2,19 +2,17 @@
 
 <form method="POST" action="/bulk-add/save" class="space-y-6">
     <% files.forEach((file, idx) => { %>
-    <div class="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
+    <div
+        class="bulk-item border border-gray-200 rounded-lg p-4 bg-white shadow-sm"
+    >
         <!-- Image -->
         <img
-            src="/uploads/<%= file.filename %>"
+            src="/uploads/<%= file.name %>"
             alt="Uploaded image"
             class="w-auto max-h-40 object-contain mb-4 border rounded"
         />
 
-        <input
-            type="hidden"
-            name="image"
-            value="/uploads/<%= file.filename %>"
-        />
+        <input type="hidden" name="image" value="/uploads/<%= file.name %>" />
 
         <!-- ID Field -->
         <div class="mb-3">
@@ -53,7 +51,7 @@
             >
                 <option value="Cards">Cards</option>
                 <option value="Graded">Graded</option>
-                <option value="Boosters">Boosters</option>
+                <option value="Booster Box">Booster Box</option>
                 <option value="Collection Boxes">Collection Boxes</option>
             </select>
         </div>

@@ -19,12 +19,12 @@
     <!-- Middle: View Switch -->
     <div class="flex items-center gap-2">
         <a
-            href="/?view=list"
+            href="/catalog?view=list"
             class="border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm hover:bg-gray-100"
             >List View</a
         >
         <a
-            href="/?view=grid"
+            href="/catalog?view=grid"
             class="border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm hover:bg-gray-100"
             >Grid View</a
         >
@@ -99,10 +99,10 @@
             <option value="Graded">Graded</option>
             <% } %>
 
-            <% if (category === 'Boosters') { %>
-            <option value="Boosters" selected>Boosters</option>
+            <% if (category === 'Booster Box') { %>
+            <option value="Booster Box" selected>Booster Box</option>
             <% } else { %>
-            <option value="Boosters">Boosters</option>
+            <option value="Booster Box">Booster Box</option>
             <% } %>
 
             <% if (category === 'Collection Boxes') { %>

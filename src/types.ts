@@ -1,4 +1,4 @@
-export type Category = 'Cards' | 'Graded' | 'Boosters' | 'Collection Boxes';
+export type Category = 'Cards' | 'Graded' | 'Booster Box' | 'Collection Boxes';
 
 export interface CatalogItem {
     id: string;

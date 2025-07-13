@@ -1,109 +1,134 @@
-<h1 class="mb-4">Edit Item</h1>
-<form
-    method="POST"
-    action="/item/<%= item.id %>/edit"
-    enctype="multipart/form-data"
-    class="mb-3"
->
-    <div class="mb-2">
+<div class="max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-md">
+  <h1 class="text-2xl font-bold mb-6">Edit Item</h1>
+  <form method="POST" action="/item/<%= item.id %>/edit" enctype="multipart/form-data" class="space-y-4">
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Title</label>
+      <input
+        type="text"
+        name="title"
+        value="<%= item.title %>"
+        required
+        class="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+      />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Category</label>
+      <select
+        name="category"
+        required
+        class="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+      >
+        <% categories.forEach(cat => { %>
+          <option value="<%= cat %>" <%= item.category === cat ? 'selected' : '' %>><%= cat %></option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Description</label>
+      <input
+        type="text"
+        name="desc"
+        value="<%= item.desc || '' %>"
+        placeholder="Description"
+        class="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+      />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Notes</label>
+      <input
+        type="text"
+        name="notes"
+        value="<%= item.notes || '' %>"
+        placeholder="Notes"
+        class="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+      />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Flags (comma separated)</label>
+      <input
+        type="text"
+        name="flags"
+        value="<%= item.flags ? item.flags.join(', ') : '' %>"
+        placeholder="e.g. rare, sealed"
+        class="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+      />
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">Price Paid</label>
         <input
-            class="form-control"
-            name="title"
-            value="<%= item.title %>"
-            required
+          type="number"
+          step="0.01"
+          name="pricePaid"
+          value="<%= item.pricePaid %>"
+          class="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
         />
-    </div>
-    <div class="mb-2">
-        <select class="form-select" name="category" required>
-            <% categories.forEach(cat => { %>
-            <% if (item.category === cat) { %>
-            <option value="<%= cat %>" selected><%= cat %></option>
-            <% } else { %>
-            <option value="<%= cat %>"><%= cat %></option>
-            <% } %>
-            <% }) %>
-        </select>
-    </div>
-    <div class="mb-2">
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Market Value</label>
         <input
-            class="form-control"
-            name="desc"
-            value="<%= item.desc || '' %>"
-            placeholder="Description"
+          type="number"
+          step="0.01"
+          name="marketValue"
+          value="<%= item.marketValue %>"
+          class="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
         />
+      </div>
     </div>
-    <div class="mb-2">
-        <input
-            class="form-control"
-            name="notes"
-            value="<%= item.notes || '' %>"
-            placeholder="Notes"
-        />
-    </div>
-    <div class="mb-2">
-        <input
-            class="form-control"
-            name="flags"
-            value="<%= item.flags ? item.flags.join(', ') : '' %>"
-            placeholder="Flags (comma separated)"
-        />
-    </div>
-    <div class="mb-2">
-        <input
-            class="form-control"
-            name="pricePaid"
-            type="number"
-            step="0.01"
-            value="<%= item.pricePaid %>"
-            placeholder="Price Paid"
-        />
-    </div>
-    <div class="mb-2">
-        <input
-            class="form-control"
-            name="marketValue"
-            type="number"
-            step="0.01"
-            value="<%= item.marketValue %>"
-            placeholder="Market Value"
-        />
-    </div>
+
     <% if (item.images && item.images.length > 0) { %>
-    <div class="mb-2">
-        <p>Images:</p>
-        <% item.images.forEach(img => { %>
-        <div class="form-check">
-            <input
-                class="form-check-input"
+      <div>
+        <p class="text-sm font-medium mb-2">Images</p>
+        <div class="space-y-2">
+          <% item.images.forEach(img => { %>
+            <div class="flex items-center gap-3">
+              <input
                 type="checkbox"
                 name="removeImages"
                 value="<%= img %>"
                 id="img-<%= Buffer.from(img).toString('base64') %>"
-            />
-            <label
-                class="form-check-label"
-                for="img-<%= Buffer.from(img).toString('base64') %>"
-            >
-                <img
-                    src="<%= img %>"
-                    class="img-thumbnail me-2"
-                    style="max-height: 100px"
-                />
-                Remove
-            </label>
+                class="h-4 w-4 text-red-600 border-gray-300 rounded"
+              />
+              <label for="img-<%= Buffer.from(img).toString('base64') %>" class="flex items-center gap-3">
+                <img src="<%= img %>" alt="Image" class="h-20 rounded border border-gray-200" />
+                <span class="text-sm">Remove</span>
+              </label>
+            </div>
+          <% }) %>
         </div>
-        <% }) %>
-    </div>
+      </div>
     <% } %>
-    <div class="mb-2">
-        <input
-            class="form-control"
-            type="file"
-            name="newImages"
-            accept="image/*"
-            multiple
-        />
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Upload New Images</label>
+      <input
+        type="file"
+        name="newImages"
+        accept="image/*"
+        multiple
+        class="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+      />
     </div>
-    <button class="btn btn-success">Save</button>
-</form>
-<a class="btn btn-secondary" href="/item/<%= item.id %>">⬅ Back</a>
+
+    <div class="flex items-center gap-4">
+      <button
+        type="submit"
+        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow"
+      >
+        Save
+      </button>
+      <a
+        href="/item/<%= item.id %>"
+        class="text-sm text-gray-600 hover:text-gray-800 underline"
+      >
+        ⬅ Back
+      </a>
+    </div>
+  </form>
+</div>

@@ -1,11 +1,15 @@
+import SequelizeStoreInit from 'connect-session-sequelize';
+import crypto from 'crypto';
 import dotenv from 'dotenv';
 import express, { NextFunction, Request, Response } from 'express';
 import expressLayouts from 'express-ejs-layouts';
+import fileUpload from 'express-fileupload';
 import session from 'express-session';
-import multer from 'multer';
 import passport from 'passport';
 import { Strategy as DiscordStrategy } from 'passport-discord';
 import path from 'path';
+
+import fs from 'fs';
 import {
     addItem,
     deleteItem,
@@ -14,14 +18,54 @@ import {
     updateItem,
     updateMany,
 } from './catalog';
-import { Collection, Item, ProfileComment, syncDb, User } from './models';
+import {
+    Collection,
+    Item,
+    ProfileComment,
+    sequelize,
+    syncDb,
+    User,
+} from './models';
 import { CatalogItem, Category } from './types';
+
+const validCategories: Category[] = [
+    'Cards',
+    'Graded',
+    'Booster Box',
+    'Collection Boxes',
+];
+
+function safeCategory(input: string): Category {
+    if (validCategories.includes(input as Category)) {
+        return input as Category;
+    }
+    return 'Cards';
+}
+
 dotenv.config();
+
+function genRandomId(): string {
+    return String(Math.floor(Math.random() * 90000) + 10000);
+}
+
+async function makeUniqueId(base: string, userId: string): Promise<string> {
+    const items = await loadCatalog(userId);
+    let id: string;
+    do {
+        id = `${base}-${genRandomId()}`;
+    } while (items.some((item) => item.id === id));
+    return id;
+}
 
 const app = express();
 const PORT = 3000;
 
-const categories = ['Cards', 'Graded', 'Boosters', 'Collection Boxes'];
+const uploadsPath = path.join(__dirname, '../public/uploads');
+if (!fs.existsSync(uploadsPath)) {
+    fs.mkdirSync(uploadsPath, { recursive: true });
+}
+
+const categories = ['Cards', 'Graded', 'Booster Box', 'Collection Boxes'];
 
 // ----- Authentication Setup -----
 const CLIENT_ID = process.env.DISCORD_CLIENT_ID || '';
@@ -49,15 +93,30 @@ passport.deserializeUser((obj, done) => {
     done(null, obj as any);
 });
 
+const SequelizeStore = SequelizeStoreInit(session.Store);
+
+const sessionStore = new SequelizeStore({
+    db: sequelize,
+});
+
 app.use(
     session({
-        secret: 'pokecatalog',
+        secret: process.env.SESSION_SECRET || 'pokecatalog',
+        store: sessionStore,
         resave: false,
         saveUninitialized: false,
+        cookie: {
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+        },
     }),
 );
+
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(fileUpload());
 
 function ensureAuth(req: Request, res: Response, next: NextFunction) {
     if (req.isAuthenticated && req.isAuthenticated()) {
@@ -100,10 +159,6 @@ app.set('layout', 'layout');
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
-
-const upload = multer({
-    dest: path.join(__dirname, '../public/uploads'),
-});
 
 app.use((req, res, next) => {
     res.locals.title = 'Poké Catalog';
@@ -155,13 +210,13 @@ app.get('/catalog', async (req, res) => {
     const categories: Category[] = [
         'Cards',
         'Graded',
-        'Boosters',
+        'Booster Box',
         'Collection Boxes',
     ];
     const categoryData: Record<Category, number> = {
         Cards: 0,
         Graded: 0,
-        Boosters: 0,
+        'Booster Box': 0,
         'Collection Boxes': 0,
     };
     for (const item of items) {
@@ -195,9 +250,33 @@ app.get('/add', ensureAuth, (req, res) => {
 });
 
 // Handle image upload and show detail form
-app.post('/bulk-add', ensureAuth, upload.array('images', 20), (req, res) => {
-    const files = req.files as Express.Multer.File[];
-    res.render('bulk_details', { user: req.user, files });
+app.post('/bulk-add', ensureAuth, (req, res) => {
+    if (!req.files || !req.files.images) {
+        return res.status(400).send('No files were uploaded.');
+    }
+
+    const files = Array.isArray(req.files.images)
+        ? req.files.images
+        : [req.files.images];
+
+    // Move files to /public/uploads
+    const savedFiles = [];
+    for (const file of files) {
+        const ext = path.extname(file.name);
+        const filename = `${crypto.randomBytes(16).toString('hex')}${ext}`;
+        const uploadPath = path.join(__dirname, '../public/uploads', filename);
+        file.mv(uploadPath, (err) => {
+            if (err) {
+                return res.status(500).send(err);
+            }
+        });
+        savedFiles.push({
+            name: filename,
+            path: `/uploads/${filename}`,
+        });
+    }
+
+    res.render('bulk_details', { user: req.user, files: savedFiles });
 });
 
 // Bulk upload select images
@@ -207,64 +286,79 @@ app.get('/bulk-add', ensureAuth, (req, res) => {
 
 // Save bulk items
 app.post('/bulk-add/save', ensureAuth, async (req, res) => {
-    const ids = Array.isArray(req.body.id) ? req.body.id : [req.body.id];
-    const titles = Array.isArray(req.body.title)
-        ? req.body.title
-        : [req.body.title];
-    const descs = Array.isArray(req.body.desc)
-        ? req.body.desc
-        : [req.body.desc];
-    const pricePaids = Array.isArray(req.body.pricePaid)
-        ? req.body.pricePaid
-        : [req.body.pricePaid];
-    const marketValues = Array.isArray(req.body.marketValue)
-        ? req.body.marketValue
-        : [req.body.marketValue];
-    const categories = Array.isArray(req.body.category)
-        ? req.body.category
-        : [req.body.category];
-    const images = Array.isArray(req.body.image)
-        ? req.body.image
-        : [req.body.image];
+    const toArray = (input: any): string[] =>
+        Array.isArray(input) ? input : [input];
+
+    const ids = toArray(req.body.id);
+    const titles = toArray(req.body.title);
+    const descs = toArray(req.body.desc);
+    const pricePaids = toArray(req.body.pricePaid);
+    const marketValues = toArray(req.body.marketValue);
+    const categories = toArray(req.body.category);
+    const images = toArray(req.body.image);
+
+    const userId = (req.user as any).id;
 
     for (let i = 0; i < images.length; i++) {
+        const baseId = ids[i]?.trim() || 'item';
+        const uniqueId = await makeUniqueId(baseId, userId);
+
         const item: CatalogItem = {
-            id: ids[i],
+            id: uniqueId,
             title: titles[i],
-            category: categories[i],
+            category: safeCategory(categories[i]),
             desc: descs[i],
             pricePaid: parseFloat(pricePaids[i]) || 0,
             marketValue: parseFloat(marketValues[i]) || 0,
             images: [images[i]],
         };
-        await addItem((req.user as any).id, item);
+
+        await addItem(userId, item);
     }
 
     res.redirect('/catalog');
 });
 
 // Handle form submit
-app.post('/add', ensureAuth, upload.array('images', 5), async (req, res) => {
-    console.log('🧾 BODY:', req.body);
-    console.log('📸 FILES:', req.files);
+app.post('/add', ensureAuth, async (req, res) => {
+    const rawId = (req.body.id || '').trim();
+    if (!rawId) {
+        return res.status(400).send('Please supply a base ID.');
+    }
 
-    const { id, title, desc, notes, flags, pricePaid, marketValue, category } =
-        req.body;
-    const files = req.files as Express.Multer.File[];
+    const userId = (req.user as any).id;
+    const uniqueId = await makeUniqueId(rawId, userId);
+
+    const files = Array.isArray(req.files?.images)
+        ? req.files.images
+        : req.files?.images
+          ? [req.files.images]
+          : [];
+
+    const savedPaths: string[] = [];
+    for (const file of files) {
+        const ext = path.extname(file.name);
+        const filename = `${crypto.randomBytes(16).toString('hex')}${ext}`;
+        const uploadPath = path.join(__dirname, '../public/uploads', filename);
+        await file.mv(uploadPath);
+        savedPaths.push(`/uploads/${filename}`);
+    }
 
     const newItem: CatalogItem = {
-        id,
-        title,
-        category,
-        desc,
-        notes,
-        flags: flags ? flags.split(',').map((f: string) => f.trim()) : [],
-        pricePaid: parseFloat(pricePaid) || 0,
-        marketValue: parseFloat(marketValue) || 0,
-        images: files?.map((file) => `/uploads/${file.filename}`) || [],
+        id: uniqueId,
+        title: req.body.title,
+        category: req.body.category,
+        desc: req.body.desc,
+        notes: req.body.notes,
+        flags: req.body.flags
+            ? req.body.flags.split(',').map((f: string) => f.trim())
+            : [],
+        pricePaid: parseFloat(req.body.pricePaid) || 0,
+        marketValue: parseFloat(req.body.marketValue) || 0,
+        images: savedPaths,
     };
 
-    await addItem((req.user as any).id, newItem);
+    await addItem(userId, newItem);
     res.redirect('/catalog');
 });
 
@@ -287,46 +381,80 @@ app.get('/item/:id/edit', ensureAuth, async (req, res) => {
 });
 
 // Handle edit
-app.post(
-    '/item/:id/edit',
-    ensureAuth,
-    upload.array('newImages', 5),
-    async (req, res) => {
-        const id = req.params.id;
-        const item = await getItem((req.user as any).id, id);
-        if (!item) {
-            return res.status(404).send('Not found');
-        }
-        const removeImages = Array.isArray(req.body.removeImages)
-            ? req.body.removeImages
-            : req.body.removeImages
-              ? [req.body.removeImages]
-              : [];
-        let images = item.images || [];
-        images = images.filter((img) => !removeImages.includes(img));
-        const files = req.files as Express.Multer.File[];
-        if (files?.length) {
-            images = images.concat(files.map((f) => `/uploads/${f.filename}`));
-        }
-        await updateItem((req.user as any).id, id, {
-            title: req.body.title,
-            desc: req.body.desc,
-            notes: req.body.notes,
-            category: req.body.category,
-            flags: req.body.flags
-                ? req.body.flags.split(',').map((f: string) => f.trim())
-                : [],
-            pricePaid: parseFloat(req.body.pricePaid) || 0,
-            marketValue: parseFloat(req.body.marketValue) || 0,
-            images,
-        });
-        res.redirect(`/item/${id}`);
-    },
-);
+app.post('/item/:id/edit', ensureAuth, async (req, res) => {
+    const id = req.params.id;
+    const item = await getItem((req.user as any).id, id);
+    if (!item) {
+        return res.status(404).send('Not found');
+    }
+
+    // Determine which existing images to remove
+    const removeImages = Array.isArray(req.body.removeImages)
+        ? req.body.removeImages
+        : req.body.removeImages
+          ? [req.body.removeImages]
+          : [];
+
+    // Start with current images and filter out removed ones
+    let images = item.images || [];
+    images = images.filter((img) => !removeImages.includes(img));
+
+    // Handle new uploaded files
+    const rawFiles = req.files?.newImages;
+    const files = Array.isArray(rawFiles)
+        ? rawFiles
+        : rawFiles
+          ? [rawFiles]
+          : [];
+
+    for (const file of files) {
+        const filename = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+        const uploadPath = path.join(__dirname, '../public/uploads', filename);
+        await file.mv(uploadPath);
+        images.push(`/uploads/${filename}`);
+    }
+
+    // Update item in DB
+    await updateItem((req.user as any).id, id, {
+        title: req.body.title,
+        desc: req.body.desc,
+        notes: req.body.notes,
+        category: req.body.category,
+        flags: req.body.flags
+            ? req.body.flags.split(',').map((f: string) => f.trim())
+            : [],
+        pricePaid: parseFloat(req.body.pricePaid) || 0,
+        marketValue: parseFloat(req.body.marketValue) || 0,
+        images,
+    });
+
+    res.redirect(`/item/${id}`);
+});
 
 // Delete item
 app.post('/item/:id/delete', ensureAuth, async (req, res) => {
-    await deleteItem((req.user as any).id, req.params.id);
+    const userId = (req.user as any).id;
+    const id = req.params.id;
+
+    const item = await getItem(userId, id);
+    if (!item) {
+        return res.status(404).send('Item not found');
+    }
+
+    // Delete image files from disk
+    if (Array.isArray(item.images)) {
+        for (const imagePath of item.images) {
+            const fullPath = path.join(__dirname, '../public', imagePath);
+            fs.unlink(fullPath, (err) => {
+                if (err && err.code !== 'ENOENT') {
+                    console.warn(`⚠️ Failed to delete file ${fullPath}:`, err);
+                }
+            });
+        }
+    }
+
+    // Delete the item from the database
+    await deleteItem(userId, id);
     res.redirect('/catalog');
 });
 
@@ -345,11 +473,22 @@ app.get('/bulk-edit', ensureAuth, async (req, res) => {
 // Apply bulk edits
 app.post('/bulk-edit', ensureAuth, async (req, res) => {
     const ids = Array.isArray(req.body.ids) ? req.body.ids : [req.body.ids];
+    const action = req.body.action;
+    const userId = (req.user as any).id;
+
+    if (action === 'delete') {
+        for (const id of ids) {
+            await deleteItem(userId, id);
+        }
+        return res.redirect('/catalog');
+    }
+
     const updates: Partial<CatalogItem> = {};
     if (req.body.category) {
         updates.category = req.body.category as CatalogItem['category'];
     }
-    await updateMany((req.user as any).id, ids, updates);
+
+    await updateMany(userId, ids, updates);
     res.redirect('/catalog');
 });
 
@@ -414,6 +553,8 @@ app.post('/user/:id/comment', ensureAuth, async (req, res) => {
 
 async function start() {
     await syncDb();
+    await sessionStore.sync();
+
     app.listen(PORT, () => {
         console.log(
             '🟢 Server running — visit http://localhost:3000 to view or add items.',
