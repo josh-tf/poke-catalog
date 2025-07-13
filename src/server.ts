@@ -23,14 +23,17 @@ app.get('/', (req, res) => {
     res.render('index', { items, view });
 });
 
+// Check if an item ID already exists
+app.get('/check-id/:id', (req, res) => {
+    const id = req.params.id;
+    const items = loadCatalog();
+    const exists = items.some((item) => item.id === id);
+    res.json({ exists });
+});
+
 // Form to add new item
 app.get('/add', (req, res) => {
     res.render('add');
-});
-
-// Bulk upload step 1 - select images
-app.get('/bulk-add', (req, res) => {
-    res.render('bulk_upload');
 });
 
 // Handle image upload and show detail form

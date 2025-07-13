@@ -8,14 +8,15 @@
     <h1 class="mb-4">Add Details</h1>
     <form method="POST" action="/bulk-add/save">
       <% files.forEach((file, idx) => { %>
-      <div class="border rounded p-3 mb-3">
+      <div class="border rounded p-3 mb-3 bulk-item">
         <img src="/uploads/<%= file.filename %>" class="img-thumbnail mb-2" style="max-height:150px" />
         <input type="hidden" name="image" value="/uploads/<%= file.filename %>" />
         <div class="mb-2">
-          <input class="form-control" name="id" placeholder="ID" />
+          <input class="form-control id-input" name="id" placeholder="ID" />
+          <div class="form-text id-feedback"></div>
         </div>
         <div class="mb-2">
-          <input class="form-control" name="title" placeholder="Title" />
+          <input class="form-control title-input" name="title" placeholder="Title" />
         </div>
         <div class="mb-2">
           <input class="form-control" name="desc" placeholder="Description" />
@@ -39,5 +40,6 @@
       <button class="btn btn-success">Save All</button>
     </form>
     <a class="btn btn-secondary mt-3" href="/">⬅ Back</a>
+    <script src="/form.js"></script>
   </body>
 </html>
