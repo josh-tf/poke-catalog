@@ -55,7 +55,11 @@
         <strong><%= item.title %></strong> — <%= item.category %>
         <% if (item.desc) { %> — <%= item.desc %> <% } %>
         <br />
-        <small>ID: <%= item.id %>, Flags: <%= item.flags.join(', ') %></small>
+        <small>
+          ID: <%= item.id %>,
+          Flags:
+          <%= Array.isArray(item.flags) && item.flags.length > 0 ? item.flags.join(', ') : 'None' %>
+        </small>
         <br />
         <small
           >Paid: $<%= item.pricePaid %>, Market: $<%= item.marketValue %></small

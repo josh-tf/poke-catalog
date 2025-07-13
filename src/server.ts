@@ -42,6 +42,11 @@ app.post('/bulk-add', upload.array('images', 20), (req, res) => {
     res.render('bulk_details', { files });
 });
 
+// Bulk upload select images
+app.get('/bulk-add', (req, res) => {
+    res.render('bulk_upload');
+});
+
 // Save bulk items
 app.post('/bulk-add/save', (req, res) => {
     const ids = Array.isArray(req.body.id) ? req.body.id : [req.body.id];
