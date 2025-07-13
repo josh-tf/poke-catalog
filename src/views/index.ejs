@@ -9,7 +9,34 @@
   </head>
   <body class="p-4">
     <h1 class="mb-4">Poké Catalog</h1>
-    <a class="btn btn-primary mb-3" href="/add">➕ Add New Item</a>
+    <div class="mb-3 d-flex gap-2">
+      <a class="btn btn-primary" href="/add">➕ Add New Item</a>
+      <a class="btn btn-primary" href="/bulk-add">📥 Bulk Upload</a>
+      <a class="btn btn-outline-secondary" href="/?view=list">List View</a>
+      <a class="btn btn-outline-secondary" href="/?view=grid">Grid View</a>
+    </div>
+
+    <% if (view === 'grid') { %>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+      <% items.forEach(item => { %>
+      <div class="col">
+        <div class="card h-100">
+          <% if (item.images && item.images.length > 0) { %>
+          <img
+            src="<%= item.images[0] %>"
+            class="card-img-top"
+            style="max-height: 200px; object-fit: contain;"
+          />
+          <% } %>
+          <div class="card-body">
+            <h5 class="card-title"><%= item.title %></h5>
+            <p class="card-text"><%= item.category %></p>
+          </div>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+    <% } else { %>
     <ul class="list-group">
       <% items.forEach(item => { %>
       <li class="list-group-item">
@@ -25,7 +52,8 @@
           <% }) %>
         </div>
         <% } %>
-        <strong><%= item.title %></strong> — <%= item.desc %>
+        <strong><%= item.title %></strong> — <%= item.category %>
+        <% if (item.desc) { %> — <%= item.desc %> <% } %>
         <br />
         <small>ID: <%= item.id %>, Flags: <%= item.flags.join(', ') %></small>
         <br />
@@ -35,5 +63,6 @@
       </li>
       <% }) %>
     </ul>
+    <% } %>
   </body>
 </html>

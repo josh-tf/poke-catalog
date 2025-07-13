@@ -12,10 +12,15 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
 
+const upload = multer({
+    dest: path.join(__dirname, '../public/uploads'),
+});
+
 // Home page - list items
 app.get('/', (req, res) => {
     const items = loadCatalog();
-    res.render('index', { items });
+    const view = (req.query.view as string) || 'list';
+    res.render('index', { items, view });
 });
 
 // Form to add new item
@@ -23,21 +28,68 @@ app.get('/add', (req, res) => {
     res.render('add');
 });
 
-// Handle form submit
-const upload = multer({
-    dest: path.join(__dirname, '../public/uploads'),
+// Bulk upload step 1 - select images
+app.get('/bulk-add', (req, res) => {
+    res.render('bulk_upload');
 });
 
+// Handle image upload and show detail form
+app.post('/bulk-add', upload.array('images', 20), (req, res) => {
+    const files = req.files as Express.Multer.File[];
+    res.render('bulk_details', { files });
+});
+
+// Save bulk items
+app.post('/bulk-add/save', (req, res) => {
+    const ids = Array.isArray(req.body.id) ? req.body.id : [req.body.id];
+    const titles = Array.isArray(req.body.title)
+        ? req.body.title
+        : [req.body.title];
+    const descs = Array.isArray(req.body.desc)
+        ? req.body.desc
+        : [req.body.desc];
+    const pricePaids = Array.isArray(req.body.pricePaid)
+        ? req.body.pricePaid
+        : [req.body.pricePaid];
+    const marketValues = Array.isArray(req.body.marketValue)
+        ? req.body.marketValue
+        : [req.body.marketValue];
+    const categories = Array.isArray(req.body.category)
+        ? req.body.category
+        : [req.body.category];
+    const images = Array.isArray(req.body.image)
+        ? req.body.image
+        : [req.body.image];
+
+    for (let i = 0; i < images.length; i++) {
+        const item: CatalogItem = {
+            id: ids[i],
+            title: titles[i],
+            category: categories[i],
+            desc: descs[i],
+            pricePaid: parseFloat(pricePaids[i]) || 0,
+            marketValue: parseFloat(marketValues[i]) || 0,
+            images: [images[i]],
+        };
+        addItem(item);
+    }
+
+    res.redirect('/');
+});
+
+// Handle form submit
 app.post('/add', upload.array('images', 5), (req, res) => {
     console.log('🧾 BODY:', req.body);
     console.log('📸 FILES:', req.files);
 
-    const { id, title, desc, notes, flags, pricePaid, marketValue } = req.body;
+    const { id, title, desc, notes, flags, pricePaid, marketValue, category } =
+        req.body;
     const files = req.files as Express.Multer.File[];
 
     const newItem: CatalogItem = {
         id,
         title,
+        category,
         desc,
         notes,
         flags: flags ? flags.split(',').map((f: string) => f.trim()) : [],
