@@ -3,7 +3,7 @@
   <head>
     <title>Poké Catalog</title>
     <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/lux/bootstrap.min.css"
       rel="stylesheet"
     />
   </head>
@@ -15,6 +15,31 @@
       <a class="btn btn-outline-secondary" href="/?view=list">List View</a>
       <a class="btn btn-outline-secondary" href="/?view=grid">Grid View</a>
     </div>
+    <form class="row g-2 mb-4" method="get">
+      <input type="hidden" name="view" value="<%= view %>" />
+      <div class="col-auto">
+        <select name="sort" class="form-select" onchange="this.form.submit()">
+          <option value="title" <%= sort === 'title' ? 'selected' : '' %>>Title</option>
+          <option value="pricePaid" <%= sort === 'pricePaid' ? 'selected' : '' %>>Price Paid</option>
+          <option value="marketValue" <%= sort === 'marketValue' ? 'selected' : '' %>>Market Value</option>
+        </select>
+      </div>
+      <div class="col-auto">
+        <select name="order" class="form-select" onchange="this.form.submit()">
+          <option value="asc" <%= order === 'asc' ? 'selected' : '' %>>Asc</option>
+          <option value="desc" <%= order === 'desc' ? 'selected' : '' %>>Desc</option>
+        </select>
+      </div>
+      <div class="col-auto">
+        <select name="category" class="form-select" onchange="this.form.submit()">
+          <option value="" <%= !category ? 'selected' : '' %>>All Categories</option>
+          <option value="Cards" <%= category === 'Cards' ? 'selected' : '' %>>Cards</option>
+          <option value="Graded" <%= category === 'Graded' ? 'selected' : '' %>>Graded</option>
+          <option value="Boosters" <%= category === 'Boosters' ? 'selected' : '' %>>Boosters</option>
+          <option value="Collection Boxes" <%= category === 'Collection Boxes' ? 'selected' : '' %>>Collection Boxes</option>
+        </select>
+      </div>
+    </form>
 
     <% if (view === 'grid') { %>
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
