@@ -32,6 +32,11 @@
   </div>
 </form>
 
+<div class="card p-4 mb-4">
+  <h4 class="text-lg font-semibold mb-3">Items by Category</h4>
+  <div id="categoryChart" class="min-h-[250px]"></div>
+</div>
+
 <% if (view === 'grid') { %>
 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
   <% items.forEach(item => { %>
@@ -75,4 +80,23 @@
 <button class="btn btn-warning">Bulk Edit</button>
 </form>
 <% } %>
+<script>
+  const categoryData = <%- JSON.stringify(categoryData) %>;
+  const labels = Object.keys(categoryData);
+  const series = labels.map(l => categoryData[l]);
+  const options = {
+    series: series,
+    labels: labels,
+    chart: {
+      type: 'donut',
+      height: 250,
+      fontFamily: 'Plus Jakarta Sans, sans-serif'
+    },
+    dataLabels: { enabled: false },
+    legend: { position: 'bottom' }
+  };
+  if (document.querySelector('#categoryChart')) {
+    new ApexCharts(document.querySelector('#categoryChart'), options).render();
+  }
+</script>
 <%- include('partials/footer') %>
