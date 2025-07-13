@@ -1,6 +1,9 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import multer from 'multer';
 import path from 'path';
+import session from 'express-session';
+import passport from 'passport';
+import { Strategy as DiscordStrategy } from 'passport-discord';
 import {
     addItem,
     deleteItem,
@@ -14,6 +17,67 @@ import { CatalogItem } from './types';
 const app = express();
 const PORT = 3000;
 
+// ----- Authentication Setup -----
+const CLIENT_ID = process.env.DISCORD_CLIENT_ID || '';
+const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || '';
+const CALLBACK_URL =
+    process.env.DISCORD_CALLBACK_URL || 'http://localhost:3000/auth/discord/callback';
+
+passport.use(
+    new DiscordStrategy(
+        {
+            clientID: CLIENT_ID,
+            clientSecret: CLIENT_SECRET,
+            callbackURL: CALLBACK_URL,
+            scope: ['identify'],
+        },
+        (accessToken, refreshToken, profile, done) => done(null, profile),
+    ),
+);
+
+passport.serializeUser((user, done) => {
+    done(null, user);
+});
+passport.deserializeUser((obj, done) => {
+    done(null, obj as any);
+});
+
+app.use(
+    session({
+        secret: 'pokecatalog',
+        resave: false,
+        saveUninitialized: false,
+    }),
+);
+app.use(passport.initialize());
+app.use(passport.session());
+
+function ensureAuth(req: Request, res: Response, next: NextFunction) {
+    if (req.isAuthenticated && req.isAuthenticated()) {
+        return next();
+    }
+    res.redirect('/login');
+}
+
+app.get('/login', passport.authenticate('discord'));
+
+app.get(
+    '/auth/discord/callback',
+    passport.authenticate('discord', { failureRedirect: '/' }),
+    (req, res) => {
+        res.redirect('/');
+    },
+);
+
+app.get('/logout', (req, res, next) => {
+    req.logout((err) => {
+        if (err) {
+            return next(err);
+        }
+        res.redirect('/');
+    });
+});
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: true }));
@@ -25,7 +89,8 @@ const upload = multer({
 
 // Home page - list items
 app.get('/', (req, res) => {
-    let items = loadCatalog();
+    const userId = (req.user as any)?.id;
+    let items = userId ? loadCatalog(userId) : [];
     const view = (req.query.view as string) || 'list';
     const sort = (req.query.sort as string) || 'title';
     const order = (req.query.order as string) === 'desc' ? 'desc' : 'asc';
@@ -47,35 +112,36 @@ app.get('/', (req, res) => {
         return order === 'desc' ? -result : result;
     });
 
-    res.render('index', { items, view, sort, order, category });
+    res.render('index', { user: req.user, items, view, sort, order, category });
 });
 
 // Check if an item ID already exists
 app.get('/check-id/:id', (req, res) => {
     const id = req.params.id;
-    const items = loadCatalog();
+    const userId = (req.user as any)?.id;
+    const items = userId ? loadCatalog(userId) : [];
     const exists = items.some((item) => item.id === id);
     res.json({ exists });
 });
 
 // Form to add new item
-app.get('/add', (req, res) => {
-    res.render('add');
+app.get('/add', ensureAuth, (req, res) => {
+    res.render('add', { user: req.user });
 });
 
 // Handle image upload and show detail form
-app.post('/bulk-add', upload.array('images', 20), (req, res) => {
+app.post('/bulk-add', ensureAuth, upload.array('images', 20), (req, res) => {
     const files = req.files as Express.Multer.File[];
-    res.render('bulk_details', { files });
+    res.render('bulk_details', { user: req.user, files });
 });
 
 // Bulk upload select images
-app.get('/bulk-add', (req, res) => {
-    res.render('bulk_upload');
+app.get('/bulk-add', ensureAuth, (req, res) => {
+    res.render('bulk_upload', { user: req.user });
 });
 
 // Save bulk items
-app.post('/bulk-add/save', (req, res) => {
+app.post('/bulk-add/save', ensureAuth, (req, res) => {
     const ids = Array.isArray(req.body.id) ? req.body.id : [req.body.id];
     const titles = Array.isArray(req.body.title)
         ? req.body.title
@@ -106,14 +172,14 @@ app.post('/bulk-add/save', (req, res) => {
             marketValue: parseFloat(marketValues[i]) || 0,
             images: [images[i]],
         };
-        addItem(item);
+        addItem((req.user as any).id, item);
     }
 
     res.redirect('/');
 });
 
 // Handle form submit
-app.post('/add', upload.array('images', 5), (req, res) => {
+app.post('/add', ensureAuth, upload.array('images', 5), (req, res) => {
     console.log('🧾 BODY:', req.body);
     console.log('📸 FILES:', req.files);
 
@@ -133,32 +199,32 @@ app.post('/add', upload.array('images', 5), (req, res) => {
         images: files?.map((file) => `/uploads/${file.filename}`) || [],
     };
 
-    addItem(newItem);
+    addItem((req.user as any).id, newItem);
     res.redirect('/');
 });
 
 // View item details
-app.get('/item/:id', (req, res) => {
-    const item = getItem(req.params.id);
+app.get('/item/:id', ensureAuth, (req, res) => {
+    const item = getItem((req.user as any).id, req.params.id);
     if (!item) {
         return res.status(404).send('Not found');
     }
-    res.render('item', { item });
+    res.render('item', { user: req.user, item });
 });
 
 // Edit item form
-app.get('/item/:id/edit', (req, res) => {
-    const item = getItem(req.params.id);
+app.get('/item/:id/edit', ensureAuth, (req, res) => {
+    const item = getItem((req.user as any).id, req.params.id);
     if (!item) {
         return res.status(404).send('Not found');
     }
-    res.render('edit', { item });
+    res.render('edit', { user: req.user, item });
 });
 
 // Handle edit
-app.post('/item/:id/edit', upload.array('newImages', 5), (req, res) => {
+app.post('/item/:id/edit', ensureAuth, upload.array('newImages', 5), (req, res) => {
     const id = req.params.id;
-    const item = getItem(id);
+    const item = getItem((req.user as any).id, id);
     if (!item) {
         return res.status(404).send('Not found');
     }
@@ -173,7 +239,7 @@ app.post('/item/:id/edit', upload.array('newImages', 5), (req, res) => {
     if (files?.length) {
         images = images.concat(files.map((f) => `/uploads/${f.filename}`));
     }
-    updateItem(id, {
+    updateItem((req.user as any).id, id, {
         title: req.body.title,
         desc: req.body.desc,
         notes: req.body.notes,
@@ -189,30 +255,31 @@ app.post('/item/:id/edit', upload.array('newImages', 5), (req, res) => {
 });
 
 // Delete item
-app.post('/item/:id/delete', (req, res) => {
-    deleteItem(req.params.id);
+app.post('/item/:id/delete', ensureAuth, (req, res) => {
+    deleteItem((req.user as any).id, req.params.id);
     res.redirect('/');
 });
 
 // Show bulk edit form
-app.get('/bulk-edit', (req, res) => {
+app.get('/bulk-edit', ensureAuth, (req, res) => {
     const ids = Array.isArray(req.query.ids)
         ? (req.query.ids as string[])
         : req.query.ids
           ? [req.query.ids as string]
           : [];
-    const items = loadCatalog().filter((i) => ids.includes(i.id));
-    res.render('bulk_edit', { items });
+    const userId = (req.user as any).id;
+    const items = loadCatalog(userId).filter((i) => ids.includes(i.id));
+    res.render('bulk_edit', { user: req.user, items });
 });
 
 // Apply bulk edits
-app.post('/bulk-edit', (req, res) => {
+app.post('/bulk-edit', ensureAuth, (req, res) => {
     const ids = Array.isArray(req.body.ids) ? req.body.ids : [req.body.ids];
     const updates: Partial<CatalogItem> = {};
     if (req.body.category) {
         updates.category = req.body.category as CatalogItem['category'];
     }
-    updateMany(ids, updates);
+    updateMany((req.user as any).id, ids, updates);
     res.redirect('/');
 });
 

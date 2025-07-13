@@ -1,101 +1,78 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Poké Catalog</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/lux/bootstrap.min.css"
-      rel="stylesheet"
-    />
-  </head>
-  <body class="p-4">
-    <h1 class="mb-4">Poké Catalog</h1>
-    <div class="mb-3 d-flex gap-2">
-      <a class="btn btn-primary" href="/add">➕ Add New Item</a>
-      <a class="btn btn-primary" href="/bulk-add">📥 Bulk Upload</a>
-      <a class="btn btn-outline-secondary" href="/?view=list">List View</a>
-      <a class="btn btn-outline-secondary" href="/?view=grid">Grid View</a>
-    </div>
-    <form class="row g-2 mb-4" method="get">
-      <input type="hidden" name="view" value="<%= view %>" />
-      <div class="col-auto">
-        <select name="sort" class="form-select" onchange="this.form.submit()">
-          <option value="title" <%= sort === 'title' ? 'selected' : '' %>>Title</option>
-          <option value="pricePaid" <%= sort === 'pricePaid' ? 'selected' : '' %>>Price Paid</option>
-          <option value="marketValue" <%= sort === 'marketValue' ? 'selected' : '' %>>Market Value</option>
-        </select>
-      </div>
-      <div class="col-auto">
-        <select name="order" class="form-select" onchange="this.form.submit()">
-          <option value="asc" <%= order === 'asc' ? 'selected' : '' %>>Asc</option>
-          <option value="desc" <%= order === 'desc' ? 'selected' : '' %>>Desc</option>
-        </select>
-      </div>
-      <div class="col-auto">
-        <select name="category" class="form-select" onchange="this.form.submit()">
-          <option value="" <%= !category ? 'selected' : '' %>>All Categories</option>
-          <option value="Cards" <%= category === 'Cards' ? 'selected' : '' %>>Cards</option>
-          <option value="Graded" <%= category === 'Graded' ? 'selected' : '' %>>Graded</option>
-          <option value="Boosters" <%= category === 'Boosters' ? 'selected' : '' %>>Boosters</option>
-          <option value="Collection Boxes" <%= category === 'Collection Boxes' ? 'selected' : '' %>>Collection Boxes</option>
-        </select>
-      </div>
-    </form>
+<%- include('partials/header', { title: 'Poké Catalog', user }) %>
+<h1 class="mb-4">Poké Catalog</h1>
+<div class="mb-3 d-flex gap-2">
+  <a class="btn btn-primary" href="/add">➕ Add New Item</a>
+  <a class="btn btn-primary" href="/bulk-add">📥 Bulk Upload</a>
+  <a class="btn btn-outline-secondary" href="/?view=list">List View</a>
+  <a class="btn btn-outline-secondary" href="/?view=grid">Grid View</a>
+</div>
+<form class="row g-2 mb-4" method="get">
+  <input type="hidden" name="view" value="<%= view %>" />
+  <div class="col-auto">
+    <select name="sort" class="form-select" onchange="this.form.submit()">
+      <option value="title" <%= sort === 'title' ? 'selected' : '' %>>Title</option>
+      <option value="pricePaid" <%= sort === 'pricePaid' ? 'selected' : '' %>>Price Paid</option>
+      <option value="marketValue" <%= sort === 'marketValue' ? 'selected' : '' %>>Market Value</option>
+    </select>
+  </div>
+  <div class="col-auto">
+    <select name="order" class="form-select" onchange="this.form.submit()">
+      <option value="asc" <%= order === 'asc' ? 'selected' : '' %>>Asc</option>
+      <option value="desc" <%= order === 'desc' ? 'selected' : '' %>>Desc</option>
+    </select>
+  </div>
+  <div class="col-auto">
+    <select name="category" class="form-select" onchange="this.form.submit()">
+      <option value="" <%= !category ? 'selected' : '' %>>All Categories</option>
+      <option value="Cards" <%= category === 'Cards' ? 'selected' : '' %>>Cards</option>
+      <option value="Graded" <%= category === 'Graded' ? 'selected' : '' %>>Graded</option>
+      <option value="Boosters" <%= category === 'Boosters' ? 'selected' : '' %>>Boosters</option>
+      <option value="Collection Boxes" <%= category === 'Collection Boxes' ? 'selected' : '' %>>Collection Boxes</option>
+    </select>
+  </div>
+</form>
 
-    <% if (view === 'grid') { %>
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
-      <% items.forEach(item => { %>
-      <div class="col">
-        <div class="card h-100">
-          <% if (item.images && item.images.length > 0) { %>
-          <img
-            src="<%= item.images[0] %>"
-            class="card-img-top"
-            style="max-height: 200px; object-fit: contain;"
-          />
-          <% } %>
-          <div class="card-body">
-            <h5 class="card-title"><a href="/item/<%= item.id %>"><%= item.title %></a></h5>
-            <p class="card-text"><%= item.category %></p>
-          </div>
-        </div>
+<% if (view === 'grid') { %>
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+  <% items.forEach(item => { %>
+  <div class="col">
+    <div class="card h-100">
+      <% if (item.images && item.images.length > 0) { %>
+      <img src="<%= item.images[0] %>" class="card-img-top" style="max-height: 200px; object-fit: contain;" />
+      <% } %>
+      <div class="card-body">
+        <h5 class="card-title"><a href="/item/<%= item.id %>"><%= item.title %></a></h5>
+        <p class="card-text"><%= item.category %></p>
       </div>
+    </div>
+  </div>
+  <% }) %>
+</div>
+<% } else { %>
+<form method="GET" action="/bulk-edit">
+<ul class="list-group mb-3">
+  <% items.forEach(item => { %>
+  <li class="list-group-item">
+    <input class="form-check-input me-2" type="checkbox" name="ids" value="<%= item.id %>" />
+    <% if (item.images && item.images.length > 0) { %>
+    <div class="mb-2 d-flex flex-wrap gap-2">
+      <% item.images.forEach(image => { %>
+      <img src="<%= image %>" alt="Card image" class="img-thumbnail" style="max-height: 150px" />
       <% }) %>
     </div>
-    <% } else { %>
-    <form method="GET" action="/bulk-edit">
-    <ul class="list-group mb-3">
-      <% items.forEach(item => { %>
-      <li class="list-group-item">
-        <input class="form-check-input me-2" type="checkbox" name="ids" value="<%= item.id %>" />
-        <% if (item.images && item.images.length > 0) { %>
-        <div class="mb-2 d-flex flex-wrap gap-2">
-          <% item.images.forEach(image => { %>
-          <img
-            src="<%= image %>"
-            alt="Card image"
-            class="img-thumbnail"
-            style="max-height: 150px"
-          />
-          <% }) %>
-        </div>
-        <% } %>
-        <strong><a href="/item/<%= item.id %>"><%= item.title %></a></strong> — <%= item.category %>
-        <% if (item.desc) { %> — <%= item.desc %> <% } %>
-        <br />
-        <small>
-          ID: <%= item.id %>,
-          Flags:
-          <%= Array.isArray(item.flags) && item.flags.length > 0 ? item.flags.join(', ') : 'None' %>
-        </small>
-        <br />
-        <small
-          >Paid: $<%= item.pricePaid %>, Market: $<%= item.marketValue %></small
-        >
-      </li>
-      <% }) %>
-    </ul>
-    <button class="btn btn-warning">Bulk Edit</button>
-    </form>
     <% } %>
-  </body>
-</html>
+    <strong><a href="/item/<%= item.id %>"><%= item.title %></a></strong> — <%= item.category %>
+    <% if (item.desc) { %> — <%= item.desc %> <% } %>
+    <br />
+    <small>
+      ID: <%= item.id %>, Flags: <%= Array.isArray(item.flags) && item.flags.length > 0 ? item.flags.join(', ') : 'None' %>
+    </small>
+    <br />
+    <small>Paid: $<%= item.pricePaid %>, Market: $<%= item.marketValue %></small>
+  </li>
+  <% }) %>
+</ul>
+<button class="btn btn-warning">Bulk Edit</button>
+</form>
+<% } %>
+<%- include('partials/footer') %>
