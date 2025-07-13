@@ -1,4 +1,6 @@
-<h1 class="text-2xl font-bold mb-4">Social Feed</h1>
+<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
+    Social Feed
+</h1>
 <div class="mb-6">
     <h2 class="text-lg font-semibold mb-2">Latest Public Collections</h2>
     <% if (collections.length === 0) { %>
@@ -7,8 +9,13 @@
     <ul class="space-y-2">
         <% collections.forEach(c => { %>
         <li>
-            <a href="/collections/<%= c.userId %>/<%= c.slug %>" class="text-blue-600 hover:underline"><%= c.name %></a>
-            by <%= c.user.username %>
+            <a
+                href="/collections/<%= c.userId %>/<%= c.slug %>"
+                class="text-blue-600 hover:underline"
+                ><%= c.name %></a
+            >
+            by
+            <%= c.user.username %>
         </li>
         <% }) %>
     </ul>

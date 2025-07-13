@@ -1,7 +1,19 @@
-<h1 class="text-2xl font-bold mb-4">Create Collection</h1>
+<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
+    Create Collection
+</h1>
 <form method="POST" action="/collections/create" class="space-y-2">
-    <input type="text" name="name" placeholder="Name" class="w-full border p-2" required />
-    <textarea name="description" placeholder="Description" class="w-full border p-2"></textarea>
+    <input
+        type="text"
+        name="name"
+        placeholder="Name"
+        class="w-full border p-2"
+        required
+    />
+    <textarea
+        name="description"
+        placeholder="Description"
+        class="w-full border p-2"
+    ></textarea>
     <label class="flex items-center gap-2">
         <input type="checkbox" name="public" /> Public
     </label>

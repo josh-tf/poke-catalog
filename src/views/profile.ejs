@@ -1,7 +1,13 @@
-<h1 class="text-2xl font-bold mb-4"><%= userProfile.username %>'s Profile</h1>
+<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
+    <%= userProfile.username %>'s Profile
+</h1>
 <div class="mb-6">
     <% if (userProfile.avatar) { %>
-    <img src="https://cdn.discordapp.com/avatars/<%= userProfile.id %>/<%= userProfile.avatar %>.png" alt="avatar" class="w-24 h-24 rounded-full" />
+    <img
+        src="https://cdn.discordapp.com/avatars/<%= userProfile.id %>/<%= userProfile.avatar %>.png"
+        alt="avatar"
+        class="w-24 h-24 rounded-full"
+    />
     <% } %>
 </div>
 <div class="mb-6">
@@ -12,7 +18,8 @@
     <ul class="space-y-2">
         <% comments.forEach(c => { %>
         <li>
-            <strong><%= c.commenter.username %>:</strong> <%= c.content %>
+            <strong><%= c.commenter.username %>:</strong>
+            <%= c.content %>
         </li>
         <% }) %>
     </ul>
@@ -25,7 +32,11 @@
     <% } else { %>
     <ul class="space-y-1">
         <% items.forEach(i => { %>
-        <li><a href="/item/<%= i.id %>" class="text-blue-600 hover:underline"><%= i.title %></a></li>
+        <li>
+            <a href="/item/<%= i.id %>" class="text-blue-600 hover:underline"
+                ><%= i.title %></a
+            >
+        </li>
         <% }) %>
     </ul>
     <% } %>
@@ -38,16 +49,33 @@
     <ul class="space-y-1">
         <% collections.forEach(c => { %>
         <li>
-            <a href="/collections/<%= c.userId %>/<%= c.slug %>" class="text-blue-600 hover:underline"><%= c.name %></a>
-            <% if (!c.public) { %><span class="text-sm text-gray-500">(private)</span><% } %>
+            <a
+                href="/collections/<%= c.userId %>/<%= c.slug %>"
+                class="text-blue-600 hover:underline"
+                ><%= c.name %></a
+            >
+            <% if (!c.public) { %><span class="text-sm text-gray-500"
+                >(private)</span
+            ><% } %>
         </li>
         <% }) %>
     </ul>
     <% } %>
 </div>
 <% if (user) { %>
-<form method="POST" action="/user/<%= userProfile.id %>/comment" class="space-y-2">
-    <textarea name="content" rows="3" class="w-full border p-2" required></textarea>
-    <button class="px-4 py-2 bg-blue-600 text-white rounded">Add Comment</button>
+<form
+    method="POST"
+    action="/user/<%= userProfile.id %>/comment"
+    class="space-y-2"
+>
+    <textarea
+        name="content"
+        rows="3"
+        class="w-full border p-2"
+        required
+    ></textarea>
+    <button class="px-4 py-2 bg-blue-600 text-white rounded">
+        Add Comment
+    </button>
 </form>
 <% } %>
