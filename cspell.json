@@ -3,5 +3,5 @@
     "language": "en",
     "ignorePaths": ["node_modules/**", "data/**", "public/**"],
     "ignoreWords": [],
-    "words": []
+    "words": ["descs", "Paids", "Poké", "pokecatalog"]
 }

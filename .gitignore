@@ -19,4 +19,6 @@ node_modules
 node_modules
 dist
 /public/uploads/
-/data/catalog.json
+/data/
+.env
+yarn.lock
