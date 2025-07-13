@@ -1,5 +1,26 @@
 <h1 class="text-2xl font-bold mb-4"><%= collection.name %></h1>
 <p class="mb-4"><%= collection.description %></p>
+<% if (user && user.id === collection.userId) { %>
+<a href="/collections/<%= collection.userId %>/<%= collection.slug %>/edit" class="text-blue-600 underline mr-4">Edit</a>
+    <% if (collection.public) { %>
+    <button id="shareBtn" class="bg-blue-600 text-white px-2 py-1 rounded">Share</button>
+    <div id="shareModal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden">
+        <div class="bg-white p-4 rounded shadow">
+            <p class="mb-2">Share this URL:</p>
+            <input id="shareUrl" class="w-full border p-2" readonly value="<%= shareUrl %>" />
+            <div class="mt-2 text-right">
+                <button type="button" class="px-3 py-1 bg-blue-600 text-white rounded" onclick="navigator.clipboard.writeText(document.getElementById('shareUrl').value)">Copy</button>
+                <button type="button" class="ml-2 px-3 py-1" onclick="document.getElementById('shareModal').classList.add('hidden')">Close</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('shareBtn').addEventListener('click', () => {
+            document.getElementById('shareModal').classList.remove('hidden');
+        });
+    </script>
+    <% } %>
+<% } %>
 <% if (items.length === 0) { %>
 <p>No items yet.</p>
 <% } else { %>

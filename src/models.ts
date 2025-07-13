@@ -39,6 +39,7 @@ export class Collection extends Model<
     InferCreationAttributes<Collection>
 > {
     declare id: CreationOptional<number>;
+    declare slug: string;
     declare name: string;
     declare description: string | null;
     declare public: CreationOptional<boolean>;
@@ -51,6 +52,9 @@ Collection.init(
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
+        },
+        slug: {
+            type: DataTypes.STRING,
         },
         name: DataTypes.STRING,
         description: DataTypes.TEXT,

@@ -18,6 +18,33 @@
     </ul>
     <% } %>
 </div>
+<div class="mb-6">
+    <h2 class="text-lg font-semibold mb-2">Catalog Items</h2>
+    <% if (items.length === 0) { %>
+    <p>No items.</p>
+    <% } else { %>
+    <ul class="space-y-1">
+        <% items.forEach(i => { %>
+        <li><a href="/item/<%= i.id %>" class="text-blue-600 hover:underline"><%= i.title %></a></li>
+        <% }) %>
+    </ul>
+    <% } %>
+</div>
+<div class="mb-6">
+    <h2 class="text-lg font-semibold mb-2">Collections</h2>
+    <% if (collections.length === 0) { %>
+    <p>No collections.</p>
+    <% } else { %>
+    <ul class="space-y-1">
+        <% collections.forEach(c => { %>
+        <li>
+            <a href="/collections/<%= c.userId %>/<%= c.slug %>" class="text-blue-600 hover:underline"><%= c.name %></a>
+            <% if (!c.public) { %><span class="text-sm text-gray-500">(private)</span><% } %>
+        </li>
+        <% }) %>
+    </ul>
+    <% } %>
+</div>
 <% if (user) { %>
 <form method="POST" action="/user/<%= userProfile.id %>/comment" class="space-y-2">
     <textarea name="content" rows="3" class="w-full border p-2" required></textarea>
