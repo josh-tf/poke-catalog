@@ -6,6 +6,7 @@ const unusedImportsPlugin = require('eslint-plugin-unused-imports');
 const importsPlugin = require('eslint-plugin-import');
 
 module.exports = [
+    // JavaScript
     {
         files: ['**/*.js'],
         plugins: {
@@ -26,7 +27,7 @@ module.exports = [
         },
         rules: {
             'no-undef': 'warn',
-            'no-unused-vars': 'off', // disable default rule
+            'no-unused-vars': 'off',
             'unused-imports/no-unused-imports': 'error',
             'unused-imports/no-unused-vars': [
                 'warn',
@@ -40,22 +41,13 @@ module.exports = [
             'no-console': 'warn',
             eqeqeq: 'warn',
             curly: 'warn',
-            quotes: [
-                'error',
-                'single',
-                { allowTemplateLiterals: true, avoidEscape: false },
-            ],
+            quotes: ['error', 'single', { allowTemplateLiterals: true }],
             semi: ['warn', 'always'],
             'no-extra-semi': 'warn',
         },
     },
-    {
-        files: ['sub/*.js'],
-        rules: {
-            'no-undef': 'warn',
-            'no-console': 'warn',
-        },
-    },
+
+    // TypeScript
     {
         files: ['*.ts', '**/*.ts'],
         plugins: {
@@ -72,7 +64,7 @@ module.exports = [
             },
         },
         rules: {
-            'no-unused-vars': 'off', // disable default rule
+            'no-unused-vars': 'off',
             'unused-imports/no-unused-imports': 'error',
             'unused-imports/no-unused-vars': [
                 'warn',
@@ -86,19 +78,17 @@ module.exports = [
             semi: ['error', 'always'],
             'no-extra-semi': 'warn',
             curly: 'warn',
-            quotes: [
-                'error',
-                'single',
-                { allowTemplateLiterals: true, avoidEscape: true },
-            ],
+            quotes: ['error', 'single', { allowTemplateLiterals: true }],
             eqeqeq: 'error',
-            indent: 'off', // disable ESLint's indent rule
-            '@typescript-eslint/indent': 'off', // disable TS-specific indent rule
-            '@typescript-eslint/no-floating-promises': 'error', // enforce async functions to be called with await
-            '@typescript-eslint/return-await': 'error', // enforce consistent use of `return await`
-            'prettier/prettier': 'warn', // enforce Prettier rules
+            indent: 'off',
+            '@typescript-eslint/indent': 'off',
+            '@typescript-eslint/no-floating-promises': 'error',
+            '@typescript-eslint/return-await': 'error',
+            'prettier/prettier': 'warn',
         },
     },
+
+    // Ignore folders
     {
         ignores: ['dist', 'node_modules', 'resources'],
     },

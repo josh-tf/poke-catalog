@@ -1,12 +1,15 @@
 {
     "ignores": [
-        "ejs",
-        "@types/ejs",
-        "depcheck",
-        "lint-staged",
-        "nodemon",
+        "ts-node",
         "prettier-plugin-organize-imports",
-        "ts-node"
+        "prettier-plugin-ejs",
+        "nodemon",
+        "lint-staged",
+        "eslint-plugin-html",
+        "ejs",
+        "depcheck",
+        "cspell",
+        "@types/ejs"
     ],
     "skipMissing": []
 }
