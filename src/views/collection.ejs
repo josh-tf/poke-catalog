@@ -1,0 +1,11 @@
+<h1 class="text-2xl font-bold mb-4"><%= collection.name %></h1>
+<p class="mb-4"><%= collection.description %></p>
+<% if (items.length === 0) { %>
+<p>No items yet.</p>
+<% } else { %>
+<ul class="space-y-2">
+    <% items.forEach(i => { %>
+    <li><a href="/item/<%= i.id %>" class="text-blue-600 hover:underline"><%= i.title %></a></li>
+    <% }) %>
+</ul>
+<% } %>

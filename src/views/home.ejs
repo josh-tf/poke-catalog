@@ -1,0 +1,22 @@
+<h1 class="text-2xl font-bold mb-4">Social Feed</h1>
+<div class="mb-6">
+    <h2 class="text-lg font-semibold mb-2">Latest Public Collections</h2>
+    <% if (collections.length === 0) { %>
+    <p>No public collections yet.</p>
+    <% } else { %>
+    <ul class="space-y-2">
+        <% collections.forEach(c => { %>
+        <li>
+            <a href="/collections/<%= c.id %>" class="text-blue-600 hover:underline"><%= c.name %></a>
+            by <%= c.user.username %>
+        </li>
+        <% }) %>
+    </ul>
+    <% } %>
+</div>
+<div class="bg-white p-4 rounded shadow">
+    <h2 class="text-lg font-semibold mb-2">Stats</h2>
+    <p>Users: <%= stats.users %></p>
+    <p>Collections: <%= stats.collections %></p>
+    <p>Items: <%= stats.items %></p>
+</div>

@@ -1,68 +1,86 @@
-import fs from 'fs';
-import path from 'path';
+import { Op } from 'sequelize';
+import { Item } from './models';
 import { CatalogItem } from './types';
 
-function catalogPath(userId: string): string {
-    return path.join(__dirname, `../data/${userId}/catalog.json`);
+export async function loadCatalog(userId: string): Promise<CatalogItem[]> {
+    const items = await Item.findAll({ where: { userId } });
+    return items.map((i) => ({
+        id: i.id,
+        title: i.title,
+        category: i.category as any,
+        desc: i.desc || undefined,
+        notes: i.notes || undefined,
+        flags: i.flags ? JSON.parse(i.flags) : undefined,
+        pricePaid: i.pricePaid || undefined,
+        marketValue: i.marketValue || undefined,
+        images: i.images ? JSON.parse(i.images) : undefined,
+    }));
 }
 
-export function loadCatalog(userId: string): CatalogItem[] {
-    const file = catalogPath(userId);
-    if (!fs.existsSync(file)) {
-        return [];
+export async function addItem(
+    userId: string,
+    item: CatalogItem,
+): Promise<void> {
+    await Item.create({
+        ...item,
+        userId,
+        flags: item.flags ? JSON.stringify(item.flags) : null,
+        images: item.images ? JSON.stringify(item.images) : null,
+    });
+}
+
+export async function getItem(
+    userId: string,
+    id: string,
+): Promise<CatalogItem | null> {
+    const item = await Item.findOne({ where: { userId, id } });
+    if (!item) {
+        return null;
     }
-    const raw = fs.readFileSync(file, 'utf-8');
-    return JSON.parse(raw);
+    return {
+        id: item.id,
+        title: item.title,
+        category: item.category as any,
+        desc: item.desc || undefined,
+        notes: item.notes || undefined,
+        flags: item.flags ? JSON.parse(item.flags) : undefined,
+        pricePaid: item.pricePaid || undefined,
+        marketValue: item.marketValue || undefined,
+        images: item.images ? JSON.parse(item.images) : undefined,
+    };
 }
 
-export function saveCatalog(userId: string, items: CatalogItem[]): void {
-    const file = catalogPath(userId);
-    fs.mkdirSync(path.dirname(file), { recursive: true });
-    fs.writeFileSync(file, JSON.stringify(items, null, 2));
-}
-
-export function addItem(userId: string, item: CatalogItem): void {
-    const items = loadCatalog(userId);
-    items.push(item);
-    saveCatalog(userId, items);
-    console.log(`✅ Added item: ${item.title}`);
-}
-
-export function getItem(userId: string, id: string): CatalogItem | undefined {
-    const items = loadCatalog(userId);
-    return items.find((i) => i.id === id);
-}
-
-export function updateItem(
+export async function updateItem(
     userId: string,
     id: string,
     updates: Partial<CatalogItem>,
-): void {
-    const items = loadCatalog(userId);
-    const index = items.findIndex((i) => i.id === id);
-    if (index === -1) {
+): Promise<void> {
+    const item = await Item.findOne({ where: { userId, id } });
+    if (!item) {
         return;
     }
-    items[index] = { ...items[index], ...updates };
-    saveCatalog(userId, items);
+    await item.update({
+        ...updates,
+        flags: updates.flags ? JSON.stringify(updates.flags) : item.flags,
+        images: updates.images ? JSON.stringify(updates.images) : item.images,
+    });
 }
 
-export function deleteItem(userId: string, id: string): void {
-    let items = loadCatalog(userId);
-    items = items.filter((i) => i.id !== id);
-    saveCatalog(userId, items);
+export async function deleteItem(userId: string, id: string): Promise<void> {
+    await Item.destroy({ where: { userId, id } });
 }
 
-export function updateMany(
+export async function updateMany(
     userId: string,
     ids: string[],
     updates: Partial<CatalogItem>,
-): void {
-    const items = loadCatalog(userId);
-    for (const item of items) {
-        if (ids.includes(item.id)) {
-            Object.assign(item, updates);
-        }
-    }
-    saveCatalog(userId, items);
+): Promise<void> {
+    await Item.update(
+        {
+            ...updates,
+            flags: updates.flags ? JSON.stringify(updates.flags) : undefined,
+            images: updates.images ? JSON.stringify(updates.images) : undefined,
+        },
+        { where: { userId, id: { [Op.in]: ids } } },
+    );
 }

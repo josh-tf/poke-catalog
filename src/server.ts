@@ -14,6 +14,7 @@ import {
     updateItem,
     updateMany,
 } from './catalog';
+import { Collection, Item, ProfileComment, syncDb, User } from './models';
 import { CatalogItem, Category } from './types';
 dotenv.config();
 
@@ -70,8 +71,16 @@ app.get('/login', passport.authenticate('discord'));
 app.get(
     '/auth/discord/callback',
     passport.authenticate('discord', { failureRedirect: '/' }),
-    (req, res) => {
-        res.redirect('/');
+    async (req, res) => {
+        const profile = req.user as any;
+        if (profile) {
+            await User.upsert({
+                id: profile.id,
+                username: profile.username,
+                avatar: profile.avatar,
+            });
+        }
+        res.redirect('/catalog');
     },
 );
 
@@ -80,7 +89,7 @@ app.get('/logout', (req, res, next) => {
         if (err) {
             return next(err);
         }
-        res.redirect('/');
+        res.redirect('/catalog');
     });
 });
 
@@ -102,10 +111,26 @@ app.use((req, res, next) => {
     next();
 });
 
-// Home page - list items
-app.get('/', (req, res) => {
+// Home page with social feed and stats
+app.get('/', async (req, res) => {
+    const collections = await Collection.findAll({
+        where: { public: true },
+        include: [User],
+        order: [['createdAt', 'DESC']],
+        limit: 5,
+    });
+    const stats = {
+        users: await User.count(),
+        collections: await Collection.count(),
+        items: await Item.count(),
+    };
+    res.render('home', { user: req.user, collections, stats });
+});
+
+// Catalog page - list items
+app.get('/catalog', async (req, res) => {
     const userId = (req.user as any)?.id;
-    let items = userId ? loadCatalog(userId) : [];
+    let items = userId ? await loadCatalog(userId) : [];
     const view = (req.query.view as string) || 'list';
     const sort = (req.query.sort as string) || 'title';
     const order = (req.query.order as string) === 'desc' ? 'desc' : 'asc';
@@ -143,7 +168,7 @@ app.get('/', (req, res) => {
         categoryData[item.category]++;
     }
 
-    res.render('index', {
+    res.render('catalog', {
         user: req.user,
         items,
         view,
@@ -156,10 +181,10 @@ app.get('/', (req, res) => {
 });
 
 // Check if an item ID already exists
-app.get('/check-id/:id', (req, res) => {
+app.get('/check-id/:id', async (req, res) => {
     const id = req.params.id;
     const userId = (req.user as any)?.id;
-    const items = userId ? loadCatalog(userId) : [];
+    const items = userId ? await loadCatalog(userId) : [];
     const exists = items.some((item) => item.id === id);
     res.json({ exists });
 });
@@ -181,7 +206,7 @@ app.get('/bulk-add', ensureAuth, (req, res) => {
 });
 
 // Save bulk items
-app.post('/bulk-add/save', ensureAuth, (req, res) => {
+app.post('/bulk-add/save', ensureAuth, async (req, res) => {
     const ids = Array.isArray(req.body.id) ? req.body.id : [req.body.id];
     const titles = Array.isArray(req.body.title)
         ? req.body.title
@@ -212,14 +237,14 @@ app.post('/bulk-add/save', ensureAuth, (req, res) => {
             marketValue: parseFloat(marketValues[i]) || 0,
             images: [images[i]],
         };
-        addItem((req.user as any).id, item);
+        await addItem((req.user as any).id, item);
     }
 
-    res.redirect('/');
+    res.redirect('/catalog');
 });
 
 // Handle form submit
-app.post('/add', ensureAuth, upload.array('images', 5), (req, res) => {
+app.post('/add', ensureAuth, upload.array('images', 5), async (req, res) => {
     console.log('🧾 BODY:', req.body);
     console.log('📸 FILES:', req.files);
 
@@ -239,13 +264,13 @@ app.post('/add', ensureAuth, upload.array('images', 5), (req, res) => {
         images: files?.map((file) => `/uploads/${file.filename}`) || [],
     };
 
-    addItem((req.user as any).id, newItem);
-    res.redirect('/');
+    await addItem((req.user as any).id, newItem);
+    res.redirect('/catalog');
 });
 
 // View item details
-app.get('/item/:id', ensureAuth, (req, res) => {
-    const item = getItem((req.user as any).id, req.params.id);
+app.get('/item/:id', ensureAuth, async (req, res) => {
+    const item = await getItem((req.user as any).id, req.params.id);
     if (!item) {
         return res.status(404).send('Not found');
     }
@@ -253,8 +278,8 @@ app.get('/item/:id', ensureAuth, (req, res) => {
 });
 
 // Edit item form
-app.get('/item/:id/edit', ensureAuth, (req, res) => {
-    const item = getItem((req.user as any).id, req.params.id);
+app.get('/item/:id/edit', ensureAuth, async (req, res) => {
+    const item = await getItem((req.user as any).id, req.params.id);
     if (!item) {
         return res.status(404).send('Not found');
     }
@@ -266,9 +291,9 @@ app.post(
     '/item/:id/edit',
     ensureAuth,
     upload.array('newImages', 5),
-    (req, res) => {
+    async (req, res) => {
         const id = req.params.id;
-        const item = getItem((req.user as any).id, id);
+        const item = await getItem((req.user as any).id, id);
         if (!item) {
             return res.status(404).send('Not found');
         }
@@ -283,7 +308,7 @@ app.post(
         if (files?.length) {
             images = images.concat(files.map((f) => `/uploads/${f.filename}`));
         }
-        updateItem((req.user as any).id, id, {
+        await updateItem((req.user as any).id, id, {
             title: req.body.title,
             desc: req.body.desc,
             notes: req.body.notes,
@@ -300,36 +325,100 @@ app.post(
 );
 
 // Delete item
-app.post('/item/:id/delete', ensureAuth, (req, res) => {
-    deleteItem((req.user as any).id, req.params.id);
-    res.redirect('/');
+app.post('/item/:id/delete', ensureAuth, async (req, res) => {
+    await deleteItem((req.user as any).id, req.params.id);
+    res.redirect('/catalog');
 });
 
 // Show bulk edit form
-app.get('/bulk-edit', ensureAuth, (req, res) => {
+app.get('/bulk-edit', ensureAuth, async (req, res) => {
     const ids = Array.isArray(req.query.ids)
         ? (req.query.ids as string[])
         : req.query.ids
           ? [req.query.ids as string]
           : [];
     const userId = (req.user as any).id;
-    const items = loadCatalog(userId).filter((i) => ids.includes(i.id));
+    const items = (await loadCatalog(userId)).filter((i) => ids.includes(i.id));
     res.render('bulk_edit', { user: req.user, items, categories });
 });
 
 // Apply bulk edits
-app.post('/bulk-edit', ensureAuth, (req, res) => {
+app.post('/bulk-edit', ensureAuth, async (req, res) => {
     const ids = Array.isArray(req.body.ids) ? req.body.ids : [req.body.ids];
     const updates: Partial<CatalogItem> = {};
     if (req.body.category) {
         updates.category = req.body.category as CatalogItem['category'];
     }
-    updateMany((req.user as any).id, ids, updates);
+    await updateMany((req.user as any).id, ids, updates);
+    res.redirect('/catalog');
+});
+
+// Create collection form
+app.get('/collections/create', ensureAuth, (req, res) => {
+    res.render('collection_form', { user: req.user });
+});
+
+// Handle create collection
+app.post('/collections/create', ensureAuth, async (req, res) => {
+    await Collection.create({
+        name: req.body.name,
+        description: req.body.description,
+        public: !!req.body.public,
+        userId: (req.user as any).id,
+    });
     res.redirect('/');
 });
 
-app.listen(PORT, () => {
-    console.log(
-        '🟢 Server running — visit http://localhost:3000 to view or add items.',
-    );
+// View collection
+app.get('/collections/:id', async (req, res) => {
+    const collection = await Collection.findByPk(req.params.id, {
+        include: [User],
+    });
+    if (!collection) {
+        return res.status(404).send('Not found');
+    }
+    if (
+        !collection.public &&
+        (!req.isAuthenticated || (req.user as any).id !== collection.userId)
+    ) {
+        return res.status(403).send('Forbidden');
+    }
+    const items = await Item.findAll({
+        where: { collectionId: collection.id },
+    });
+    res.render('collection', { user: req.user, collection, items });
 });
+
+// User profile with comments
+app.get('/user/:id', async (req, res) => {
+    const userProfile = await User.findByPk(req.params.id);
+    if (!userProfile) {
+        return res.status(404).send('Not found');
+    }
+    const comments = await ProfileComment.findAll({
+        where: { userId: userProfile.id },
+        include: [{ model: User, as: 'commenter' }],
+        order: [['createdAt', 'DESC']],
+    });
+    res.render('profile', { user: req.user, userProfile, comments });
+});
+
+app.post('/user/:id/comment', ensureAuth, async (req, res) => {
+    await ProfileComment.create({
+        userId: req.params.id,
+        commenterId: (req.user as any).id,
+        content: req.body.content,
+    });
+    res.redirect(`/user/${req.params.id}`);
+});
+
+async function start() {
+    await syncDb();
+    app.listen(PORT, () => {
+        console.log(
+            '🟢 Server running — visit http://localhost:3000 to view or add items.',
+        );
+    });
+}
+
+void start();
