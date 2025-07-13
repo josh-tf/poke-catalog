@@ -18,9 +18,29 @@ const upload = multer({
 
 // Home page - list items
 app.get('/', (req, res) => {
-    const items = loadCatalog();
+    let items = loadCatalog();
     const view = (req.query.view as string) || 'list';
-    res.render('index', { items, view });
+    const sort = (req.query.sort as string) || 'title';
+    const order = (req.query.order as string) === 'desc' ? 'desc' : 'asc';
+    const category = (req.query.category as string) || '';
+
+    if (category) {
+        items = items.filter((item) => item.category === category);
+    }
+
+    items.sort((a, b) => {
+        let result = 0;
+        if (sort === 'pricePaid') {
+            result = (a.pricePaid || 0) - (b.pricePaid || 0);
+        } else if (sort === 'marketValue') {
+            result = (a.marketValue || 0) - (b.marketValue || 0);
+        } else {
+            result = a.title.localeCompare(b.title);
+        }
+        return order === 'desc' ? -result : result;
+    });
+
+    res.render('index', { items, view, sort, order, category });
 });
 
 // Check if an item ID already exists
