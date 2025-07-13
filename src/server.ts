@@ -1,9 +1,10 @@
-import express, { Request, Response, NextFunction } from 'express';
-import multer from 'multer';
-import path from 'path';
+import dotenv from 'dotenv';
+import express, { NextFunction, Request, Response } from 'express';
 import session from 'express-session';
+import multer from 'multer';
 import passport from 'passport';
 import { Strategy as DiscordStrategy } from 'passport-discord';
+import path from 'path';
 import {
     addItem,
     deleteItem,
@@ -13,6 +14,7 @@ import {
     updateMany,
 } from './catalog';
 import { CatalogItem } from './types';
+dotenv.config();
 
 const app = express();
 const PORT = 3000;
@@ -21,7 +23,8 @@ const PORT = 3000;
 const CLIENT_ID = process.env.DISCORD_CLIENT_ID || '';
 const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || '';
 const CALLBACK_URL =
-    process.env.DISCORD_CALLBACK_URL || 'http://localhost:3000/auth/discord/callback';
+    process.env.DISCORD_CALLBACK_URL ||
+    'http://localhost:3000/auth/discord/callback';
 
 passport.use(
     new DiscordStrategy(
@@ -222,37 +225,42 @@ app.get('/item/:id/edit', ensureAuth, (req, res) => {
 });
 
 // Handle edit
-app.post('/item/:id/edit', ensureAuth, upload.array('newImages', 5), (req, res) => {
-    const id = req.params.id;
-    const item = getItem((req.user as any).id, id);
-    if (!item) {
-        return res.status(404).send('Not found');
-    }
-    const removeImages = Array.isArray(req.body.removeImages)
-        ? req.body.removeImages
-        : req.body.removeImages
-          ? [req.body.removeImages]
-          : [];
-    let images = item.images || [];
-    images = images.filter((img) => !removeImages.includes(img));
-    const files = req.files as Express.Multer.File[];
-    if (files?.length) {
-        images = images.concat(files.map((f) => `/uploads/${f.filename}`));
-    }
-    updateItem((req.user as any).id, id, {
-        title: req.body.title,
-        desc: req.body.desc,
-        notes: req.body.notes,
-        category: req.body.category,
-        flags: req.body.flags
-            ? req.body.flags.split(',').map((f: string) => f.trim())
-            : [],
-        pricePaid: parseFloat(req.body.pricePaid) || 0,
-        marketValue: parseFloat(req.body.marketValue) || 0,
-        images,
-    });
-    res.redirect(`/item/${id}`);
-});
+app.post(
+    '/item/:id/edit',
+    ensureAuth,
+    upload.array('newImages', 5),
+    (req, res) => {
+        const id = req.params.id;
+        const item = getItem((req.user as any).id, id);
+        if (!item) {
+            return res.status(404).send('Not found');
+        }
+        const removeImages = Array.isArray(req.body.removeImages)
+            ? req.body.removeImages
+            : req.body.removeImages
+              ? [req.body.removeImages]
+              : [];
+        let images = item.images || [];
+        images = images.filter((img) => !removeImages.includes(img));
+        const files = req.files as Express.Multer.File[];
+        if (files?.length) {
+            images = images.concat(files.map((f) => `/uploads/${f.filename}`));
+        }
+        updateItem((req.user as any).id, id, {
+            title: req.body.title,
+            desc: req.body.desc,
+            notes: req.body.notes,
+            category: req.body.category,
+            flags: req.body.flags
+                ? req.body.flags.split(',').map((f: string) => f.trim())
+                : [],
+            pricePaid: parseFloat(req.body.pricePaid) || 0,
+            marketValue: parseFloat(req.body.marketValue) || 0,
+            images,
+        });
+        res.redirect(`/item/${id}`);
+    },
+);
 
 // Delete item
 app.post('/item/:id/delete', ensureAuth, (req, res) => {
