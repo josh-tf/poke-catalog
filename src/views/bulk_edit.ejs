@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Bulk Edit</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/lux/bootstrap.min.css" rel="stylesheet" />
+  </head>
+  <body class="p-4">
+    <h1 class="mb-4">Bulk Edit</h1>
+    <form method="POST" action="/bulk-edit">
+      <% items.forEach(item => { %>
+      <input type="hidden" name="ids" value="<%= item.id %>" />
+      <% }) %>
+      <div class="mb-2">
+        <select class="form-select" name="category">
+          <option value="">-- Change Category --</option>
+          <option value="Cards">Cards</option>
+          <option value="Graded">Graded</option>
+          <option value="Boosters">Boosters</option>
+          <option value="Collection Boxes">Collection Boxes</option>
+        </select>
+      </div>
+      <button class="btn btn-success">Update Items</button>
+    </form>
+    <a class="btn btn-secondary mt-3" href="/">⬅ Back</a>
+  </body>
+</html>
