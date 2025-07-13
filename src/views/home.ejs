@@ -2,25 +2,68 @@
     Social Feed
 </h1>
 <div class="mb-6">
-    <h2 class="text-lg font-semibold mb-2">Latest Public Collections</h2>
+    <h2 class="text-lg font-semibold mb-2">Recent Collections</h2>
     <% if (collections.length === 0) { %>
     <p>No public collections yet.</p>
     <% } else { %>
-    <ul class="space-y-2">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <% collections.forEach(c => { %>
-        <li>
-            <a
-                href="/collections/<%= c.userId %>/<%= c.slug %>"
-                class="text-blue-600 hover:underline"
-                ><%= c.name %></a
-            >
-            by
-            <%= c.user.username %>
-        </li>
+        <div class="border rounded p-2 bg-white shadow">
+            <div class="flex gap-1 mb-2">
+                <% if (c.thumbs && c.thumbs.length > 0) { %>
+                <% c.thumbs.forEach(t => { %>
+                <img src="<%= t %>" class="w-10 h-10 object-contain" />
+                <% }) %>
+                <% } %>
+            </div>
+            <h3 class="font-semibold">
+                <a
+                    href="/collections/<%= c.userId %>/<%= c.slug %>"
+                    class="text-blue-600 hover:underline"
+                    ><%= c.name %></a
+                >
+            </h3>
+            <p class="text-sm text-gray-600">by <%= c.user.username %></p>
+        </div>
         <% }) %>
-    </ul>
+    </div>
     <% } %>
 </div>
+
+<div class="mb-6">
+    <h2 class="text-lg font-semibold mb-2">Top Users</h2>
+    <div class="flex flex-wrap gap-4">
+        <% topUsers.forEach(tu => { %>
+        <a href="/user/<%= tu.user.id %>" class="flex items-center gap-2">
+            <% if (tu.user.avatar) { %>
+            <img
+                src="https://cdn.discordapp.com/avatars/<%= tu.user.id %>/<%= tu.user.avatar %>.png"
+                class="w-8 h-8 rounded-full"
+            />
+            <% } %>
+            <span><%= tu.user.username %></span>
+        </a>
+        <% }) %>
+    </div>
+</div>
+
+<div class="mb-6">
+    <h2 class="text-lg font-semibold mb-2">Recent Users</h2>
+    <div class="flex flex-wrap gap-4">
+        <% recentUsers.forEach(u => { %>
+        <a href="/user/<%= u.id %>" class="flex items-center gap-2">
+            <% if (u.avatar) { %>
+            <img
+                src="https://cdn.discordapp.com/avatars/<%= u.id %>/<%= u.avatar %>.png"
+                class="w-8 h-8 rounded-full"
+            />
+            <% } %>
+            <span><%= u.username %></span>
+        </a>
+        <% }) %>
+    </div>
+</div>
+
 <div class="bg-white p-4 rounded shadow">
     <h2 class="text-lg font-semibold mb-2">Stats</h2>
     <p>Users: <%= stats.users %></p>

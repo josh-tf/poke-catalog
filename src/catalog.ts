@@ -2,7 +2,7 @@ import { Op } from 'sequelize';
 import { Item } from './models';
 import { CatalogItem } from './types';
 
-function parseJsonArray<T>(input: string | null): T[] | undefined {
+export function parseJsonArray<T>(input: string | null): T[] | undefined {
     if (!input) {
         return undefined;
     }

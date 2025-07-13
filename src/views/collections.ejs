@@ -9,18 +9,30 @@
 <% if (collections.length === 0) { %>
 <p>No collections yet.</p>
 <% } else { %>
-<ul class="space-y-2">
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
     <% collections.forEach(c => { %>
-    <li>
-        <a
-            href="/collections/<%= c.userId %>/<%= c.slug %>"
-            class="text-blue-600 hover:underline"
-            ><%= c.name %></a
-        >
-        <% if (!c.public) { %><span class="text-sm text-gray-500"
-            >(private)</span
-        ><% } %>
-    </li>
+    <div class="border rounded p-2 bg-white shadow">
+        <div class="flex gap-1 mb-2">
+            <% if (c.images && c.images.length > 0) { %>
+            <% c.images.forEach(img => { %>
+            <img src="<%= img %>" class="w-8 h-8 object-contain" />
+            <% }) %>
+            <% } %>
+        </div>
+        <h3 class="font-semibold">
+            <a
+                href="/collections/<%= c.userId %>/<%= c.slug %>"
+                class="text-blue-600 hover:underline"
+                ><%= c.name %></a
+            >
+        </h3>
+        <p class="text-sm">
+            <%= c.itemCount %> items
+            <% if (!c.public) { %>
+            <span class="text-gray-500">(private)</span>
+            <% } %>
+        </p>
+    </div>
     <% }) %>
-</ul>
+</div>
 <% } %>

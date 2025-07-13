@@ -52,13 +52,119 @@
 <% if (items.length === 0) { %>
 <p>No items yet.</p>
 <% } else { %>
-<ul class="space-y-2">
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-6">
     <% items.forEach(i => { %>
-    <li>
-        <a href="/item/<%= i.id %>" class="text-blue-600 hover:underline"
-            ><%= i.title %></a
+    <div>
+        <% if (i.images && i.images.length > 0) { %>
+        <img
+            src="<%= i.images[0] %>"
+            data-id="<%= i.id %>"
+            class="w-full h-24 object-contain bg-gray-100 cursor-pointer item-thumb"
+        />
+        <% } else { %>
+        <div
+            data-id="<%= i.id %>"
+            class="w-full h-24 flex items-center justify-center bg-gray-100 text-sm text-gray-500 cursor-pointer item-thumb"
         >
-    </li>
+            No Image
+        </div>
+        <% } %>
+        <p class="text-sm text-center mt-1"><%= i.title %></p>
+    </div>
     <% }) %>
-</ul>
+</div>
+<script type="application/json" id="items-data">
+    <%- JSON.stringify(items) %>
+</script>
+<div
+    id="itemModal"
+    class="fixed inset-0 bg-black/50 hidden items-center justify-center"
+>
+    <div class="bg-white p-4 rounded shadow max-w-sm w-full">
+        <h3 id="modalTitle" class="text-lg font-semibold mb-2"></h3>
+        <p id="modalDesc" class="mb-2"></p>
+        <div id="modalExtra" class="space-y-1 text-sm mb-2 hidden">
+            <div>Paid: $<span id="modalPaid"></span></div>
+            <div>Market: $<span id="modalMarket"></span></div>
+            <a id="viewLink" href="#" class="text-blue-600 underline"
+                >View Item</a
+            >
+            <a
+                id="editLink"
+                href="#"
+                class="ml-2 text-blue-600 underline"
+                >Edit Item</a
+            >
+        </div>
+        <button
+            type="button"
+            onclick="document.getElementById('itemModal').classList.add('hidden')"
+            class="px-3 py-1 bg-gray-300 rounded"
+        >
+            Close
+        </button>
+    </div>
+</div>
+<script>
+    const itemData = JSON.parse(
+        document.getElementById('items-data').textContent,
+    );
+    const isOwner = <%= user && user.id === collection.userId ? 'true' : 'false' %>;
+    document.querySelectorAll('.item-thumb').forEach((el) => {
+        el.addEventListener('click', () => {
+            const id = el.dataset.id;
+            const item = itemData.find((i) => i.id === id);
+            if (!item) return;
+            document.getElementById('modalTitle').textContent = item.title;
+            document.getElementById('modalDesc').textContent = item.desc || '';
+            if (isOwner) {
+                document.getElementById('modalPaid').textContent =
+                    item.pricePaid || '';
+                document.getElementById('modalMarket').textContent =
+                    item.marketValue || '';
+                document.getElementById('viewLink').href = '/item/' + item.id;
+                document.getElementById('editLink').href =
+                    '/item/' + item.id + '/edit';
+                document.getElementById('modalExtra').classList.remove('hidden');
+            } else {
+                document.getElementById('modalExtra').classList.add('hidden');
+            }
+            document
+                .getElementById('itemModal')
+                .classList.remove('hidden');
+        });
+    });
+</script>
+
+<div class="bg-white rounded shadow p-6">
+    <h4 class="text-lg font-pixel text-pokemon-grass mb-3">Items by Category</h4>
+    <div id="categoryChart" class="min-h-[250px]"></div>
+</div>
+<script type="application/json" id="category-data">
+    <%- JSON.stringify(categoryData) %>
+</script>
+<script>
+    const categoryData = JSON.parse(
+        document.getElementById('category-data').textContent,
+    );
+    const labels = Object.keys(categoryData);
+    const series = labels.map((l) => categoryData[l]);
+    const options = {
+        series: series,
+        labels: labels,
+        chart: {
+            type: 'donut',
+            height: 250,
+            fontFamily: 'Plus Jakarta Sans, sans-serif',
+        },
+        dataLabels: { enabled: false },
+        legend: { position: 'bottom' },
+    };
+    if (document.querySelector('#categoryChart')) {
+        new ApexCharts(
+            document.querySelector('#categoryChart'),
+            options,
+        ).render();
+    }
+</script>
 <% } %>

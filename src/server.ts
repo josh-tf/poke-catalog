@@ -15,6 +15,7 @@ import {
     deleteItem,
     getItem,
     loadCatalog,
+    parseJsonArray,
     updateItem,
     updateMany,
 } from './catalog';
@@ -188,16 +189,54 @@ app.use((req, res, next) => {
 app.get('/', async (req, res) => {
     const collections = await Collection.findAll({
         where: { public: true },
-        include: [User],
         order: [['createdAt', 'DESC']],
         limit: 5,
+        include: [User],
     });
+    for (const col of collections) {
+        const imgs = await Item.findAll({
+            where: { collectionId: col.id },
+            limit: 4,
+        });
+        (col as any).thumbs = imgs
+            .map((i) => parseJsonArray<string>(i.images)?.[0])
+            .filter(Boolean);
+    }
     const stats = {
         users: await User.count(),
         collections: await Collection.count(),
         items: await Item.count(),
     };
-    res.render('home', { user: req.user, collections, stats });
+
+    const topRaw = await Item.findAll({
+        attributes: [
+            'userId',
+            [sequelize.fn('COUNT', sequelize.col('id')), 'itemCount'],
+        ],
+        group: ['userId'],
+        order: [[sequelize.literal('itemCount'), 'DESC']],
+        limit: 5,
+    });
+    const topUsers = [] as { user: User; itemCount: number }[];
+    for (const row of topRaw) {
+        const u = await User.findByPk(row.get('userId') as string);
+        if (u) {
+            topUsers.push({ user: u, itemCount: Number(row.get('itemCount')) });
+        }
+    }
+
+    const recentUsers = await User.findAll({
+        order: [['createdAt', 'DESC']],
+        limit: 5,
+    });
+
+    res.render('home', {
+        user: req.user,
+        collections,
+        stats,
+        topUsers,
+        recentUsers,
+    });
 });
 
 // Catalog page - list items
@@ -514,7 +553,19 @@ app.post('/bulk-edit', ensureAuth, async (req, res) => {
 app.get('/collections', ensureAuth, async (req, res) => {
     const userId = (req.user as any).id;
     const collections = await Collection.findAll({ where: { userId } });
-    res.render('collections', { user: req.user, collections });
+    const enriched = [] as any[];
+    for (const col of collections) {
+        const count = await Item.count({ where: { collectionId: col.id } });
+        const items = await Item.findAll({
+            where: { collectionId: col.id },
+            limit: 4,
+        });
+        const images = items
+            .map((i) => parseJsonArray<string>(i.images)?.[0])
+            .filter(Boolean);
+        enriched.push({ ...col.get(), itemCount: count, images });
+    }
+    res.render('collections', { user: req.user, collections: enriched });
 });
 
 app.get('/collections/create', ensureAuth, (req, res) => {
@@ -554,8 +605,35 @@ app.get('/collections/:userId/:slug', async (req, res) => {
     const items = await Item.findAll({
         where: { collectionId: collection.id },
     });
+    const parsedItems = items.map((i) => ({
+        id: i.id,
+        title: i.title,
+        category: i.category as Category,
+        desc: i.desc || undefined,
+        notes: i.notes || undefined,
+        pricePaid: i.pricePaid || undefined,
+        marketValue: i.marketValue || undefined,
+        images: parseJsonArray<string>(i.images),
+    }));
+
+    const categoryData: Record<Category, number> = {
+        Cards: 0,
+        Graded: 0,
+        'Booster Box': 0,
+        'Collection Boxes': 0,
+    };
+    for (const item of parsedItems) {
+        categoryData[item.category]++;
+    }
+
     const shareUrl = `${req.protocol}://${req.get('host')}/collections/${collection.userId}/${collection.slug}`;
-    res.render('collection', { user: req.user, collection, items, shareUrl });
+    res.render('collection', {
+        user: req.user,
+        collection,
+        items: parsedItems,
+        shareUrl,
+        categoryData,
+    });
 });
 
 app.get('/collections/:userId/:slug/edit', ensureAuth, async (req, res) => {
@@ -621,6 +699,18 @@ app.get('/user/:id', async (req, res) => {
     const collections = await Collection.findAll({
         where: { userId: userProfile.id, ...(showAll ? {} : { public: true }) },
     });
+    const collectionsEnriched = [] as any[];
+    for (const col of collections) {
+        const count = await Item.count({ where: { collectionId: col.id } });
+        const imgs = await Item.findAll({
+            where: { collectionId: col.id },
+            limit: 4,
+        });
+        const images = imgs
+            .map((i) => parseJsonArray<string>(i.images)?.[0])
+            .filter(Boolean);
+        collectionsEnriched.push({ ...col.get(), itemCount: count, images });
+    }
     const items = await loadCatalog(userProfile.id);
     const comments = await ProfileComment.findAll({
         where: { userId: userProfile.id },
@@ -630,8 +720,9 @@ app.get('/user/:id', async (req, res) => {
     res.render('profile', {
         user: req.user,
         userProfile,
+        showAll,
         comments,
-        collections,
+        collections: collectionsEnriched,
         items,
     });
 });
