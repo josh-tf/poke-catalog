@@ -36,7 +36,9 @@
         "express-session": "^1.18.1",
         "multer": "^2.0.1",
         "passport": "^0.7.0",
-        "passport-discord": "^0.1.4"
+        "passport-discord": "^0.1.4",
+        "sequelize": "^6.37.7",
+        "sqlite3": "^5.1.7"
     },
     "devDependencies": {
         "@types/ejs": "^3",
