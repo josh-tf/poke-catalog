@@ -17,14 +17,25 @@
         >
             <div class="mb-2">
                 <input
+                    id="id-input"
                     class="form-control"
                     name="id"
                     placeholder="Card ID (e.g. sv1v-087)"
                     required
                 />
+                <div class="form-text id-feedback"></div>
+            </div>
+            <div class="mb-2">
+                <select class="form-select" name="category" required>
+                    <option value="Cards">Cards</option>
+                    <option value="Graded">Graded</option>
+                    <option value="Boosters">Boosters</option>
+                    <option value="Collection Boxes">Collection Boxes</option>
+                </select>
             </div>
             <div class="mb-2">
                 <input
+                    id="title-input"
                     class="form-control"
                     name="title"
                     placeholder="Title"
@@ -78,5 +89,6 @@
             <button class="btn btn-success">💾 Save</button>
         </form>
         <a class="btn btn-secondary" href="/">⬅ Back</a>
+        <script src="/form.js"></script>
     </body>
 </html>
