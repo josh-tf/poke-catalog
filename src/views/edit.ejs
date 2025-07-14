@@ -31,6 +31,26 @@
       </select>
     </div>
 
+    <!-- Subcategory -->
+    <div>
+      <label class="block text-sm mb-1 text-pokemon-electric">Subcategory</label>
+      <select
+        name="subcategory"
+        class="w-full rounded border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pokemon-grass"
+      >
+        <option value="">(none)</option>
+        <% categories.forEach(cat => { %>
+          <% if (cat.subcategories) { %>
+            <optgroup label="<%= cat.label %>">
+              <% cat.subcategories.forEach(sub => { %>
+                <option value="<%= sub.id %>" <%= item.subcategory === sub.id ? 'selected' : '' %>><%= sub.label %></option>
+              <% }) %>
+            </optgroup>
+          <% } %>
+        <% }) %>
+      </select>
+    </div>
+
     <!-- Description -->
     <div>
       <label class="block text-sm mb-1 text-pokemon-electric">Description</label>

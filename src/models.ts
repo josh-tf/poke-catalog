@@ -92,6 +92,7 @@ export class Item extends Model<
     declare marketValue: number | null;
     declare images: string | null;
     declare category: string;
+    declare subcategory: string | null;
     declare userId: string;
     declare collectionId: number | null;
 }
@@ -110,6 +111,7 @@ Item.init(
         marketValue: DataTypes.FLOAT,
         images: DataTypes.TEXT,
         category: DataTypes.STRING,
+        subcategory: DataTypes.STRING,
         userId: DataTypes.STRING,
         collectionId: DataTypes.INTEGER,
     },

@@ -19,7 +19,7 @@ import {
     updateItem,
     updateMany,
 } from './catalog';
-import { categories, CategoryId } from './config';
+import { categories, CategoryId, SubcategoryId } from './config';
 import {
     Collection,
     Item,
@@ -31,12 +31,22 @@ import {
 import { CatalogItem } from './types';
 
 const validCategories: CategoryId[] = categories.map((c) => c.id);
+const validSubcategories: SubcategoryId[] = categories.flatMap((c) =>
+    c.subcategories ? c.subcategories.map((s) => s.id) : [],
+);
 
 function safeCategory(input: string): CategoryId {
     if (validCategories.includes(input as CategoryId)) {
         return input as CategoryId;
     }
     return categories[0].id;
+}
+
+function safeSubcategory(input: string | undefined): SubcategoryId | undefined {
+    if (input && validSubcategories.includes(input as SubcategoryId)) {
+        return input as SubcategoryId;
+    }
+    return undefined;
 }
 
 dotenv.config();
@@ -247,9 +257,13 @@ app.get('/catalog', async (req, res) => {
     const sort = (req.query.sort as string) || 'title';
     const order = (req.query.order as string) === 'desc' ? 'desc' : 'asc';
     const category = (req.query.category as string) || '';
+    const subcategory = (req.query.subcategory as string) || '';
 
     if (category) {
         items = items.filter((item) => item.category === category);
+    }
+    if (subcategory) {
+        items = items.filter((item) => item.subcategory === subcategory);
     }
 
     items.sort((a, b) => {
@@ -278,6 +292,7 @@ app.get('/catalog', async (req, res) => {
         sort,
         order,
         category,
+        subcategory,
         categoryData,
         categories,
     });
@@ -347,6 +362,7 @@ app.post('/bulk-add/save', ensureAuth, async (req, res) => {
     const pricePaids = toArray(req.body.pricePaid);
     const marketValues = toArray(req.body.marketValue);
     const categoryIds = toArray(req.body.category);
+    const subcategoryIds = toArray(req.body.subcategory);
     const images = toArray(req.body.image);
 
     const userId = (req.user as any).id;
@@ -359,6 +375,7 @@ app.post('/bulk-add/save', ensureAuth, async (req, res) => {
             id: uniqueId,
             title: titles[i],
             category: safeCategory(categoryIds[i]),
+            subcategory: safeSubcategory(subcategoryIds[i]),
             desc: descs[i],
             pricePaid: parseFloat(pricePaids[i]) || 0,
             marketValue: parseFloat(marketValues[i]) || 0,
@@ -400,6 +417,7 @@ app.post('/add', ensureAuth, async (req, res) => {
         id: uniqueId,
         title: req.body.title,
         category: req.body.category,
+        subcategory: safeSubcategory(req.body.subcategory),
         desc: req.body.desc,
         notes: req.body.notes,
         flags: req.body.flags
@@ -472,6 +490,7 @@ app.post('/item/:id/edit', ensureAuth, async (req, res) => {
         desc: req.body.desc,
         notes: req.body.notes,
         category: req.body.category,
+        subcategory: safeSubcategory(req.body.subcategory),
         flags: req.body.flags
             ? req.body.flags.split(',').map((f: string) => f.trim())
             : [],
@@ -538,6 +557,9 @@ app.post('/bulk-edit', ensureAuth, async (req, res) => {
     const updates: Partial<CatalogItem> = {};
     if (req.body.category) {
         updates.category = req.body.category as CatalogItem['category'];
+    }
+    if (req.body.subcategory) {
+        updates.subcategory = safeSubcategory(req.body.subcategory);
     }
 
     await updateMany(userId, ids, updates);
@@ -606,6 +628,7 @@ app.get('/collections/:userId/:slug', async (req, res) => {
         id: i.id,
         title: i.title,
         category: i.category as CategoryId,
+        subcategory: i.subcategory || undefined,
         desc: i.desc || undefined,
         notes: i.notes || undefined,
         pricePaid: i.pricePaid || undefined,

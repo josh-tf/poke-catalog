@@ -25,6 +25,7 @@ export async function loadCatalog(userId: string): Promise<CatalogItem[]> {
         id: i.id,
         title: i.title,
         category: i.category as CatalogItem['category'],
+        subcategory: (i.subcategory || undefined) as CatalogItem['subcategory'],
         desc: i.desc || undefined,
         notes: i.notes || undefined,
         flags: parseJsonArray<Tag>(i.flags),
@@ -59,6 +60,8 @@ export async function getItem(
         id: item.id,
         title: item.title,
         category: item.category as CatalogItem['category'],
+        subcategory: (item.subcategory ||
+            undefined) as CatalogItem['subcategory'],
         desc: item.desc || undefined,
         notes: item.notes || undefined,
         flags: parseJsonArray<Tag>(item.flags),
