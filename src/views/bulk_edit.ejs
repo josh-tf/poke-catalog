@@ -21,10 +21,9 @@
             class="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pokemon-grass"
         >
             <option value="">-- Change Category --</option>
-            <option value="Cards">Cards</option>
-            <option value="Graded">Graded</option>
-            <option value="Booster Box">Booster Box</option>
-            <option value="Collection Boxes">Collection Boxes</option>
+            <% categories.forEach(cat => { %>
+            <option value="<%= cat.id %>"><%= cat.label %></option>
+            <% }) %>
         </select>
     </div>
 

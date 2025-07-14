@@ -19,6 +19,7 @@ import {
     updateItem,
     updateMany,
 } from './catalog';
+import { categories, CategoryId } from './config';
 import {
     Collection,
     Item,
@@ -27,20 +28,15 @@ import {
     syncDb,
     User,
 } from './models';
-import { CatalogItem, Category } from './types';
+import { CatalogItem } from './types';
 
-const validCategories: Category[] = [
-    'Cards',
-    'Graded',
-    'Booster Box',
-    'Collection Boxes',
-];
+const validCategories: CategoryId[] = categories.map((c) => c.id);
 
-function safeCategory(input: string): Category {
-    if (validCategories.includes(input as Category)) {
-        return input as Category;
+function safeCategory(input: string): CategoryId {
+    if (validCategories.includes(input as CategoryId)) {
+        return input as CategoryId;
     }
-    return 'Cards';
+    return categories[0].id;
 }
 
 dotenv.config();
@@ -83,8 +79,6 @@ const uploadsPath = path.join(__dirname, '../public/uploads');
 if (!fs.existsSync(uploadsPath)) {
     fs.mkdirSync(uploadsPath, { recursive: true });
 }
-
-const categories = ['Cards', 'Graded', 'Booster Box', 'Collection Boxes'];
 
 // ----- Authentication Setup -----
 const CLIENT_ID = process.env.DISCORD_CLIENT_ID || '';
@@ -270,18 +264,9 @@ app.get('/catalog', async (req, res) => {
         return order === 'desc' ? -result : result;
     });
 
-    const categories: Category[] = [
-        'Cards',
-        'Graded',
-        'Booster Box',
-        'Collection Boxes',
-    ];
-    const categoryData: Record<Category, number> = {
-        Cards: 0,
-        Graded: 0,
-        'Booster Box': 0,
-        'Collection Boxes': 0,
-    };
+    const categoryData: Record<CategoryId, number> = Object.fromEntries(
+        categories.map((c) => [c.id, 0]),
+    ) as Record<CategoryId, number>;
     for (const item of items) {
         categoryData[item.category]++;
     }
@@ -309,7 +294,7 @@ app.get('/check-id/:id', async (req, res) => {
 
 // Form to add new item
 app.get('/add', ensureAuth, (req, res) => {
-    res.render('add', { user: req.user });
+    res.render('add', { user: req.user, categories });
 });
 
 // Handle image upload and show detail form
@@ -339,7 +324,11 @@ app.post('/bulk-add', ensureAuth, (req, res) => {
         });
     }
 
-    res.render('bulk_details', { user: req.user, files: savedFiles });
+    res.render('bulk_details', {
+        user: req.user,
+        files: savedFiles,
+        categories,
+    });
 });
 
 // Bulk upload select images
@@ -357,7 +346,7 @@ app.post('/bulk-add/save', ensureAuth, async (req, res) => {
     const descs = toArray(req.body.desc);
     const pricePaids = toArray(req.body.pricePaid);
     const marketValues = toArray(req.body.marketValue);
-    const categories = toArray(req.body.category);
+    const categoryIds = toArray(req.body.category);
     const images = toArray(req.body.image);
 
     const userId = (req.user as any).id;
@@ -369,7 +358,7 @@ app.post('/bulk-add/save', ensureAuth, async (req, res) => {
         const item: CatalogItem = {
             id: uniqueId,
             title: titles[i],
-            category: safeCategory(categories[i]),
+            category: safeCategory(categoryIds[i]),
             desc: descs[i],
             pricePaid: parseFloat(pricePaids[i]) || 0,
             marketValue: parseFloat(marketValues[i]) || 0,
@@ -616,7 +605,7 @@ app.get('/collections/:userId/:slug', async (req, res) => {
     const parsedItems = items.map((i) => ({
         id: i.id,
         title: i.title,
-        category: i.category as Category,
+        category: i.category as CategoryId,
         desc: i.desc || undefined,
         notes: i.notes || undefined,
         pricePaid: i.pricePaid || undefined,
@@ -624,12 +613,9 @@ app.get('/collections/:userId/:slug', async (req, res) => {
         images: parseJsonArray<string>(i.images),
     }));
 
-    const categoryData: Record<Category, number> = {
-        Cards: 0,
-        Graded: 0,
-        'Booster Box': 0,
-        'Collection Boxes': 0,
-    };
+    const categoryData: Record<CategoryId, number> = Object.fromEntries(
+        categories.map((c) => [c.id, 0]),
+    ) as Record<CategoryId, number>;
     for (const item of parsedItems) {
         categoryData[item.category]++;
     }

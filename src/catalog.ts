@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+import type { Tag } from './config';
 import { Item } from './models';
 import { CatalogItem } from './types';
 
@@ -23,10 +24,10 @@ export async function loadCatalog(userId: string): Promise<CatalogItem[]> {
     return items.map((i) => ({
         id: i.id,
         title: i.title,
-        category: i.category as any,
+        category: i.category as CatalogItem['category'],
         desc: i.desc || undefined,
         notes: i.notes || undefined,
-        flags: parseJsonArray<string>(i.flags),
+        flags: parseJsonArray<Tag>(i.flags),
         pricePaid: i.pricePaid || undefined,
         marketValue: i.marketValue || undefined,
         images: parseJsonArray<string>(i.images),
@@ -57,10 +58,10 @@ export async function getItem(
     return {
         id: item.id,
         title: item.title,
-        category: item.category as any,
+        category: item.category as CatalogItem['category'],
         desc: item.desc || undefined,
         notes: item.notes || undefined,
-        flags: parseJsonArray<string>(item.flags),
+        flags: parseJsonArray<Tag>(item.flags),
         pricePaid: item.pricePaid || undefined,
         marketValue: item.marketValue || undefined,
         images: parseJsonArray<string>(item.images),
