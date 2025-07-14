@@ -1,4 +1,6 @@
-export type Category = 'Cards' | 'Graded' | 'Booster Box' | 'Collection Boxes';
+import type { CategoryId, Tag } from './config';
+
+export type Category = CategoryId;
 
 export interface CatalogItem {
     id: string;
@@ -6,7 +8,7 @@ export interface CatalogItem {
     title: string;
     desc?: string;
     notes?: string;
-    flags?: string[];
+    flags?: Tag[];
     pricePaid?: number;
     marketValue?: number;
     images?: string[];

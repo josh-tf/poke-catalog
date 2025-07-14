@@ -26,7 +26,7 @@
         class="w-full rounded border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pokemon-grass"
       >
         <% categories.forEach(cat => { %>
-          <option value="<%= cat %>" <%= item.category === cat ? 'selected' : '' %>><%= cat %></option>
+          <option value="<%= cat.id %>" <%= item.category === cat.id ? 'selected' : '' %>><%= cat.label %></option>
         <% }) %>
       </select>
     </div>

@@ -22,7 +22,7 @@
     <div class="text-gray-800 space-y-4 text-sm leading-relaxed">
         <p>
             <span class="font-semibold text-pokemon-electric">Category:</span>
-            <%= item.category?.trim() || '(none)' %>
+            <%= categories.find(c => c.id === item.category)?.label || '(none)' %>
         </p>
 
         <p>
