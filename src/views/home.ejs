@@ -38,13 +38,13 @@
     <div class="flex flex-wrap gap-4">
         <% topUsers.forEach(tu => { %>
         <a href="/user/<%= tu.user.id %>" class="flex items-center gap-2">
-            <% if (tu.user.avatar) { %>
+            <% if (tu.user.avatarUrl || tu.user.avatar) { %>
             <img
-                src="https://cdn.discordapp.com/avatars/<%= tu.user.id %>/<%= tu.user.avatar %>.png"
+                src="<%= tu.user.avatarUrl || `https://cdn.discordapp.com/avatars/${tu.user.id}/${tu.user.avatar}.png` %>"
                 class="w-8 h-8 rounded-full"
             />
             <% } %>
-            <span><%= tu.user.username %></span>
+            <span><%= tu.user.displayName || tu.user.username %></span>
         </a>
         <% }) %>
     </div>
@@ -55,13 +55,13 @@
     <div class="flex flex-wrap gap-4">
         <% recentUsers.forEach(u => { %>
         <a href="/user/<%= u.id %>" class="flex items-center gap-2">
-            <% if (u.avatar) { %>
+            <% if (u.avatarUrl || u.avatar) { %>
             <img
-                src="https://cdn.discordapp.com/avatars/<%= u.id %>/<%= u.avatar %>.png"
+                src="<%= u.avatarUrl || `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.png` %>"
                 class="w-8 h-8 rounded-full"
             />
             <% } %>
-            <span><%= u.username %></span>
+            <span><%= u.displayName || u.username %></span>
         </a>
         <% }) %>
     </div>

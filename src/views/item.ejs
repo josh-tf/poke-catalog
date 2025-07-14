@@ -12,6 +12,7 @@
             src="<%= img %>"
             alt="Item image"
             class="h-48 rounded border border-gray-200 object-contain bg-gray-50"
+            style="transform: scale(<%= user?.imageZoom || 1 %>)"
         />
         <% }) %>
     </div>

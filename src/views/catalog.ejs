@@ -96,6 +96,7 @@
             src="<%= item.images[0] %>"
             alt="Item Image"
             class="w-full h-48 object-contain bg-gray-100"
+            style="transform: scale(<%= user?.imageZoom || 1 %>)"
         />
         <% } %>
         <div class="p-4">
@@ -133,7 +134,7 @@
             <input type="checkbox" name="ids" value="<%= item.id %>" class="shrink-0 mt-1" />
 
             <% if (item.images?.length > 0) { %>
-            <img src="<%= item.images[0] %>" alt="Card image" class="h-20 w-20 object-contain bg-gray-100 rounded border shrink-0" />
+            <img src="<%= item.images[0] %>" alt="Card image" class="h-20 w-20 object-contain bg-gray-100 rounded border shrink-0" style="transform: scale(<%= user?.imageZoom || 1 %>)" />
             <% } else { %>
             <div class="h-20 w-20 flex items-center justify-center bg-gray-100 text-gray-400 border rounded text-xs shrink-0">No Image</div>
             <% } %>

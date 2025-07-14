@@ -64,11 +64,11 @@
                 <% if (user) { %>
                 <span class="text-sm font-medium"
                     >Logged in as
-                    <%= user.username %></span
+                    <%= user.displayName || user.username %></span
                 >
-                <% if (user.avatar) { %>
+                <% if (user.avatarUrl || user.avatar) { %>
                 <img
-                    src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png"
+                    src="<%= user.avatarUrl || `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` %>"
                     alt="Avatar"
                     class="w-8 h-8 rounded-full border-2 border-white"
                 />
@@ -122,6 +122,12 @@
                         class="flex items-center text-pokemon-electric hover:bg-pokemon-electric hover:text-black px-3 py-2 rounded transition"
                     >
                         <i class="ti ti-user mr-2"></i> Profile
+                    </a>
+                    <a
+                        href="/preferences"
+                        class="flex items-center hover:bg-gray-100 px-3 py-2 rounded"
+                    >
+                        <i class="ti ti-settings mr-2"></i> Preferences
                     </a>
                 </nav>
             </aside>

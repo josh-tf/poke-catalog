@@ -1,15 +1,27 @@
 <h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
-    <%= userProfile.username %>'s Profile
+    <%= userProfile.displayName || userProfile.username %>'s Profile
 </h1>
 
-<% if (userProfile.avatar) { %>
-<div class="mb-8">
+<% if (userProfile.profileBanner) { %>
+<img src="<%= userProfile.profileBanner %>" class="w-full mb-6 rounded-md" />
+<% } %>
+
+<% if (userProfile.avatarUrl || userProfile.avatar) { %>
+<div class="mb-4">
     <img
-        src="https://cdn.discordapp.com/avatars/<%= userProfile.id %>/<%= userProfile.avatar %>.png"
+        src="<%= userProfile.avatarUrl || `https://cdn.discordapp.com/avatars/${userProfile.id}/${userProfile.avatar}.png` %>"
         alt="avatar"
         class="w-24 h-24 rounded-full ring ring-pokemon-psychic ring-offset-2"
     />
 </div>
+<% } %>
+
+<% if (userProfile.tagline) { %>
+<p class="text-lg italic mb-4"><%= userProfile.tagline %></p>
+<% } %>
+
+<% if (userProfile.profileDesc) { %>
+<p class="mb-6 whitespace-pre-wrap"><%= userProfile.profileDesc %></p>
 <% } %>
 
 <!-- Catalog Items -->
@@ -44,6 +56,7 @@
                 src="<%= i.images[0] %>"
                 data-id="<%= i.id %>"
                 class="w-full h-24 object-contain rounded-md bg-gray-100 p-1 shadow-sm cursor-pointer item-thumb"
+                style="transform: scale(<%= user?.imageZoom || 1 %>)"
             />
             <% } else { %>
             <div
@@ -109,6 +122,7 @@
     <script>
                         const itemData = JSON.parse(document.getElementById('items-data').textContent);
                         const isOwner = <%= showAll ? 'true' : 'false' %>;
+                        const zoom = <%= user?.imageZoom || 1 %>;
 
                 const sortSelect = document.getElementById('sortSelect');
                 const itemGrid = document.querySelector('.grid');
@@ -140,7 +154,7 @@
                   itemGrid.innerHTML = sortedItems.map(i => `
                     <div class="text-center">
                       ${i.images?.[0]
-                        ? `<img src="${i.images[0]}" data-id="${i.id}" class="w-full h-24 object-contain rounded-md bg-gray-100 p-1 shadow-sm cursor-pointer item-thumb" />`
+                        ? `<img src="${i.images[0]}" data-id="${i.id}" class="w-full h-24 object-contain rounded-md bg-gray-100 p-1 shadow-sm cursor-pointer item-thumb" style="transform: scale(${user?.imageZoom || 1})" />`
                         : `<div data-id="${i.id}" class="w-full h-24 flex items-center justify-center rounded-md bg-gray-100 text-sm text-gray-500 cursor-pointer item-thumb">No Image</div>`
                       }
                       <p class="text-sm mt-2">${i.title}</p>
@@ -166,6 +180,7 @@
                           img.src = url;
                           img.alt = item.title;
                           img.className = 'h-24 rounded-md bg-gray-100 p-1 shadow-sm object-contain cursor-pointer';
+                          img.style.transform = `scale(${zoom})`;
                           modalImages.appendChild(img);
                         });
                       }
@@ -218,6 +233,7 @@
                                 img.src = url;
                                 img.alt = item.title;
                                 img.className = 'h-24 rounded-md bg-gray-100 p-1 shadow-sm object-contain cursor-pointer';
+                                img.style.transform = `scale(${zoom})`;
                                 modalImages.appendChild(img);
                               });
                             }
@@ -320,15 +336,15 @@
         <% comments.forEach(c => { %>
         <li class="border rounded-xl p-4 bg-gray-50 shadow-inner">
             <div class="flex items-center gap-3 mb-2">
-                <% if (c.commenter.avatar) { %>
+                <% if (c.commenter.avatarUrl || c.commenter.avatar) { %>
                 <img
-                    src="https://cdn.discordapp.com/avatars/<%= c.commenter.id %>/<%= c.commenter.avatar %>.png"
+                    src="<%= c.commenter.avatarUrl || `https://cdn.discordapp.com/avatars/${c.commenter.id}/${c.commenter.avatar}.png` %>"
                     alt="avatar"
                     class="w-8 h-8 rounded-full ring-2 ring-pokemon-psychic"
                 />
                 <% } %>
                 <span class="text-sm text-gray-600">
-                    <strong><%= c.commenter.username %></strong> said:
+                    <strong><%= c.commenter.displayName || c.commenter.username %></strong> said:
                 </span>
             </div>
             <div
