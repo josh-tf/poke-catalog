@@ -3,6 +3,9 @@ export const categories = [
     { id: 'graded', label: 'Graded' },
     { id: 'booster-box', label: 'Booster Box' },
     { id: 'collection-boxes', label: 'Collection Boxes' },
+    { id: 'books', label: 'Books' },
+    { id: 'misc-items', label: 'Misc Items' },
+    { id: 'collection-sets', label: 'Collection Sets' },
 ] as const;
 
 export const tags = ['for-sale', 'for-trade', 'wanted'] as const;
