@@ -24,6 +24,13 @@
         <p>
             <span class="font-semibold text-pokemon-electric">Category:</span>
             <%= categories.find(c => c.id === item.category)?.label || '(none)' %>
+            <% if (item.subcategory) { %>
+            —
+            <%= (() => {
+  const cat = categories.find(c => c.subcategories?.some(s => s.id === item.subcategory));
+  return cat?.subcategories?.find(s => s.id === item.subcategory)?.label || '';
+})() %>
+            <% } %>
         </p>
 
         <p>

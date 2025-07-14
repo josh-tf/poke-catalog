@@ -27,6 +27,32 @@
         </select>
     </div>
 
+    <!-- Subcategory Dropdown -->
+    <div>
+        <label
+            for="subcategory"
+            class="block text-sm mb-2 text-pokemon-electric tracking-wide"
+        >
+            🔄 Update Subcategory
+        </label>
+        <select
+            id="subcategory"
+            name="subcategory"
+            class="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pokemon-grass"
+        >
+            <option value="">-- Change Subcategory --</option>
+            <% categories.forEach(cat => { %>
+                <% if (cat.subcategories) { %>
+                    <optgroup label="<%= cat.label %>">
+                        <% cat.subcategories.forEach(sub => { %>
+                            <option value="<%= sub.id %>"><%= sub.label %></option>
+                        <% }) %>
+                    </optgroup>
+                <% } %>
+            <% }) %>
+        </select>
+    </div>
+
     <!-- Submit + Back + Delete Buttons -->
     <div class="flex flex-wrap gap-3 mt-4">
         <button

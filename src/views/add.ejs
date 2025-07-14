@@ -33,6 +33,25 @@
         </select>
     </div>
 
+    <!-- Subcategory -->
+    <div>
+        <select
+            name="subcategory"
+            class="w-full border border-gray-300 rounded px-4 py-2 text-sm font-pixel bg-white focus:outline-none focus:ring-2 focus:ring-pokemon-grass"
+        >
+            <option value="">(none)</option>
+            <% categories.forEach(cat => { %>
+                <% if (cat.subcategories) { %>
+                    <optgroup label="<%= cat.label %>">
+                        <% cat.subcategories.forEach(sub => { %>
+                            <option value="<%= sub.id %>"><%= sub.label %></option>
+                        <% }) %>
+                    </optgroup>
+                <% } %>
+            <% }) %>
+        </select>
+    </div>
+
     <!-- Title -->
     <div>
         <input
