@@ -179,8 +179,14 @@ app.set('layout', 'layout');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
 
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
     res.locals.title = 'Poké Catalog';
+    if (req.user) {
+        const dbUser = await User.findByPk((req.user as any).id);
+        if (dbUser) {
+            Object.assign(req.user as any, dbUser.get());
+        }
+    }
     res.locals.user = req.user;
     next();
 });
@@ -763,6 +769,27 @@ app.post('/user/:id/comment', ensureAuth, async (req, res) => {
         content: req.body.content,
     });
     res.redirect(`/user/${req.params.id}`);
+});
+
+// ----- User Preferences -----
+app.get('/preferences', ensureAuth, async (req, res) => {
+    res.render('preferences', { user: req.user });
+});
+
+app.post('/preferences', ensureAuth, async (req, res) => {
+    const dbUser = await User.findByPk((req.user as any).id);
+    if (dbUser) {
+        await dbUser.update({
+            displayName: req.body.displayName || null,
+            avatarUrl: req.body.avatarUrl || null,
+            profileDesc: req.body.profileDesc || null,
+            profileBanner: req.body.profileBanner || null,
+            tagline: req.body.tagline || null,
+            imageZoom: parseFloat(req.body.imageZoom) || 1,
+        });
+        Object.assign(req.user as any, dbUser.get());
+    }
+    res.redirect('/preferences');
 });
 
 async function start() {

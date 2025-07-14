@@ -19,7 +19,13 @@ export class User extends Model<
 > {
     declare id: string;
     declare username: string;
-    declare avatar: string | null;
+    declare avatar: string | null; // discord avatar
+    declare displayName: string | null;
+    declare avatarUrl: string | null;
+    declare profileDesc: string | null;
+    declare profileBanner: string | null;
+    declare tagline: string | null;
+    declare imageZoom: CreationOptional<number>;
 }
 
 User.init(
@@ -30,6 +36,12 @@ User.init(
         },
         username: DataTypes.STRING,
         avatar: DataTypes.STRING,
+        displayName: DataTypes.STRING,
+        avatarUrl: DataTypes.STRING,
+        profileDesc: DataTypes.TEXT,
+        profileBanner: DataTypes.STRING,
+        tagline: DataTypes.STRING,
+        imageZoom: { type: DataTypes.FLOAT, defaultValue: 1 },
     },
     { sequelize, modelName: 'user' },
 );
