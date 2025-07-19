@@ -13,7 +13,7 @@
         <input
             id="id-input"
             name="id"
-            placeholder="Card ID (e.g. sv1v-087)"
+            placeholder="Item ID (e.g. sv1s-101-087 or violet-ex-starter-deck)"
             required
             class="w-full border border-gray-300 rounded px-4 py-2 text-sm font-pixel focus:outline-none focus:ring-2 focus:ring-pokemon-electric"
         />
@@ -41,13 +41,13 @@
         >
             <option value="">(none)</option>
             <% categories.forEach(cat => { %>
-                <% if (cat.subcategories) { %>
-                    <optgroup label="<%= cat.label %>">
-                        <% cat.subcategories.forEach(sub => { %>
-                            <option value="<%= sub.id %>"><%= sub.label %></option>
-                        <% }) %>
-                    </optgroup>
-                <% } %>
+            <% if (cat.subcategories) { %>
+            <optgroup label="<%= cat.label %>">
+                <% cat.subcategories.forEach(sub => { %>
+                <option value="<%= sub.id %>"><%= sub.label %></option>
+                <% }) %>
+            </optgroup>
+            <% } %>
             <% }) %>
         </select>
     </div>

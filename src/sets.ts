@@ -4,6 +4,8 @@ export interface SetItem {
     name: string;
     code: string;
     language: Language;
+    logo?: string;
+    symbol?: string;
 }
 
 export const languageItemTypes: Record<Language, string[]> = {
@@ -48,6 +50,9 @@ export const sets: SetGroup[] = [
                 'name': 'Mega Brave',
                 'code': 'm1l',
                 'language': 'japanese',
+                'logo': 'https://static.tcgcollector.com/content/images/14/05/3d/14053d0ab328aff5b0314f9796f01b4eec80225b348ff2cf84ed0854eedebbe9.webp',
+                'symbol':
+                    'https://static.tcgcollector.com/content/images/2d/86/16/2d86166010552a69f412f0334e11ab868077f4b1f5ac16e81acd343beb6fac5e.webp',
             },
         ],
     },
@@ -61,6 +66,9 @@ export const sets: SetGroup[] = [
                 'name': 'Black Bolt (BLK)',
                 'code': 'blk',
                 'language': 'english',
+                'logo': 'https://static.tcgcollector.com/content/images/14/05/3d/14053d0ab328aff5b0314f9796f01b4eec80225b348ff2cf84ed0854eedebbe9.webp',
+                'symbol':
+                    'https://static.tcgcollector.com/content/images/2d/86/16/2d86166010552a69f412f0334e11ab868077f4b1f5ac16e81acd343beb6fac5e.webp',
             },
             {
                 'name': 'White Flare (WHT)',
@@ -279,6 +287,9 @@ export const sets: SetGroup[] = [
                 'name': 'Black Bolt',
                 'code': 'sv11b',
                 'language': 'japanese',
+                'logo': 'https://static.tcgcollector.com/content/images/14/05/3d/14053d0ab328aff5b0314f9796f01b4eec80225b348ff2cf84ed0854eedebbe9.webp',
+                'symbol':
+                    'https://static.tcgcollector.com/content/images/2d/86/16/2d86166010552a69f412f0334e11ab868077f4b1f5ac16e81acd343beb6fac5e.webp',
             },
             {
                 'name': 'White Flare',
