@@ -1,0 +1,13 @@
+<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
+    Edit Set
+</h1>
+<form method="POST" action="/sets/<%= set.code %>/edit" class="space-y-2">
+    <% const types = languageItemTypes[set.language]; %>
+    <% types.forEach(t => { %>
+    <label class="flex items-center gap-2">
+        <input type="checkbox" name="items" value="<%= t %>" <%= progress[t] ? 'checked' : '' %> />
+        <%= t %>
+    </label>
+    <% }) %>
+    <button class="px-4 py-2 bg-blue-600 text-white rounded">Save</button>
+</form>
