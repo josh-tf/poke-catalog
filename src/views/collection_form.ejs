@@ -1,4 +1,4 @@
-<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
+<h1 class="page-title">
     Create Collection
 </h1>
 <form method="POST" action="/collections/create" class="space-y-2">
@@ -6,16 +6,16 @@
         type="text"
         name="name"
         placeholder="Name"
-        class="w-full border p-2"
+        class="form-control"
         required
     />
     <textarea
         name="description"
         placeholder="Description"
-        class="w-full border p-2"
+        class="form-control"
     ></textarea>
     <label class="flex items-center gap-2">
         <input type="checkbox" name="public" /> Public
     </label>
-    <button class="btn bg-blue-600 text-white">Save</button>
+    <button class="btn btn-primary">Save</button>
 </form>

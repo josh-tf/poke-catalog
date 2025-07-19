@@ -1,7 +1,7 @@
 <div
     class="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-lg border-t-4 border-pokemon-electric space-y-6 font-pixel"
 >
-    <h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
+    <h1 class="page-title">
         <%= item.title %>
     </h1>
 
@@ -97,7 +97,7 @@
     <div class="flex flex-wrap gap-3 pt-6 border-t border-gray-200">
         <a
             href="/item/<%= item.id %>/edit?returnTo=<%= encodeURIComponent(currentUrl) %>"
-            class="btn bg-pokemon-water hover:bg-pokemon-water/90 text-white"
+            class="btn btn-primary"
         >
             ✏️ Edit
         </a>
@@ -109,7 +109,7 @@
         >
             <button
                 type="submit"
-                class="btn bg-pokemon-fire hover:bg-pokemon-fire/90 text-white"
+                class="btn btn-primary"
             >
                 🗑 Delete
             </button>
@@ -117,7 +117,7 @@
 
         <a
             href="/"
-            class="btn bg-gray-300 hover:bg-gray-400 text-gray-800"
+            class="btn btn-primary"
         >
             ⬅ Back
         </a>

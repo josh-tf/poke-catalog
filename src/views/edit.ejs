@@ -1,5 +1,5 @@
 <div class="max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-lg border-t-4 border-pokemon-electric">
-  <h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
+  <h1 class="page-title">
     Edit Item
   </h1>
 
@@ -14,7 +14,7 @@
         name="title"
         value="<%= item.title %>"
         required
-        class="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-fire"
+        class="form-control"
       />
     </div>
 
@@ -24,7 +24,7 @@
       <select
         name="category"
         required
-        class="w-full rounded border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pokemon-grass"
+        class="form-control"
       >
         <% categories.forEach(cat => { %>
           <option value="<%= cat.id %>" <%= item.category === cat.id ? 'selected' : '' %>><%= cat.label %></option>
@@ -37,7 +37,7 @@
       <label class="block text-sm mb-1 text-pokemon-electric">Subcategory</label>
       <select
         name="subcategory"
-        class="w-full rounded border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pokemon-grass"
+        class="form-control"
       >
         <option value="">(none)</option>
         <% categories.forEach(cat => { %>
@@ -60,7 +60,7 @@
         name="desc"
         value="<%= item.desc || '' %>"
         placeholder="Description"
-        class="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-water"
+        class="form-control"
       />
     </div>
 
@@ -72,7 +72,7 @@
         name="notes"
         value="<%= item.notes || '' %>"
         placeholder="Notes"
-        class="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-psychic"
+        class="form-control"
       />
     </div>
 
@@ -83,7 +83,7 @@
         type="date"
         name="purchaseDate"
         value="<%= item.purchaseDate || '' %>"
-        class="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-psychic"
+        class="form-control"
       />
     </div>
 
@@ -92,7 +92,7 @@
       <label class="block text-sm mb-1 text-pokemon-electric">Condition</label>
       <select
         name="condition"
-        class="w-full rounded border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pokemon-psychic"
+        class="form-control"
       >
         <option value="" <%= !item.condition ? 'selected' : '' %>>(condition)</option>
         <option value="mint" <%= item.condition === 'mint' ? 'selected' : '' %>>Mint</option>
@@ -119,7 +119,7 @@
         name="flags"
         value="<%= item.flags ? item.flags.join(', ') : '' %>"
         placeholder="e.g. rare, sealed"
-        class="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-dark"
+        class="form-control"
       />
     </div>
 
@@ -132,7 +132,7 @@
           step="0.01"
           name="pricePaid"
           value="<%= item.pricePaid %>"
-          class="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-fairy"
+          class="form-control"
         />
       </div>
       <div>
@@ -142,7 +142,7 @@
           step="0.01"
           name="marketValue"
           value="<%= item.marketValue %>"
-          class="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-dragon"
+          class="form-control"
         />
       </div>
     </div>
@@ -179,7 +179,7 @@
         name="newImages"
         accept="image/*"
         multiple
-        class="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-pokemon-electric file:text-black hover:file:bg-pokemon-electric/90 transition"
+        class="form-control"
       />
     </div>
 
@@ -187,13 +187,13 @@
     <div class="flex items-center gap-4 pt-2">
       <button
         type="submit"
-        class="btn bg-pokemon-grass hover:bg-pokemon-grass/90 text-white"
+        class="btn btn-primary"
       >
         💾 Save
       </button>
       <a
         href="/item/<%= item.id %>"
-        class="btn bg-gray-300 hover:bg-gray-400 text-gray-800 inline-block"
+        class="btn btn-primary"
       >
         ⬅ Back
       </a>

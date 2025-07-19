@@ -1,4 +1,4 @@
-<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
+<h1 class="page-title">
     My Catalog
 </h1>
 
@@ -9,13 +9,13 @@
     <div class="flex flex-wrap items-center gap-2">
         <a
             href="/add"
-            class="btn bg-pokemon-fire hover:bg-pokemon-fire/90 text-white font-pixel"
+            class="btn btn-primary"
         >
             ➕ Add New Item
         </a>
         <a
             href="/bulk-add"
-            class="btn bg-pokemon-electric hover:bg-pokemon-electric/90 text-black font-pixel"
+            class="btn btn-primary"
         >
             📥 Bulk Upload
         </a>
@@ -26,13 +26,13 @@
         <!-- View Toggle -->
         <a
             href="/catalog?view=list"
-            class="btn border border-gray-400 text-gray-800 font-pixel hover:bg-gray-200"
+            class="btn btn-primary"
         >
             List View
         </a>
         <a
             href="/catalog?view=grid"
-            class="btn border border-gray-400 text-gray-800 font-pixel hover:bg-gray-200"
+            class="btn btn-primary"
         >
             Grid View
         </a>
@@ -112,7 +112,7 @@
         <img
             src="<%= item.images[0] %>"
             alt="Item Image"
-            class="w-full h-48 object-contain bg-gray-100"
+            class="form-control"
             style="transform: scale(<%= user?.imageZoom || 1 %>)"
         />
         <% } %>
@@ -175,7 +175,7 @@
         </label>
     </div>
     <% }) %>
-    <button class="btn bg-yellow-500 text-white hover:bg-yellow-600">Bulk Edit</button>
+    <button class="btn btn-primary">Bulk Edit</button>
 </form>
 
 <% } %>
