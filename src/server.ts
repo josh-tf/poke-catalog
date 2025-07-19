@@ -31,6 +31,7 @@ import {
 } from './models';
 import { languageItemTypes, sets } from './sets';
 import { CatalogItem } from './types';
+import { slugify } from './utils';
 
 const validCategories: CategoryId[] = categories.map((c) => c.id);
 const validSubcategories: SubcategoryId[] = categories.flatMap((c) =>
@@ -70,14 +71,6 @@ async function makeUniqueId(base: string, userId: string): Promise<string> {
         id = `${base}-${genRandomId()}`;
     } while (items.some((item) => item.id === id));
     return id;
-}
-
-function slugify(str: string): string {
-    return str
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
 }
 
 async function makeUniqueSlug(name: string, userId: string): Promise<string> {
@@ -796,9 +789,44 @@ app.get('/sets', ensureAuth, async (req, res) => {
     for (const row of progressRows) {
         progressMap[row.setCode] = row.progress ? JSON.parse(row.progress) : {};
     }
+
+    const groups = sets.map((g) => {
+        const counts: Record<string, { have: number; total: number }> = {};
+        for (const set of g.sets) {
+            const prog = progressMap[set.code] || {};
+            for (const type of languageItemTypes[set.language]) {
+                const c = counts[type] || { have: 0, total: 0 };
+                c.total += 1;
+                if (prog[type]) {
+                    c.have += 1;
+                }
+                counts[type] = c;
+            }
+        }
+        return { group: g.group, slug: g.slug, counts };
+    });
+
     res.render('sets', {
         user: req.user,
-        sets,
+        groups,
+    });
+});
+
+app.get('/sets/era/:slug', ensureAuth, async (req, res) => {
+    const slug = req.params.slug;
+    const group = sets.find((g) => g.slug === slug);
+    if (!group) {
+        return res.status(404).send('Not found');
+    }
+    const userId = (req.user as any).id;
+    const progressRows = await SetProgress.findAll({ where: { userId } });
+    const progressMap: Record<string, Record<string, boolean>> = {};
+    for (const row of progressRows) {
+        progressMap[row.setCode] = row.progress ? JSON.parse(row.progress) : {};
+    }
+    res.render('sets_group', {
+        user: req.user,
+        group,
         languageItemTypes,
         progressMap,
     });
@@ -848,6 +876,59 @@ app.post('/sets/:code/edit', ensureAuth, async (req, res) => {
         });
     }
     res.redirect('/sets');
+});
+
+app.get('/sets/era/:slug/bulk-edit', ensureAuth, async (req, res) => {
+    const slug = req.params.slug;
+    const group = sets.find((g) => g.slug === slug);
+    if (!group) {
+        return res.status(404).send('Not found');
+    }
+    const userId = (req.user as any).id;
+    const progressRows = await SetProgress.findAll({ where: { userId } });
+    const progressMap: Record<string, Record<string, boolean>> = {};
+    for (const row of progressRows) {
+        progressMap[row.setCode] = row.progress ? JSON.parse(row.progress) : {};
+    }
+    res.render('sets_bulk', {
+        user: req.user,
+        group,
+        languageItemTypes,
+        progressMap,
+    });
+});
+
+app.post('/sets/era/:slug/bulk-edit', ensureAuth, async (req, res) => {
+    const slug = req.params.slug;
+    const group = sets.find((g) => g.slug === slug);
+    if (!group) {
+        return res.status(404).send('Not found');
+    }
+    const userId = (req.user as any).id;
+    for (const set of group.sets) {
+        const selected = Array.isArray(req.body[set.code])
+            ? req.body[set.code]
+            : req.body[set.code]
+              ? [req.body[set.code]]
+              : [];
+        const progress: Record<string, boolean> = {};
+        for (const type of languageItemTypes[set.language]) {
+            progress[type] = selected.includes(type);
+        }
+        const row = await SetProgress.findOne({
+            where: { userId, setCode: set.code },
+        });
+        if (row) {
+            await row.update({ progress: JSON.stringify(progress) });
+        } else {
+            await SetProgress.create({
+                userId,
+                setCode: set.code,
+                progress: JSON.stringify(progress),
+            });
+        }
+    }
+    res.redirect(`/sets/era/${slug}`);
 });
 
 // ----- User Preferences -----

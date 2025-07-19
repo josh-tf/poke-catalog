@@ -1,0 +1,18 @@
+<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
+    Bulk Edit - <%= group.group %>
+</h1>
+<a href="/sets/era/<%= group.slug %>" class="text-blue-600 hover:underline">&larr; Back</a>
+<form method="POST" action="/sets/era/<%= group.slug %>/bulk-edit" class="space-y-4 mt-4">
+    <% group.sets.forEach(set => { const prog = progressMap[set.code] || {}; const types = languageItemTypes[set.language]; %>
+    <fieldset class="border p-3">
+        <legend class="font-semibold"><%= set.name %> (<%= set.code %>)</legend>
+        <% types.forEach(t => { %>
+        <label class="flex items-center gap-2">
+            <input type="checkbox" name="<%= set.code %>" value="<%= t %>" <%= prog[t] ? 'checked' : '' %> />
+            <%= t %>
+        </label>
+        <% }) %>
+    </fieldset>
+    <% }) %>
+    <button class="px-4 py-2 bg-blue-600 text-white rounded">Save</button>
+</form>

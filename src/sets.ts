@@ -11,12 +11,18 @@ export const languageItemTypes: Record<Language, string[]> = {
     japanese: ['booster pack', 'booster box'],
 };
 
-export const sets: {
+import { slugify } from './utils';
+
+export interface SetGroup {
     group: string;
+    slug: string;
     sets: SetItem[];
-}[] = [
+}
+
+export const sets: SetGroup[] = [
     {
         group: 'Scarlet and Violet',
+        slug: slugify('Scarlet and Violet'),
         sets: [
             { name: 'Scarlet ex', code: 'sv1s', language: 'japanese' },
             { name: 'Violet ex', code: 'sv1v', language: 'japanese' },
