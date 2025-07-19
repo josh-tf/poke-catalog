@@ -151,7 +151,12 @@
                     document.getElementById('viewLink').href =
                         '/item/' + item.id;
                     document.getElementById('editLink').href =
-                        '/item/' + item.id + '/edit';
+                        '/item/' +
+                        item.id +
+                        '/edit?returnTo=' +
+                        encodeURIComponent(
+                            window.location.pathname + window.location.search,
+                        );
                     document
                         .getElementById('modalExtra')
                         .classList.remove('hidden');

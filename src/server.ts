@@ -472,7 +472,12 @@ app.get('/item/:id', ensureAuth, async (req, res) => {
     if (!item) {
         return res.status(404).send('Not found');
     }
-    res.render('item', { user: req.user, item, categories });
+    res.render('item', {
+        user: req.user,
+        item,
+        categories,
+        currentUrl: req.originalUrl,
+    });
 });
 
 // Edit item form
@@ -481,7 +486,16 @@ app.get('/item/:id/edit', ensureAuth, async (req, res) => {
     if (!item) {
         return res.status(404).send('Not found');
     }
-    res.render('edit', { user: req.user, item, categories });
+    const returnTo =
+        (req.query.returnTo as string) ||
+        req.get('Referer') ||
+        `/item/${item.id}`;
+    res.render('edit', {
+        user: req.user,
+        item,
+        categories,
+        returnTo,
+    });
 });
 
 // Handle edit
@@ -536,8 +550,12 @@ app.post('/item/:id/edit', ensureAuth, async (req, res) => {
         marketValue: parseFloat(req.body.marketValue) || 0,
         images,
     });
-
-    res.redirect(`/item/${id}`);
+    const returnTo = req.body.returnTo;
+    if (returnTo && typeof returnTo === 'string' && returnTo.startsWith('/')) {
+        res.redirect(returnTo);
+    } else {
+        res.redirect(`/item/${id}`);
+    }
 });
 
 // Delete item

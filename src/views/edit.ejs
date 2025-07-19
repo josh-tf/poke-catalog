@@ -4,6 +4,7 @@
   </h1>
 
   <form method="POST" action="/item/<%= item.id %>/edit" enctype="multipart/form-data" class="space-y-5 font-pixel">
+    <input type="hidden" name="returnTo" value="<%= returnTo %>" />
 
     <!-- Title -->
     <div>
