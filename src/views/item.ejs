@@ -96,7 +96,7 @@
 
     <div class="flex flex-wrap gap-3 pt-6 border-t border-gray-200">
         <a
-            href="/item/<%= item.id %>/edit"
+            href="/item/<%= item.id %>/edit?returnTo=<%= encodeURIComponent(currentUrl) %>"
             class="bg-pokemon-water hover:bg-pokemon-water/90 text-white px-4 py-2 rounded shadow transition"
         >
             ✏️ Edit

@@ -3,6 +3,7 @@
     <span class="bg-gray-200 px-2 py-0.5 rounded text-xs"><%= set.code %></span>
 </h1>
 <form method="POST" action="/sets/<%= set.code %>/edit" class="space-y-2">
+    <input type="hidden" name="returnTo" value="<%= returnTo %>" />
     <% const types = languageItemTypes[set.language]; %>
     <% types.forEach(t => { %>
     <label class="flex items-center gap-2">

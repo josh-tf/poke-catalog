@@ -472,7 +472,12 @@ app.get('/item/:id', ensureAuth, async (req, res) => {
     if (!item) {
         return res.status(404).send('Not found');
     }
-    res.render('item', { user: req.user, item, categories });
+    res.render('item', {
+        user: req.user,
+        item,
+        categories,
+        currentUrl: req.originalUrl,
+    });
 });
 
 // Edit item form
@@ -481,7 +486,16 @@ app.get('/item/:id/edit', ensureAuth, async (req, res) => {
     if (!item) {
         return res.status(404).send('Not found');
     }
-    res.render('edit', { user: req.user, item, categories });
+    const returnTo =
+        (req.query.returnTo as string) ||
+        req.get('Referer') ||
+        `/item/${item.id}`;
+    res.render('edit', {
+        user: req.user,
+        item,
+        categories,
+        returnTo,
+    });
 });
 
 // Handle edit
@@ -536,8 +550,12 @@ app.post('/item/:id/edit', ensureAuth, async (req, res) => {
         marketValue: parseFloat(req.body.marketValue) || 0,
         images,
     });
-
-    res.redirect(`/item/${id}`);
+    const returnTo = req.body.returnTo;
+    if (returnTo && typeof returnTo === 'string' && returnTo.startsWith('/')) {
+        res.redirect(returnTo);
+    } else {
+        res.redirect(`/item/${id}`);
+    }
 });
 
 // Delete item
@@ -910,6 +928,7 @@ app.get('/sets', ensureAuth, async (req, res) => {
         shareUrl,
         baseUrl: '/sets',
         canEdit: true,
+        currentUrl: req.originalUrl,
     });
 });
 
@@ -974,6 +993,7 @@ app.get('/sets/era/:slug', ensureAuth, async (req, res) => {
         shareUrl,
         baseUrl: '/sets',
         canEdit: true,
+        currentUrl: req.originalUrl,
     });
 });
 
@@ -986,11 +1006,14 @@ app.get('/sets/:code/edit', ensureAuth, async (req, res) => {
     const set = allSets.find((s) => s.code === code)!;
     const row = await SetProgress.findOne({ where: { userId, setCode: code } });
     const progress = row && row.progress ? JSON.parse(row.progress) : {};
+    const returnTo =
+        (req.query.returnTo as string) || req.get('Referer') || '/sets';
     res.render('set_edit', {
         user: req.user,
         set,
         languageItemTypes,
         progress,
+        returnTo,
     });
 });
 
@@ -1020,7 +1043,12 @@ app.post('/sets/:code/edit', ensureAuth, async (req, res) => {
             progress: JSON.stringify(progress),
         });
     }
-    res.redirect('/sets');
+    const returnTo = req.body.returnTo;
+    if (returnTo && typeof returnTo === 'string' && returnTo.startsWith('/')) {
+        res.redirect(returnTo);
+    } else {
+        res.redirect('/sets');
+    }
 });
 
 app.get('/sets/era/:slug/bulk-edit', ensureAuth, async (req, res) => {

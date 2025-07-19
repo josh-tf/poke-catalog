@@ -94,6 +94,7 @@
         <div id="modal-<%= s.code %>" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[9999]">
             <div class="bg-white rounded p-4 w-full max-w-sm">
                 <form method="POST" action="/sets/<%= s.code %>/edit" class="space-y-2">
+                    <input type="hidden" name="returnTo" value="<%= currentUrl %>" />
                     <% types.forEach(t => { %>
                     <label class="flex items-center gap-2">
                         <input type="checkbox" name="items" value="<%= t %>" <%= prog[t] ? 'checked' : '' %> />
