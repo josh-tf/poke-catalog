@@ -6,9 +6,11 @@
     <% } %>
 </h1>
 <div class="mb-4">
-    <a href="/sets" class="text-blue-600 hover:underline">&larr; Back to Eras</a>
+    <a href="<%= baseUrl %>" class="text-blue-600 hover:underline">&larr; Back to Eras</a>
+    <% if (canEdit) { %>
     |
     <a href="/sets/era/<%= group.slug %>/bulk-edit" class="text-blue-600 hover:underline">Bulk Edit</a>
+    <% } %>
 </div>
 <form class="mb-4">
     <label>
@@ -46,6 +48,7 @@
             <span class="<%= prog[t] ? 'line-through text-green-700' : '' %>"><%= t %></span>
             <% }) %>
         </div>
+        <% if (canEdit) { %>
         <button data-modal="<%= s.code %>" class="text-blue-600 hover:underline">Edit</button>
         <div id="modal-<%= s.code %>" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4">
             <div class="bg-white rounded p-4 w-full max-w-sm">
@@ -63,10 +66,12 @@
                 </form>
             </div>
         </div>
+        <% } %>
     </div>
     <% }) %>
 </div>
 
+<% if (canEdit) { %>
 <script>
 document.querySelectorAll('[data-modal]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -79,6 +84,7 @@ document.querySelectorAll('[data-close]').forEach(btn => {
     });
 });
 </script>
+<% } %>
 <% if (shareUrl) { %>
 <div id="shareModal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
     <div class="bg-white p-4 rounded shadow w-full max-w-md">

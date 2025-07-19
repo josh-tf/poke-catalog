@@ -908,6 +908,8 @@ app.get('/sets', ensureAuth, async (req, res) => {
         totals,
         status: statusFilter,
         shareUrl,
+        baseUrl: '/sets',
+        canEdit: true,
     });
 });
 
@@ -970,6 +972,8 @@ app.get('/sets/era/:slug', ensureAuth, async (req, res) => {
         status: statusFilter,
         progressMap,
         shareUrl,
+        baseUrl: '/sets',
+        canEdit: true,
     });
 });
 
@@ -1159,6 +1163,8 @@ app.get('/user/:id/sets', async (req, res) => {
         groupsByLang,
         totals,
         status: statusFilter,
+        baseUrl: `/user/${userId}/sets`,
+        canEdit: false,
     });
 });
 
@@ -1219,6 +1225,8 @@ app.get('/user/:id/sets/era/:slug', async (req, res) => {
         stats,
         status: statusFilter,
         progressMap,
+        baseUrl: `/user/${userId}/sets`,
+        canEdit: false,
     });
 });
 
