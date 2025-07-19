@@ -12,7 +12,7 @@
     "bugs": {
         "url": "https://github.com/josh-tf/poke-catalog/issues"
     },
-    "packageManager": "yarn@4.9.1",
+    "packageManager": "yarn@4.9.2",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "engines": {
