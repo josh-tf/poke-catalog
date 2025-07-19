@@ -128,6 +128,16 @@ export class ProfileComment extends Model<
     declare content: string;
 }
 
+export class SetProgress extends Model<
+    InferAttributes<SetProgress>,
+    InferCreationAttributes<SetProgress>
+> {
+    declare id: CreationOptional<number>;
+    declare userId: string;
+    declare setCode: string;
+    declare progress: string | null; // json
+}
+
 ProfileComment.init(
     {
         id: {
@@ -142,6 +152,20 @@ ProfileComment.init(
     { sequelize, modelName: 'profile_comment' },
 );
 
+SetProgress.init(
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true,
+        },
+        userId: DataTypes.STRING,
+        setCode: DataTypes.STRING,
+        progress: DataTypes.TEXT,
+    },
+    { sequelize, modelName: 'set_progress' },
+);
+
 User.hasMany(Collection, { foreignKey: 'userId' });
 Collection.belongsTo(User, { foreignKey: 'userId' });
 User.hasMany(Item, { foreignKey: 'userId' });
@@ -151,6 +175,8 @@ Item.belongsTo(Collection, { foreignKey: 'collectionId' });
 User.hasMany(ProfileComment, { foreignKey: 'userId' });
 ProfileComment.belongsTo(User, { as: 'owner', foreignKey: 'userId' });
 ProfileComment.belongsTo(User, { as: 'commenter', foreignKey: 'commenterId' });
+User.hasMany(SetProgress, { foreignKey: 'userId' });
+SetProgress.belongsTo(User, { foreignKey: 'userId' });
 
 export async function syncDb() {
     await sequelize.sync();

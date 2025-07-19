@@ -1,0 +1,22 @@
+<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
+    Sets
+</h1>
+<% sets.forEach(g => { %>
+<h2 class="text-xl font-semibold mb-2"><%= g.group %></h2>
+<div class="space-y-2 mb-4">
+    <% g.sets.forEach(s => { %>
+    <% const prog = progressMap[s.code] || {}; const types = languageItemTypes[s.language]; %>
+    <div class="border rounded p-2 bg-white flex items-center justify-between">
+        <div>
+            <h3 class="font-semibold"><%= s.name %> (<%= s.code %>)</h3>
+            <div class="flex flex-wrap gap-2 text-sm mt-1">
+                <% types.forEach(t => { %>
+                <span class="<%= prog[t] ? 'line-through text-green-700' : '' %>"><%= t %></span>
+                <% }) %>
+            </div>
+        </div>
+        <a href="/sets/<%= s.code %>/edit" class="text-blue-600 hover:underline">Edit</a>
+    </div>
+    <% }) %>
+</div>
+<% }) %>

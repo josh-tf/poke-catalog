@@ -25,15 +25,19 @@ import {
     Item,
     ProfileComment,
     sequelize,
+    SetProgress,
     syncDb,
     User,
 } from './models';
+import { languageItemTypes, sets } from './sets';
 import { CatalogItem } from './types';
 
 const validCategories: CategoryId[] = categories.map((c) => c.id);
 const validSubcategories: SubcategoryId[] = categories.flatMap((c) =>
     c.subcategories ? c.subcategories.map((s) => s.id) : [],
 );
+const allSets = sets.flatMap((g) => g.sets);
+const validSetCodes = allSets.map((s) => s.code);
 
 function safeCategory(input: string): CategoryId {
     if (validCategories.includes(input as CategoryId)) {
@@ -47,6 +51,10 @@ function safeSubcategory(input: string | undefined): SubcategoryId | undefined {
         return input as SubcategoryId;
     }
     return undefined;
+}
+
+function safeSetCode(input: string): string | null {
+    return validSetCodes.includes(input) ? input : null;
 }
 
 dotenv.config();
@@ -778,6 +786,68 @@ app.post('/user/:id/comment', ensureAuth, async (req, res) => {
         content: req.body.content,
     });
     res.redirect(`/user/${req.params.id}`);
+});
+
+// ----- Set Tracking -----
+app.get('/sets', ensureAuth, async (req, res) => {
+    const userId = (req.user as any).id;
+    const progressRows = await SetProgress.findAll({ where: { userId } });
+    const progressMap: Record<string, Record<string, boolean>> = {};
+    for (const row of progressRows) {
+        progressMap[row.setCode] = row.progress ? JSON.parse(row.progress) : {};
+    }
+    res.render('sets', {
+        user: req.user,
+        sets,
+        languageItemTypes,
+        progressMap,
+    });
+});
+
+app.get('/sets/:code/edit', ensureAuth, async (req, res) => {
+    const code = safeSetCode(req.params.code);
+    if (!code) {
+        return res.status(404).send('Not found');
+    }
+    const userId = (req.user as any).id;
+    const set = allSets.find((s) => s.code === code)!;
+    const row = await SetProgress.findOne({ where: { userId, setCode: code } });
+    const progress = row && row.progress ? JSON.parse(row.progress) : {};
+    res.render('set_edit', {
+        user: req.user,
+        set,
+        languageItemTypes,
+        progress,
+    });
+});
+
+app.post('/sets/:code/edit', ensureAuth, async (req, res) => {
+    const code = safeSetCode(req.params.code);
+    if (!code) {
+        return res.status(404).send('Not found');
+    }
+    const userId = (req.user as any).id;
+    const items = Array.isArray(req.body.items)
+        ? req.body.items
+        : req.body.items
+          ? [req.body.items]
+          : [];
+    const progress: Record<string, boolean> = {};
+    const set = allSets.find((s) => s.code === code)!;
+    for (const type of languageItemTypes[set.language]) {
+        progress[type] = items.includes(type);
+    }
+    const row = await SetProgress.findOne({ where: { userId, setCode: code } });
+    if (row) {
+        await row.update({ progress: JSON.stringify(progress) });
+    } else {
+        await SetProgress.create({
+            userId,
+            setCode: code,
+            progress: JSON.stringify(progress),
+        });
+    }
+    res.redirect('/sets');
 });
 
 // ----- User Preferences -----
