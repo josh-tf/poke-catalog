@@ -783,6 +783,7 @@ app.post('/user/:id/comment', ensureAuth, async (req, res) => {
 
 // ----- Set Tracking -----
 app.get('/sets', ensureAuth, async (req, res) => {
+    const statusFilter = (req.query.status as string) || '';
     const userId = (req.user as any).id;
     const progressRows = await SetProgress.findAll({ where: { userId } });
     const progressMap: Record<string, Record<string, boolean>> = {};
@@ -790,11 +791,23 @@ app.get('/sets', ensureAuth, async (req, res) => {
         progressMap[row.setCode] = row.progress ? JSON.parse(row.progress) : {};
     }
 
-    const groups = sets.map((g) => {
+    const groupStats = sets.map((g) => {
         const counts: Record<string, { have: number; total: number }> = {};
+        let finishedSets = 0;
         for (const set of g.sets) {
             const prog = progressMap[set.code] || {};
-            for (const type of languageItemTypes[set.language]) {
+            const types = languageItemTypes[set.language];
+            const have = types.filter((t) => prog[t]).length;
+            const status =
+                have === 0
+                    ? 'notstarted'
+                    : have === types.length
+                      ? 'finished'
+                      : 'incomplete';
+            if (status === 'finished') {
+                finishedSets += 1;
+            }
+            for (const type of types) {
                 const c = counts[type] || { have: 0, total: 0 };
                 c.total += 1;
                 if (prog[type]) {
@@ -802,17 +815,59 @@ app.get('/sets', ensureAuth, async (req, res) => {
                 }
                 counts[type] = c;
             }
+            (set as any).status = status;
         }
-        return { group: g.group, slug: g.slug, counts };
+        const status =
+            finishedSets === g.sets.length
+                ? 'finished'
+                : finishedSets === 0
+                  ? 'notstarted'
+                  : 'incomplete';
+        return { ...g, counts, status };
     });
+
+    const filtered = statusFilter
+        ? groupStats.filter((g) => g.status === statusFilter)
+        : groupStats;
+
+    const totals = {
+        totalSets: sets.reduce((a, g) => a + g.sets.length, 0),
+        completedSets: groupStats.reduce(
+            (a, g) =>
+                a +
+                g.sets.filter((s) => (s as any).status === 'finished').length,
+            0,
+        ),
+        itemCounts: Object.fromEntries(
+            Object.keys(languageItemTypes).flatMap((lang) =>
+                languageItemTypes[lang as keyof typeof languageItemTypes].map(
+                    (t) => [t, 0],
+                ),
+            ),
+        ) as Record<string, number>,
+    };
+
+    for (const g of groupStats) {
+        for (const [type, c] of Object.entries(g.counts)) {
+            totals.itemCounts[type] = (totals.itemCounts[type] || 0) + c.have;
+        }
+    }
+
+    const groupsByLang = {
+        japanese: filtered.filter((g) => g.language === 'japanese'),
+        english: filtered.filter((g) => g.language === 'english'),
+    };
 
     res.render('sets', {
         user: req.user,
-        groups,
+        groupsByLang,
+        totals,
+        status: statusFilter,
     });
 });
 
 app.get('/sets/era/:slug', ensureAuth, async (req, res) => {
+    const statusFilter = (req.query.status as string) || '';
     const slug = req.params.slug;
     const group = sets.find((g) => g.slug === slug);
     if (!group) {
@@ -824,10 +879,47 @@ app.get('/sets/era/:slug', ensureAuth, async (req, res) => {
     for (const row of progressRows) {
         progressMap[row.setCode] = row.progress ? JSON.parse(row.progress) : {};
     }
+
+    const setsWithStatus = group.sets.map((s) => {
+        const prog = progressMap[s.code] || {};
+        const types = languageItemTypes[s.language];
+        const have = types.filter((t) => prog[t]).length;
+        const status =
+            have === 0
+                ? 'notstarted'
+                : have === types.length
+                  ? 'finished'
+                  : 'incomplete';
+        return { ...s, status, progress: prog };
+    });
+
+    const filtered = statusFilter
+        ? setsWithStatus.filter((s) => s.status === statusFilter)
+        : setsWithStatus;
+
+    const stats = {
+        completed: setsWithStatus.filter((s) => s.status === 'finished').length,
+        total: group.sets.length,
+        itemCounts: Object.fromEntries(
+            languageItemTypes[group.language].map((t) => [t, 0]),
+        ) as Record<string, number>,
+    };
+
+    for (const s of setsWithStatus) {
+        for (const type of languageItemTypes[s.language]) {
+            if (s.progress[type]) {
+                stats.itemCounts[type] += 1;
+            }
+        }
+    }
+
     res.render('sets_group', {
         user: req.user,
         group,
+        sets: filtered,
         languageItemTypes,
+        stats,
+        status: statusFilter,
         progressMap,
     });
 });

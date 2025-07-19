@@ -1,10 +1,53 @@
-<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
-    Sets
-</h1>
-<div class="grid md:grid-cols-2 gap-4">
-    <% groups.forEach(g => { %>
+<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">Sets</h1>
+<form class="mb-4">
+    <label>
+        Status
+        <select name="status" onchange="this.form.submit()" class="border ml-2 px-2 py-1">
+            <option value="" <%= !status ? 'selected' : '' %>>All</option>
+            <option value="finished" <%= status==='finished'?'selected':'' %>>Finished</option>
+            <option value="incomplete" <%= status==='incomplete'?'selected':'' %>>Incomplete</option>
+            <option value="notstarted" <%= status==='notstarted'?'selected':'' %>>Not Started</option>
+        </select>
+    </label>
+</form>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+    <div class="p-4 bg-white rounded border text-center">
+        <div class="text-sm text-gray-500">Completed Sets</div>
+        <div class="text-2xl font-semibold"><%= totals.completedSets %>/<%= totals.totalSets %></div>
+    </div>
+    <% Object.keys(totals.itemCounts).forEach(t => { %>
+    <div class="p-4 bg-white rounded border text-center">
+        <div class="text-sm text-gray-500"><%= t %></div>
+        <div class="text-2xl font-semibold"><%= totals.itemCounts[t] %></div>
+    </div>
+    <% }) %>
+</div>
+
+<h2 class="text-xl font-semibold mb-2">Japanese</h2>
+<div class="grid md:grid-cols-2 gap-4 mb-6">
+    <% groupsByLang.japanese.forEach(g => { %>
     <a href="/sets/era/<%= g.slug %>" class="block border rounded p-4 bg-white hover:bg-gray-100 transition">
-        <h2 class="text-xl font-semibold mb-2"><%= g.group %></h2>
+        <h3 class="text-lg font-semibold mb-2 flex items-center gap-2">
+            <%= g.group %>
+            <span class="bg-pokemon-fire text-white text-xs px-2 py-0.5 rounded"><%= g.code %></span>
+        </h3>
+        <div class="text-sm space-y-1">
+            <% Object.keys(g.counts).forEach(t => { const c = g.counts[t]; %>
+            <div><%= c.have %>/<%= c.total %> <%= t %> (<%= Math.round((c.have/c.total)*100) %>%)</div>
+            <% }) %>
+        </div>
+    </a>
+    <% }) %>
+</div>
+
+<h2 class="text-xl font-semibold mb-2">English</h2>
+<div class="grid md:grid-cols-2 gap-4">
+    <% groupsByLang.english.forEach(g => { %>
+    <a href="/sets/era/<%= g.slug %>" class="block border rounded p-4 bg-white hover:bg-gray-100 transition">
+        <h3 class="text-lg font-semibold mb-2 flex items-center gap-2">
+            <%= g.group %>
+            <span class="bg-pokemon-fire text-white text-xs px-2 py-0.5 rounded"><%= g.code %></span>
+        </h3>
         <div class="text-sm space-y-1">
             <% Object.keys(g.counts).forEach(t => { const c = g.counts[t]; %>
             <div><%= c.have %>/<%= c.total %> <%= t %> (<%= Math.round((c.have/c.total)*100) %>%)</div>
