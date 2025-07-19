@@ -15,6 +15,8 @@ import { slugify } from './utils';
 
 export interface SetGroup {
     group: string;
+    code: string;
+    language: Language;
     slug: string;
     sets: SetItem[];
 }
@@ -22,10 +24,22 @@ export interface SetGroup {
 export const sets: SetGroup[] = [
     {
         group: 'Scarlet and Violet',
+        code: 'SV',
+        language: 'japanese',
         slug: slugify('Scarlet and Violet'),
         sets: [
             { name: 'Scarlet ex', code: 'sv1s', language: 'japanese' },
             { name: 'Violet ex', code: 'sv1v', language: 'japanese' },
+        ],
+    },
+    {
+        group: 'Scarlet and Violet',
+        code: 'SV',
+        language: 'english',
+        slug: slugify('Scarlet and Violet EN'),
+        sets: [
+            { name: 'Scarlet & Violet', code: 'sv1', language: 'english' },
+            { name: 'Paldea Evolved', code: 'sv2', language: 'english' },
         ],
     },
 ];

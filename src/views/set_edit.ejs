@@ -1,5 +1,6 @@
-<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
-    Edit Set
+<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide flex items-center gap-2">
+    Edit Set - <%= set.name %>
+    <span class="bg-gray-200 px-2 py-0.5 rounded text-xs"><%= set.code %></span>
 </h1>
 <form method="POST" action="/sets/<%= set.code %>/edit" class="space-y-2">
     <% const types = languageItemTypes[set.language]; %>
