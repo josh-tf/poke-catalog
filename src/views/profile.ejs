@@ -196,7 +196,13 @@
                         document.getElementById('modalTrade').textContent = item.forTrade ? 'Yes' : 'No';
                         document.getElementById('modalSale').textContent = item.forSale ? 'Yes' : 'No';
                         document.getElementById('viewLink').href = '/item/' + item.id;
-                        document.getElementById('editLink').href = '/item/' + item.id + '/edit';
+                        document.getElementById('editLink').href =
+                            '/item/' +
+                            item.id +
+                            '/edit?returnTo=' +
+                            encodeURIComponent(
+                                window.location.pathname + window.location.search,
+                            );
                         document.getElementById('modalExtra').classList.remove('hidden');
                       } else {
                         document.getElementById('modalExtra').classList.add('hidden');
@@ -253,7 +259,13 @@
                               document.getElementById('modalTrade').textContent = item.forTrade ? 'Yes' : 'No';
                               document.getElementById('modalSale').textContent = item.forSale ? 'Yes' : 'No';
                               document.getElementById('viewLink').href = '/item/' + item.id;
-                              document.getElementById('editLink').href = '/item/' + item.id + '/edit';
+                              document.getElementById('editLink').href =
+                                  '/item/' +
+                                  item.id +
+                                  '/edit?returnTo=' +
+                                  encodeURIComponent(
+                                      window.location.pathname + window.location.search,
+                                  );
                               document.getElementById('modalExtra').classList.remove('hidden');
                             } else {
                               document.getElementById('modalExtra').classList.add('hidden');
