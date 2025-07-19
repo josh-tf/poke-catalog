@@ -33,7 +33,7 @@
     </div>
     <% }) %>
 </div>
-<canvas id="eraChart" class="mb-6 max-w-xs"></canvas>
+
 <div class="grid md:grid-cols-2 gap-4">
     <% sets.forEach(s => { %>
     <% const prog = progressMap[s.code] || {}; const types = languageItemTypes[s.language]; %>
@@ -46,14 +46,25 @@
             <span class="bg-gray-200 px-2 py-0.5 rounded text-xs"><%= s.code %></span>
         </div>
         <% if (s.logo) { %>
-        <img src="<%= s.logo %>" alt="<%= s.name %> logo" class="mb-2 max-h-16 w-full object-contain" />
+        <img src="<%= s.logo %>" alt="<%= s.name %> logo" class="mb-2 max-h-8 object-contain object-left w-full" style="max-height:32px; text-align:left;" />
         <% } %>
         <div class="flex flex-wrap gap-2 text-sm mb-2">
             <% types.forEach(t => { %>
-            <span class="<%= prog[t] ? 'line-through text-green-700' : '' %>"><%= t %></span>
+            <span class="px-2 py-0.5 rounded text-xs font-semibold
+                <%= prog[t]
+                    ? 'bg-green-100 text-green-700 border border-green-300'
+                    : 'line-through bg-gray-100 text-gray-400 border border-gray-200' %>">
+                <%= t %>
+            </span>
             <% }) %>
         </div>
-        <button data-modal="<%= s.code %>" class="text-blue-600 hover:underline">Edit</button>
+        <button
+            type="button"
+            data-modal="<%= s.code %>"
+            class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+        >
+            Edit
+        </button>
         <div id="modal-<%= s.code %>" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4">
             <div class="bg-white rounded p-4 w-full max-w-sm">
                 <form method="POST" action="/sets/<%= s.code %>/edit" class="space-y-2">
