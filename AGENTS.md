@@ -39,9 +39,9 @@ A web app to manage and view a catalog of Pokémon-related items — including u
 - **Language:** TypeScript (strict mode)
 - **Formatter:** Prettier with `eslint-plugin-prettier`
 - **Linting:** ESLint with:
-  - `@typescript-eslint`
-  - `unused-imports`
-  - `eslint-plugin-import`
+    - `@typescript-eslint`
+    - `unused-imports`
+    - `eslint-plugin-import`
 - **Hooks:** Husky runs lint-staged on commit
 - **Prettier rules:** single quotes, no semicolons, 80–100 char width
 - **Staged files:** auto-linted and formatted via `lint-staged`
