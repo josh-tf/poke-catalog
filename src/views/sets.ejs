@@ -1,22 +1,15 @@
 <h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
     Sets
 </h1>
-<% sets.forEach(g => { %>
-<h2 class="text-xl font-semibold mb-2"><%= g.group %></h2>
-<div class="space-y-2 mb-4">
-    <% g.sets.forEach(s => { %>
-    <% const prog = progressMap[s.code] || {}; const types = languageItemTypes[s.language]; %>
-    <div class="border rounded p-2 bg-white flex items-center justify-between">
-        <div>
-            <h3 class="font-semibold"><%= s.name %> (<%= s.code %>)</h3>
-            <div class="flex flex-wrap gap-2 text-sm mt-1">
-                <% types.forEach(t => { %>
-                <span class="<%= prog[t] ? 'line-through text-green-700' : '' %>"><%= t %></span>
-                <% }) %>
-            </div>
+<div class="grid md:grid-cols-2 gap-4">
+    <% groups.forEach(g => { %>
+    <a href="/sets/era/<%= g.slug %>" class="block border rounded p-4 bg-white hover:bg-gray-100 transition">
+        <h2 class="text-xl font-semibold mb-2"><%= g.group %></h2>
+        <div class="text-sm space-y-1">
+            <% Object.keys(g.counts).forEach(t => { const c = g.counts[t]; %>
+            <div><%= c.have %>/<%= c.total %> <%= t %> (<%= Math.round((c.have/c.total)*100) %>%)</div>
+            <% }) %>
         </div>
-        <a href="/sets/<%= s.code %>/edit" class="text-blue-600 hover:underline">Edit</a>
-    </div>
+    </a>
     <% }) %>
 </div>
-<% }) %>

@@ -1,0 +1,51 @@
+<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
+    <%= group.group %>
+</h1>
+<div class="mb-4">
+    <a href="/sets" class="text-blue-600 hover:underline">&larr; Back to Eras</a>
+    |
+    <a href="/sets/era/<%= group.slug %>/bulk-edit" class="text-blue-600 hover:underline">Bulk Edit</a>
+</div>
+<div class="grid md:grid-cols-2 gap-4">
+    <% group.sets.forEach(s => { %>
+    <% const prog = progressMap[s.code] || {}; const types = languageItemTypes[s.language]; %>
+    <div class="border rounded p-4 bg-white relative">
+        <h3 class="font-semibold mb-2"><%= s.name %> (<%= s.code %>)</h3>
+        <div class="flex flex-wrap gap-2 text-sm mb-2">
+            <% types.forEach(t => { %>
+            <span class="<%= prog[t] ? 'line-through text-green-700' : '' %>"><%= t %></span>
+            <% }) %>
+        </div>
+        <button data-modal="<%= s.code %>" class="text-blue-600 hover:underline">Edit</button>
+        <div id="modal-<%= s.code %>" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4">
+            <div class="bg-white rounded p-4 w-full max-w-sm">
+                <form method="POST" action="/sets/<%= s.code %>/edit" class="space-y-2">
+                    <% types.forEach(t => { %>
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" name="items" value="<%= t %>" <%= prog[t] ? 'checked' : '' %> />
+                        <%= t %>
+                    </label>
+                    <% }) %>
+                    <div class="flex gap-2 mt-2">
+                        <button class="px-3 py-1 bg-blue-600 text-white rounded">Save</button>
+                        <button type="button" data-close="<%= s.code %>" class="px-3 py-1 bg-gray-300 rounded">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <% }) %>
+</div>
+
+<script>
+document.querySelectorAll('[data-modal]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.getElementById('modal-' + btn.dataset.modal).classList.remove('hidden');
+    });
+});
+document.querySelectorAll('[data-close]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.getElementById('modal-' + btn.dataset.close).classList.add('hidden');
+    });
+});
+</script>
