@@ -16,6 +16,7 @@ import {
     getItem,
     loadCatalog,
     parseJsonArray,
+    searchCatalog,
     updateItem,
     updateMany,
 } from './catalog';
@@ -253,31 +254,22 @@ app.get('/', async (req, res) => {
 // Catalog page - list items
 app.get('/catalog', async (req, res) => {
     const userId = (req.user as any)?.id;
-    let items = userId ? await loadCatalog(userId) : [];
     const view = (req.query.view as string) || 'list';
     const sort = (req.query.sort as string) || 'title';
     const order = (req.query.order as string) === 'desc' ? 'desc' : 'asc';
     const category = (req.query.category as string) || '';
     const subcategory = (req.query.subcategory as string) || '';
+    const q = (req.query.q as string) || '';
 
-    if (category) {
-        items = items.filter((item) => item.category === category);
-    }
-    if (subcategory) {
-        items = items.filter((item) => item.subcategory === subcategory);
-    }
-
-    items.sort((a, b) => {
-        let result = 0;
-        if (sort === 'pricePaid') {
-            result = (a.pricePaid || 0) - (b.pricePaid || 0);
-        } else if (sort === 'marketValue') {
-            result = (a.marketValue || 0) - (b.marketValue || 0);
-        } else {
-            result = a.title.localeCompare(b.title);
-        }
-        return order === 'desc' ? -result : result;
-    });
+    const items = userId
+        ? await searchCatalog(userId, {
+              query: q,
+              category,
+              subcategory,
+              sort: sort as any,
+              order: order as any,
+          })
+        : [];
 
     const categoryData: Record<CategoryId, number> = Object.fromEntries(
         categories.map((c) => [c.id, 0]),
@@ -294,6 +286,7 @@ app.get('/catalog', async (req, res) => {
         order,
         category,
         subcategory,
+        q,
         categoryData,
         categories,
     });
@@ -306,6 +299,34 @@ app.get('/check-id/:id', async (req, res) => {
     const items = userId ? await loadCatalog(userId) : [];
     const exists = items.some((item) => item.id === id);
     res.json({ exists });
+});
+
+app.get('/api/search', ensureAuth, async (req, res) => {
+    const userId = (req.user as any).id;
+    const { q, category, subcategory, tag } = req.query;
+    const minPrice = req.query.minPrice
+        ? parseFloat(req.query.minPrice as string)
+        : undefined;
+    const maxPrice = req.query.maxPrice
+        ? parseFloat(req.query.maxPrice as string)
+        : undefined;
+    const sort = req.query.sort as
+        | 'title'
+        | 'pricePaid'
+        | 'marketValue'
+        | undefined;
+    const order = req.query.order as 'asc' | 'desc' | undefined;
+    const items = await searchCatalog(userId, {
+        query: q as string,
+        category: category as string,
+        subcategory: subcategory as string,
+        tag: tag as string,
+        minPrice,
+        maxPrice,
+        sort,
+        order,
+    });
+    res.json(items);
 });
 
 // Form to add new item
