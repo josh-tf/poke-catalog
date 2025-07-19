@@ -13,6 +13,7 @@ import fs from 'fs';
 import {
     addItem,
     deleteItem,
+    getCategoryStats,
     getItem,
     loadCatalog,
     parseJsonArray,
@@ -184,6 +185,15 @@ app.set('layout', 'layout');
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
+app.use((req, res, next) => {
+    res.locals.currentPath = req.path;
+    next();
+});
+app.use((req, res, next) => {
+    // Set currentPath for all rendered pages
+    res.locals.currentPath = req.path;
+    next();
+});
 
 app.use(async (req, res, next) => {
     res.locals.title = 'Poké Catalog';
@@ -271,12 +281,7 @@ app.get('/catalog', async (req, res) => {
           })
         : [];
 
-    const categoryData: Record<CategoryId, number> = Object.fromEntries(
-        categories.map((c) => [c.id, 0]),
-    ) as Record<CategoryId, number>;
-    for (const item of items) {
-        categoryData[item.category]++;
-    }
+    const categoryData = await getCategoryStats(items);
 
     res.render('catalog', {
         user: req.user,
@@ -641,6 +646,7 @@ app.get('/collections', ensureAuth, async (req, res) => {
     res.render('collections', { user: req.user, collections: enriched });
 });
 
+// Create collection render
 app.get('/collections/create', ensureAuth, (req, res) => {
     res.render('collection_form', { user: req.user });
 });
@@ -684,7 +690,7 @@ app.get('/collections/:userId/:slug', async (req, res) => {
         id: i.id,
         title: i.title,
         category: i.category as CategoryId,
-        subcategory: i.subcategory || undefined,
+        subcategory: i.subcategory as SubcategoryId | undefined,
         desc: i.desc || undefined,
         notes: i.notes || undefined,
         pricePaid: i.pricePaid || undefined,
@@ -692,12 +698,7 @@ app.get('/collections/:userId/:slug', async (req, res) => {
         images: parseJsonArray<string>(i.images),
     }));
 
-    const categoryData: Record<CategoryId, number> = Object.fromEntries(
-        categories.map((c) => [c.id, 0]),
-    ) as Record<CategoryId, number>;
-    for (const item of parsedItems) {
-        categoryData[item.category]++;
-    }
+    const categoryData = await getCategoryStats(parsedItems);
 
     const shareUrl = `${req.protocol}://${req.get('host')}/collections/${collection.userId}/${collection.slug}`;
     res.render('collection', {
@@ -709,6 +710,7 @@ app.get('/collections/:userId/:slug', async (req, res) => {
     });
 });
 
+// View user profile
 app.get('/collections/:userId', async (req, res) => {
     const { userId } = req.params;
     const showAll = (req.user as any)?.id === userId;
@@ -736,6 +738,7 @@ app.get('/collections/:userId', async (req, res) => {
     res.render('collections', { user: req.user, collections: enriched });
 });
 
+// Edit user collection
 app.get('/collections/:userId/:slug/edit', ensureAuth, async (req, res) => {
     const { userId, slug } = req.params;
     if ((req.user as any).id !== userId) {
@@ -749,11 +752,14 @@ app.get('/collections/:userId/:slug/edit', ensureAuth, async (req, res) => {
     res.render('collection_edit', { user: req.user, collection, items });
 });
 
+// Edit user collection handler
 app.post('/collections/:userId/:slug/edit', ensureAuth, async (req, res) => {
     const { userId, slug } = req.params;
+
     if ((req.user as any).id !== userId) {
         return res.status(403).send('Forbidden');
     }
+
     const collection = await Collection.findOne({ where: { userId, slug } });
     if (!collection) {
         return res.status(404).send('Not found');
@@ -763,6 +769,7 @@ app.post('/collections/:userId/:slug/edit', ensureAuth, async (req, res) => {
         collection.name === req.body.name
             ? slug
             : await makeUniqueSlug(req.body.name, userId);
+
     await collection.update({
         name: req.body.name,
         description: req.body.description,
@@ -770,14 +777,16 @@ app.post('/collections/:userId/:slug/edit', ensureAuth, async (req, res) => {
         slug: newSlug,
     });
 
-    const selected = Array.isArray(req.body.items)
-        ? req.body.items
-        : req.body.items
-          ? [req.body.items]
-          : [];
+    // Parse itemIds string (e.g., "item1,item2,item3") → array
+    const selectedItemIds = (req.body.itemIds || '')
+        .split(',')
+        .map((id: string) => id.trim())
+        .filter(Boolean);
+
     const items = await Item.findAll({ where: { userId } });
+
     for (const item of items) {
-        const shouldBelong = selected.includes(item.id);
+        const shouldBelong = selectedItemIds.includes(String(item.id));
         if (shouldBelong && item.collectionId !== collection.id) {
             await item.update({ collectionId: collection.id });
         } else if (!shouldBelong && item.collectionId === collection.id) {
@@ -827,6 +836,7 @@ app.get('/user/:id', async (req, res) => {
     });
 });
 
+// User profile comment handler
 app.post('/user/:id/comment', ensureAuth, async (req, res) => {
     await ProfileComment.create({
         userId: req.params.id,
@@ -836,7 +846,7 @@ app.post('/user/:id/comment', ensureAuth, async (req, res) => {
     res.redirect(`/user/${req.params.id}`);
 });
 
-// ----- Set Tracking -----
+// Set Tracking
 app.get('/sets', ensureAuth, async (req, res) => {
     const statusFilter = (req.query.status as string) || '';
     const userId = (req.user as any).id;
@@ -932,6 +942,7 @@ app.get('/sets', ensureAuth, async (req, res) => {
     });
 });
 
+// Set page render
 app.get('/sets/era/:slug', ensureAuth, async (req, res) => {
     const statusFilter = (req.query.status as string) || '';
     const slug = req.params.slug;
@@ -997,6 +1008,7 @@ app.get('/sets/era/:slug', ensureAuth, async (req, res) => {
     });
 });
 
+// Set edit page render
 app.get('/sets/:code/edit', ensureAuth, async (req, res) => {
     const code = safeSetCode(req.params.code);
     if (!code) {
@@ -1017,40 +1029,7 @@ app.get('/sets/:code/edit', ensureAuth, async (req, res) => {
     });
 });
 
-app.post('/sets/:code/edit', ensureAuth, async (req, res) => {
-    const code = safeSetCode(req.params.code);
-    if (!code) {
-        return res.status(404).send('Not found');
-    }
-    const userId = (req.user as any).id;
-    const items = Array.isArray(req.body.items)
-        ? req.body.items
-        : req.body.items
-          ? [req.body.items]
-          : [];
-    const progress: Record<string, boolean> = {};
-    const set = allSets.find((s) => s.code === code)!;
-    for (const type of languageItemTypes[set.language]) {
-        progress[type] = items.includes(type);
-    }
-    const row = await SetProgress.findOne({ where: { userId, setCode: code } });
-    if (row) {
-        await row.update({ progress: JSON.stringify(progress) });
-    } else {
-        await SetProgress.create({
-            userId,
-            setCode: code,
-            progress: JSON.stringify(progress),
-        });
-    }
-    const returnTo = req.body.returnTo;
-    if (returnTo && typeof returnTo === 'string' && returnTo.startsWith('/')) {
-        res.redirect(returnTo);
-    } else {
-        res.redirect('/sets');
-    }
-});
-
+// Bulk set page render
 app.get('/sets/era/:slug/bulk-edit', ensureAuth, async (req, res) => {
     const slug = req.params.slug;
     const group = sets.find((g) => g.slug === slug);
@@ -1071,6 +1050,7 @@ app.get('/sets/era/:slug/bulk-edit', ensureAuth, async (req, res) => {
     });
 });
 
+// Bulk set edit handler
 app.post('/sets/era/:slug/bulk-edit', ensureAuth, async (req, res) => {
     const slug = req.params.slug;
     const group = sets.find((g) => g.slug === slug);
@@ -1258,11 +1238,12 @@ app.get('/user/:id/sets/era/:slug', async (req, res) => {
     });
 });
 
-// ----- User Preferences -----
+// User preferences page render
 app.get('/preferences', ensureAuth, async (req, res) => {
     res.render('preferences', { user: req.user });
 });
 
+// Edit preferences handler
 app.post('/preferences', ensureAuth, async (req, res) => {
     const dbUser = await User.findByPk((req.user as any).id);
     if (dbUser) {

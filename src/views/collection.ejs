@@ -1,19 +1,24 @@
-<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
+<h1 class="text-3xl font-pixel text-pokemon-psychic mb-2 tracking-wide">
     <%= collection.name %>
 </h1>
-<p class="mb-4"><%= collection.description %></p>
+<p class="text-gray-600 mb-6 font-pixel text-sm whitespace-pre-line">
+    <%= collection.description %>
+</p>
 
 <% if (user && user.id === collection.userId) { %>
-<div class="flex flex-wrap items-center gap-2 mb-4">
+<div class="flex flex-wrap items-center gap-2 mb-6">
     <a
         href="/collections/<%= collection.userId %>/<%= collection.slug %>/edit"
-        class="text-blue-600 underline"
+        class="btn bg-pokemon-psychic hover:bg-pokemon-psychic/90 text-white font-pixel"
     >
-        Edit
+        ✏️ Edit Collection
     </a>
     <% if (collection.public) { %>
-    <button id="shareBtn" class="btn btn-sm bg-blue-600 text-white">
-        Share
+    <button
+        id="shareBtn"
+        class="btn bg-blue-600 hover:bg-blue-700 text-white font-pixel"
+    >
+        🔗 Share
     </button>
     <% } %>
 </div>
@@ -22,32 +27,37 @@
 <% if (collection.public) { %>
 <div
     id="shareModal"
-    class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50"
+    class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50 font-pixel"
 >
-    <div class="bg-white p-4 rounded shadow w-full max-w-md">
-        <p class="mb-2">Share this URL:</p>
+    <div
+        class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md border-t-4 border-pokemon-electric space-y-4"
+    >
+        <h2 class="text-lg font-semibold text-pokemon-psychic">
+            🔗 Share This URL
+        </h2>
         <input
             id="shareUrl"
-            class="w-full border p-2 rounded"
+            class="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pokemon-electric"
             readonly
             value="<%= shareUrl %>"
         />
-        <div class="mt-3 text-right space-x-2">
+        <div class="flex justify-end gap-2 pt-2">
             <button
-                class="btn btn-sm bg-blue-600 text-white"
+                class="btn btn-sm bg-blue-600 hover:bg-blue-700 text-white font-semibold px-3 py-1.5 rounded"
                 onclick="navigator.clipboard.writeText(document.getElementById('shareUrl').value)"
             >
-                Copy
+                📋 Copy
             </button>
             <button
-                class="btn btn-sm bg-gray-300"
+                class="btn btn-sm bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-3 py-1.5 rounded"
                 onclick="document.getElementById('shareModal').classList.add('hidden')"
             >
-                Close
+                ❌ Close
             </button>
         </div>
     </div>
 </div>
+
 <script>
     document.getElementById('shareBtn').addEventListener('click', () => {
         document.getElementById('shareModal').classList.remove('hidden');
@@ -59,15 +69,18 @@
 <p>No items yet.</p>
 <% } else { %>
 <div
-    class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4"
+    class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4"
 >
     <input
         type="text"
         id="searchInput"
         placeholder="Search items..."
-        class="border p-2 rounded text-sm w-full md:w-64"
+        class="text-sm px-3 py-2 border border-gray-300 rounded bg-white text-gray-800 font-pixel w-full md:w-64"
     />
-    <select id="sortSelect" class="border p-2 rounded text-sm w-full md:w-48">
+    <select
+        id="sortSelect"
+        class="text-sm px-3 py-2 border border-gray-300 rounded bg-white text-gray-800 font-pixel w-full md:w-48"
+    >
         <option value="recent" selected>Recently added</option>
         <option value="az">Name (A-Z)</option>
         <option value="za">Name (Z-A)</option>
@@ -84,112 +97,125 @@
 </script>
 
 <script>
-    const itemData = JSON.parse(
-        document.getElementById('items-data').textContent,
-    );
-    const isOwner =
-        '<%= user && user.id === collection.userId ? "true" : "false" %>';
-    const zoom = <%= user?.imageZoom || 1 %>;
-    const itemGrid = document.getElementById('itemGrid');
-    const searchInput = document.getElementById('searchInput');
-    const sortSelect = document.getElementById('sortSelect');
+                const itemData = JSON.parse(
+                    document.getElementById('items-data').textContent,
+                );
+                const isOwner =
+                    '<%= user && user.id === collection.userId ? "true" : "false" %>';
+                const zoom = <%= user?.imageZoom || 1 %>;
+                const itemGrid = document.getElementById('itemGrid');
+                const searchInput = document.getElementById('searchInput');
+                const sortSelect = document.getElementById('sortSelect');
+
+    function zoomToHeightClass(zoom) {
+      const rounded = Math.round(zoom * 100) / 100;
+      if (rounded <= 1) return 'h-32';
+      if (rounded <= 1.25) return 'h-36';
+      if (rounded <= 1.5) return 'h-40';
+      if (rounded <= 1.75) return 'h-44';
+      return 'h-48';
+    }
 
     function renderItems(data) {
-        itemGrid.innerHTML = data
-            .map(
-                (i) => `
-        <div class="text-center">
-          ${
-              i.images?.[0]
-                  ? `<img src="${i.images[0]}" data-id="${i.id}" class="w-full h-24 object-contain rounded-md bg-gray-100 p-1 shadow-sm cursor-pointer item-thumb" style="transform: scale(${zoom})" />`
-                  : `<div data-id="${i.id}" class="w-full h-24 flex items-center justify-center rounded-md bg-gray-100 text-sm text-gray-500 cursor-pointer item-thumb">No Image</div>`
-          }
-          <p class="text-sm mt-2">${i.title}</p>
-        </div>
-      `,
-            )
-            .join('');
+      const heightClass = zoomToHeightClass(zoom); // assuming `zoom` is a global or passed in
 
-        document.querySelectorAll('.item-thumb').forEach((el) => {
-            el.addEventListener('click', () => {
-                const id = el.dataset.id;
-                const item = itemData.find((i) => i.id === id);
-                if (!item) return;
+      itemGrid.innerHTML = data
+        .map((i) => {
+          const imageHtml = i.images?.[0]
+            ? `<img src="${i.images[0]}" data-id="${i.id}" class="w-full ${heightClass} object-contain bg-gray-100 cursor-pointer item-thumb" />`
+            : `<div data-id="${i.id}" class="w-full ${heightClass} flex items-center justify-center bg-gray-100 text-sm text-gray-400 cursor-pointer item-thumb">No Image</div>`;
 
-                document.getElementById('modalTitle').textContent = item.title;
-                const modalImages = document.getElementById('modalImages');
-                modalImages.innerHTML = '';
+          return `
+            <div class="catalog-item rounded-xl border border-gray-200 relative z-10 bg-white/50 shadow-sm overflow-hidden transition hover:shadow-md text-center">
+              ${imageHtml}
+              <div class="p-2">
+                <p class="text-sm font-medium text-gray-800 truncate">${i.title}</p>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
 
-                if (item.images?.length > 0) {
-                    item.images.forEach((url) => {
-                        const img = document.createElement('img');
-                        img.src = url;
-                        img.alt = item.title;
-                        img.className =
-                            'h-24 rounded-md bg-gray-100 p-1 shadow-sm object-contain cursor-pointer';
-                        img.style.transform = `scale(${zoom})`;
-                        img.addEventListener('click', () => {
-                            document.getElementById('previewImg').src = url;
-                            document
-                                .getElementById('imagePreview')
-                                .classList.remove('hidden');
+                    document.querySelectorAll('.item-thumb').forEach((el) => {
+                        el.addEventListener('click', () => {
+                            const id = el.dataset.id;
+                            const item = itemData.find((i) => i.id === id);
+                            if (!item) return;
+
+                            document.getElementById('modalTitle').textContent = item.title;
+                            const modalImages = document.getElementById('modalImages');
+                            modalImages.innerHTML = '';
+
+                            if (item.images?.length > 0) {
+                                item.images.forEach((url) => {
+                                    const img = document.createElement('img');
+                                    img.src = url;
+                                    img.alt = item.title;
+                                    img.className =
+                                        'h-24 rounded-md bg-gray-100 p-1 shadow-sm object-contain cursor-pointer';
+                                    img.style.transform = `scale(${zoom})`;
+                                    img.addEventListener('click', () => {
+                                        document.getElementById('previewImg').src = url;
+                                        document
+                                            .getElementById('imagePreview')
+                                            .classList.remove('hidden');
+                                    });
+                                    modalImages.appendChild(img);
+                                });
+                            }
+
+                            document.getElementById('modalDesc').textContent =
+                                item.desc || '';
+                            document.getElementById('modalNotes').textContent =
+                                item.notes || '';
+
+                            if (isOwner) {
+                                document.getElementById('modalPaid').textContent =
+                                    item.pricePaid || '';
+                                document.getElementById('modalMarket').textContent =
+                                    item.marketValue || '';
+                                document.getElementById('viewLink').href =
+                                    '/item/' + item.id;
+                                document.getElementById('editLink').href =
+                                    '/item/' +
+                                    item.id +
+                                    '/edit?returnTo=' +
+                                    encodeURIComponent(
+                                        window.location.pathname + window.location.search,
+                                    );
+                                document
+                                    .getElementById('modalExtra')
+                                    .classList.remove('hidden');
+                            } else {
+                                document
+                                    .getElementById('modalExtra')
+                                    .classList.add('hidden');
+                            }
+
+                            document.getElementById('itemModal').classList.remove('hidden');
                         });
-                        modalImages.appendChild(img);
                     });
                 }
 
-                document.getElementById('modalDesc').textContent =
-                    item.desc || '';
-                document.getElementById('modalNotes').textContent =
-                    item.notes || '';
+                function filterAndSortItems() {
+                    const search = searchInput.value.trim().toLowerCase();
+                    const sort = sortSelect.value;
+                    let filtered = itemData.filter((i) =>
+                        i.title.toLowerCase().includes(search),
+                    );
 
-                if (isOwner) {
-                    document.getElementById('modalPaid').textContent =
-                        item.pricePaid || '';
-                    document.getElementById('modalMarket').textContent =
-                        item.marketValue || '';
-                    document.getElementById('viewLink').href =
-                        '/item/' + item.id;
-                    document.getElementById('editLink').href =
-                        '/item/' +
-                        item.id +
-                        '/edit?returnTo=' +
-                        encodeURIComponent(
-                            window.location.pathname + window.location.search,
-                        );
-                    document
-                        .getElementById('modalExtra')
-                        .classList.remove('hidden');
-                } else {
-                    document
-                        .getElementById('modalExtra')
-                        .classList.add('hidden');
+                    if (sort === 'az')
+                        filtered.sort((a, b) => a.title.localeCompare(b.title));
+                    else if (sort === 'za')
+                        filtered.sort((a, b) => b.title.localeCompare(a.title));
+
+                    renderItems(filtered);
                 }
 
-                document.getElementById('itemModal').classList.remove('hidden');
-            });
-        });
-    }
+                searchInput.addEventListener('input', filterAndSortItems);
+                sortSelect.addEventListener('change', filterAndSortItems);
 
-    function filterAndSortItems() {
-        const search = searchInput.value.trim().toLowerCase();
-        const sort = sortSelect.value;
-        let filtered = itemData.filter((i) =>
-            i.title.toLowerCase().includes(search),
-        );
-
-        if (sort === 'az')
-            filtered.sort((a, b) => a.title.localeCompare(b.title));
-        else if (sort === 'za')
-            filtered.sort((a, b) => b.title.localeCompare(a.title));
-
-        renderItems(filtered);
-    }
-
-    searchInput.addEventListener('input', filterAndSortItems);
-    sortSelect.addEventListener('change', filterAndSortItems);
-
-    filterAndSortItems(); // initial render
+                filterAndSortItems(); // initial render
 </script>
 
 <div
@@ -274,11 +300,36 @@
     });
 </script>
 
-<div class="bg-white rounded shadow p-6">
-    <h4 class="text-lg font-pixel text-pokemon-grass mb-3">
-        Items by Category
-    </h4>
-    <div id="categoryChart" class="min-h-[250px]"></div>
+<div class="mt-6 grid gap-6 grid-cols-1 xl:grid-cols-2">
+    <!-- Donut: Count -->
+    <div
+        class="rounded-xl border border-gray-200 relative z-10 bg-white/50 px-4 py-5 shadow-sm"
+    >
+        <h4 class="text-lg font-pixel text-pokemon-grass mb-3">
+            Items by Category
+        </h4>
+        <div id="categoryChart" class="min-h-[250px]"></div>
+    </div>
+
+    <!-- Bar: Total Paid -->
+    <div
+        class="rounded-xl border border-gray-200 relative z-10 bg-white/50 px-4 py-5 shadow-sm"
+    >
+        <h4 class="text-lg font-pixel text-pokemon-fire mb-3">
+            Total Paid by Category
+        </h4>
+        <div id="paidChart" class="min-h-[250px]"></div>
+    </div>
+
+    <!-- Bar: Market Value -->
+    <div
+        class="rounded-xl border border-gray-200 relative z-10 bg-white/50 px-4 py-5 shadow-sm"
+    >
+        <h4 class="text-lg font-pixel text-pokemon-electric mb-3">
+            Market Value by Category
+        </h4>
+        <div id="marketChart" class="min-h-[250px]"></div>
+    </div>
 </div>
 
 <script type="application/json" id="category-data">
@@ -288,10 +339,17 @@
     const categoryData = JSON.parse(
         document.getElementById('category-data').textContent,
     );
-    const labels = Object.keys(categoryData);
-    const series = labels.map((l) => categoryData[l]);
 
-    const options = {
+    const labels = Object.keys(categoryData);
+    const series = labels.map((label) => categoryData[label].count || 0);
+    const paidSeries = labels.map(
+        (label) => categoryData[label].totalPaid || 0,
+    );
+    const marketSeries = labels.map(
+        (label) => categoryData[label].marketValue || 0,
+    );
+
+    const donutOptions = {
         series,
         labels,
         chart: {
@@ -303,10 +361,54 @@
         legend: { position: 'bottom' },
     };
 
+    const paidOptions = {
+        series: [{ name: 'Total Paid', data: paidSeries }],
+        chart: {
+            type: 'bar',
+            height: 250,
+            fontFamily: 'Plus Jakarta Sans, sans-serif',
+        },
+        xaxis: { categories: labels },
+        plotOptions: { bar: { horizontal: false, columnWidth: '60%' } },
+        dataLabels: { enabled: false },
+        stroke: { show: true, width: 1, colors: ['#fff'] },
+        tooltip: { y: { formatter: (val) => `$${val.toFixed(2)}` } },
+        colors: ['#F97316'], // fire orange
+        legend: { position: 'bottom' },
+    };
+
+    const marketOptions = {
+        series: [{ name: 'Market Value', data: marketSeries }],
+        chart: {
+            type: 'bar',
+            height: 250,
+            fontFamily: 'Plus Jakarta Sans, sans-serif',
+        },
+        xaxis: { categories: labels },
+        plotOptions: { bar: { horizontal: false, columnWidth: '60%' } },
+        dataLabels: { enabled: false },
+        stroke: { show: true, width: 1, colors: ['#fff'] },
+        tooltip: { y: { formatter: (val) => `$${val.toFixed(2)}` } },
+        colors: ['#FACC15'], // electric yellow
+        legend: { position: 'bottom' },
+    };
+
     if (document.querySelector('#categoryChart')) {
         new ApexCharts(
             document.querySelector('#categoryChart'),
-            options,
+            donutOptions,
+        ).render();
+    }
+    if (document.querySelector('#paidChart')) {
+        new ApexCharts(
+            document.querySelector('#paidChart'),
+            paidOptions,
+        ).render();
+    }
+    if (document.querySelector('#marketChart')) {
+        new ApexCharts(
+            document.querySelector('#marketChart'),
+            marketOptions,
         ).render();
     }
 </script>

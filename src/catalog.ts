@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import type { Tag } from './config';
+import type { CategoryId, Tag } from './config';
 import { Item } from './models';
 import { CatalogItem } from './types';
 
@@ -19,8 +19,36 @@ export function parseJsonArray<T>(input: string | null): T[] | undefined {
     }
 }
 
+type CategoryStats = {
+    count: number;
+    totalPaid: number;
+    marketValue: number;
+};
+
+export async function getCategoryStats(
+    items: CatalogItem[],
+): Promise<Record<CategoryId | 'uncategorised', CategoryStats>> {
+    const stats: Record<CategoryId | 'uncategorised', CategoryStats> =
+        {} as any;
+
+    for (const item of items) {
+        const key = (item.category || 'uncategorised') as
+            | CategoryId
+            | 'uncategorised';
+        if (!stats[key]) {
+            stats[key] = { count: 0, totalPaid: 0, marketValue: 0 };
+        }
+        stats[key].count++;
+        stats[key].totalPaid += item.pricePaid || 0;
+        stats[key].marketValue += item.marketValue || 0;
+    }
+
+    return stats;
+}
+
 export async function loadCatalog(userId: string): Promise<CatalogItem[]> {
     const items = await Item.findAll({ where: { userId } });
+
     return items.map((i) => ({
         id: i.id,
         title: i.title,

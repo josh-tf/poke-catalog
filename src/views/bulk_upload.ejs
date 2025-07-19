@@ -1,22 +1,21 @@
-<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
-    Bulk Upload
-</h1>
+<h1 class="text-3xl font-bold text-gray-800 tracking-wide mb-6">Bulk Upload</h1>
 
 <form
     method="POST"
     action="/bulk-add"
     enctype="multipart/form-data"
-    class="space-y-6 mb-10 font-pixel"
+    class="space-y-6 max-w-xl bg-white p-6 rounded-2xl border shadow font-pixel mb-10"
 >
     <!-- File Upload -->
     <div>
+        <label class="block text-sm mb-1 font-semibold">Upload Images</label>
         <input
             type="file"
             name="images"
             accept="image/*"
             multiple
             required
-            class="w-full border border-gray-300 rounded px-4 py-2 text-sm file:mr-3 file:py-1 file:px-3 file:border file:rounded file:border-gray-300 file:bg-gray-100 file:text-sm file:text-gray-700 hover:file:bg-gray-200"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm file:mr-3 file:py-1 file:px-3 file:border file:rounded file:border-gray-300 file:bg-gray-100 file:text-sm file:text-gray-700 hover:file:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-pokemon-electric"
         />
     </div>
 
@@ -24,13 +23,13 @@
     <div class="flex gap-3">
         <button
             type="submit"
-            class="btn bg-pokemon-electric hover:bg-pokemon-electric/90 text-black"
+            class="btn bg-pokemon-electric hover:bg-pokemon-electric/90 text-black font-pixel"
         >
             ⚡ Next
         </button>
         <a
             href="/"
-            class="btn bg-gray-300 hover:bg-gray-400 text-gray-800 inline-block"
+            class="btn bg-gray-300 hover:bg-gray-400 text-gray-800 font-pixel inline-block"
         >
             ⬅ Back
         </a>

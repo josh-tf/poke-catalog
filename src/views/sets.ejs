@@ -1,140 +1,144 @@
-<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide flex items-center gap-3">
+<div class="flex items-center gap-4 mb-6">
+  <h1 class="text-3xl font-bold text-gray-800 tracking-wide m-0 flex items-center">
     <span>Booster Sets</span>
-    <% if (typeof shareUrl !== 'undefined' && shareUrl) { %>
-    <button id="shareBtn" class="bg-blue-600 text-white px-2 py-1 rounded text-xs">Share</button>
-    <% } %>
-</h1>
-<form class="mb-4">
-    <label>
-        Status
-        <select name="status" onchange="this.form.submit()" class="border ml-2 px-2 py-1">
-            <option value="" <%= !status ? 'selected' : '' %>>All</option>
-            <option value="finished" <%= status==='finished'?'selected':'' %>>Finished</option>
-            <option value="incomplete" <%= status==='incomplete'?'selected':'' %>>Incomplete</option>
-            <option value="notstarted" <%= status==='notstarted'?'selected':'' %>>Not Started</option>
-        </select>
-    </label>
+  </h1>
+  <% if (typeof shareUrl !== 'undefined' && shareUrl) { %>
+    <button id="shareBtn" class="bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center h-8">
+      Share
+    </button>
+  <% } %>
+</div>
+
+<!-- Status Filter -->
+<form class="mb-6">
+  <label class="text-sm font-medium text-gray-700">
+    Status:
+    <select name="status" onchange="this.form.submit()" class="ml-2 border border-gray-300 rounded px-3 py-1 text-sm border-gray-200 relative z-10 bg-white/50 text-gray-800">
+      <option value="" <%= !status ? 'selected' : '' %>>All</option>
+      <option value="finished" <%= status==='finished'?'selected':'' %>>Finished</option>
+      <option value="incomplete" <%= status==='incomplete'?'selected':'' %>>Incomplete</option>
+      <option value="notstarted" <%= status==='notstarted'?'selected':'' %>>Not Started</option>
+    </select>
+  </label>
 </form>
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-    <div class="p-4 bg-white rounded border text-center">
-        <div class="text-sm text-gray-500">Completed Sets</div>
-        <div class="text-2xl font-semibold"><%= totals.completedSets %>/<%= totals.totalSets %></div>
-    </div>
-    <% Object.keys(totals.itemCounts).forEach(t => { %>
-    <div class="p-4 bg-white rounded border text-center">
-        <div class="text-sm text-gray-500"><%= t %></div>
-        <div class="text-2xl font-semibold"><%= totals.itemCounts[t] %></div>
-    </div>
-    <% }) %>
-</div>
 
-<h2 class="text-xl font-semibold mb-2">Japanese</h2>
-<div class="grid md:grid-cols-2 gap-4 mb-6">
-    <% groupsByLang.japanese.forEach(g => { %>
-    <a href="<%= baseUrl %>/era/<%= g.slug %>" class="block border rounded p-4 bg-white hover:bg-gray-100 transition">
-        <h3 class="text-lg font-semibold mb-2 flex items-center gap-2">
-            <span class="bg-gray-200 text-gray-800 text-xs font-mono px-2 py-0.5 rounded z-10 relative" style="font-weight: normal;">
-            <%= g.code.toUpperCase() %>
-            </span>
-            <%= g.group %>
-        </h3>
-
-<div class="text-sm space-y-4">
-  <% Object.keys(g.counts).forEach(t => {
-    const c = g.counts[t];
-    const percent = Math.round((c.have / c.total) * 100);
-  %>
-    <div class="flex items-center gap-4">
-      <!-- Label: left-aligned, vertically centred -->
-      <span class="whitespace-nowrap font-medium text-gray-700 w-24 text-left">
-        <%= t %>
-      </span>
-
-      <div class="flex-1">
-        <div class="flex items-center gap-2">
-          <!-- Progress Bar -->
-          <div class="flex-1 h-2 bg-gray-200 rounded overflow-hidden">
-            <div
-              class="h-full bg-blue-500"
-              style="width: <%= percent %>%;"
-            ></div>
-          </div>
-
-          <!-- Percent + Fraction -->
-          <div class="text-right leading-tight text-xs text-gray-600 w-12">
-            <div class="text-[10px] text-gray-400"><%= c.have %>/<%= c.total %></div>
-            <div class="font-semibold"><%= percent %>%</div>
-          </div>
-        </div>
-      </div>
+<!-- Totals -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+  <div class="rounded-xl border border-gray-200 relative z-10 bg-white/50 px-4 py-5 text-center shadow-sm">
+    <p class="text-sm text-gray-500">Completed Sets</p>
+    <p class="text-2xl font-semibold text-gray-800"><%= totals.completedSets %>/<%= totals.totalSets %></p>
+  </div>
+  <% Object.keys(totals.itemCounts).forEach(t => { %>
+    <div class="rounded-xl border border-gray-200 relative z-10 bg-white/50 px-4 py-5 text-center shadow-sm">
+      <p class="text-sm text-gray-500"><%= t %></p>
+      <p class="text-2xl font-semibold text-gray-800"><%= totals.itemCounts[t] %></p>
     </div>
   <% }) %>
 </div>
 
-    </a>
-    <% }) %>
-</div>
-
-<h2 class="text-xl font-semibold mb-2">English</h2>
-<div class="grid md:grid-cols-2 gap-4">
-    <% groupsByLang.english.forEach(g => { %>
-    <a href="<%= baseUrl %>/era/<%= g.slug %>" class="block border rounded p-4 bg-white hover:bg-gray-100 transition">
-        <h3 class="text-lg font-semibold mb-2 flex items-center gap-2">
-            <span class="bg-gray-200 text-gray-800 text-xs font-mono px-2 py-0.5 rounded z-10 relative" style="font-weight: normal;">
-            <%= g.code.toUpperCase() %>
-            </span>
-            <%= g.group %>
-        </h3>
-<div class="text-sm space-y-4">
-  <% Object.keys(g.counts).forEach(t => {
-    const c = g.counts[t];
-    const percent = Math.round((c.have / c.total) * 100);
-  %>
-    <div class="flex items-center gap-4">
-      <!-- Label -->
-      <span class="whitespace-nowrap font-medium text-gray-700 w-24 text-left">
-        <%= t %>
-      </span>
-
-      <div class="flex-1">
-        <div class="flex items-center gap-2">
-          <!-- Progress Bar -->
-          <div class="flex-1 h-2 bg-gray-200 rounded overflow-hidden">
-            <div
-              class="h-full bg-blue-500"
-              style="width: <%= percent %>%;"
-            ></div>
+<!-- Japanese Sets -->
+<h2 class="text-xl font-semibold mb-3 font-pixel">Japanese</h2>
+<div class="grid md:grid-cols-2 gap-4 mb-10">
+  <% groupsByLang.japanese.forEach(g => { %>
+    <a href="<%= baseUrl %>/era/<%= g.slug %>" class="block border rounded-xl p-5 border-gray-200 relative z-10 bg-white/50 hover:bg-gray-50 shadow-sm transition">
+      <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+        <span class="bg-gray-200 text-gray-800 text-xs font-mono px-2 py-0.5 rounded"><%= g.code.toUpperCase() %></span>
+        <%= g.group %>
+      </h3>
+      <div class="space-y-4 text-sm">
+        <% Object.keys(g.counts).forEach(t => {
+            const c = g.counts[t];
+            const percent = Math.round((c.have / c.total) * 100);
+        %>
+          <div class="flex items-center gap-4">
+            <span class="w-24 font-medium text-gray-700"><%= t %></span>
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <div class="flex-1 h-2 bg-gray-200 rounded overflow-hidden">
+                  <div class="h-full bg-green-500" style="width: <%= percent %>%;"></div>
+                </div>
+                <div class="w-14 text-right text-xs text-gray-600 leading-tight">
+                  <div class="text-[10px] text-gray-400"><%= c.have %>/<%= c.total %></div>
+                  <div class="font-semibold"><%= percent %>%</div>
+                </div>
+              </div>
+            </div>
           </div>
-
-          <!-- Percent + Fraction -->
-          <div class="text-right leading-tight text-xs text-gray-600 w-12">
-            <div class="text-[10px] text-gray-400"><%= c.have %>/<%= c.total %></div>
-            <div class="font-semibold"><%= percent %>%</div>
-          </div>
-        </div>
+        <% }) %>
       </div>
-    </div>
+    </a>
   <% }) %>
 </div>
 
+<!-- English Sets -->
+<h2 class="text-xl font-semibold mb-3 font-pixel">English</h2>
+<div class="grid md:grid-cols-2 gap-4 mb-10">
+  <% groupsByLang.english.forEach(g => { %>
+    <a href="<%= baseUrl %>/era/<%= g.slug %>" class="block border rounded-xl p-5 bg-white hover:bg-gray-50 shadow-sm transition">
+      <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+        <span class="bg-gray-200 text-gray-800 text-xs font-mono px-2 py-0.5 rounded"><%= g.code.toUpperCase() %></span>
+        <%= g.group %>
+      </h3>
+        <div class="space-y-4 text-sm">
+        <% Object.keys(g.counts).forEach(t => {
+            const c = g.counts[t];
+            const percent = Math.round((c.have / c.total) * 100);
+        %>
+            <div class="flex items-center gap-6">
+            <!-- Fixed-width label -->
+            <span class="w-24 font-medium text-gray-700 whitespace-nowrap">
+                <%= t %>
+            </span>
 
+            <!-- Progress & stats -->
+            <div class="flex-1">
+                <div class="flex items-center gap-2">
+                <div class="flex-1 h-2 bg-gray-200 rounded overflow-hidden">
+                    <div class="h-full bg-yellow-500" style="width: <%= percent %>%;"></div>
+                </div>
+                <div class="w-14 text-right text-xs text-gray-600 leading-tight">
+                    <div class="text-[10px] text-gray-400"><%= c.have %>/<%= c.total %></div>
+                    <div class="font-semibold"><%= percent %>%</div>
+                </div>
+                </div>
+            </div>
+            </div>
+        <% }) %>
+        </div>
     </a>
-    <% }) %>
+  <% }) %>
 </div>
+
+<!-- Share Modal -->
 <% if (typeof shareUrl !== 'undefined' && shareUrl) { %>
-<div id="shareModal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
-    <div class="bg-white p-4 rounded shadow w-full max-w-md">
-        <p class="mb-2">Share this URL:</p>
-        <input id="shareInput" class="w-full border p-2 rounded" readonly value="<%= shareUrl %>" />
-        <div class="mt-3 text-right space-x-2">
-            <button class="btn btn-sm bg-blue-600 text-white" onclick="navigator.clipboard.writeText(document.getElementById('shareInput').value)">Copy</button>
-            <button class="btn btn-sm bg-gray-300" onclick="document.getElementById('shareModal').classList.add('hidden')">Close</button>
-        </div>
+<div id="shareModal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50 font-pixel">
+  <div class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md border-t-4 border-pokemon-electric space-y-4">
+    <h2 class="text-lg font-semibold text-pokemon-psychic">🔗 Share This Page</h2>
+    <input
+      id="shareInput"
+      class="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pokemon-electric"
+      readonly
+      value="<%= shareUrl %>"
+    />
+    <div class="flex justify-end gap-2 pt-2">
+      <button
+        class="btn btn-sm bg-pokemon-water hover:bg-pokemon-water/90 text-white font-semibold px-3 py-1.5 rounded"
+        onclick="navigator.clipboard.writeText(document.getElementById('shareInput').value)"
+      >
+        📋 Copy
+      </button>
+      <button
+        class="btn btn-sm bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-3 py-1.5 rounded"
+        onclick="document.getElementById('shareModal').classList.add('hidden')"
+      >
+        ❌ Close
+      </button>
     </div>
+  </div>
 </div>
-<script>
+  <script>
     document.getElementById('shareBtn').addEventListener('click', () => {
-        document.getElementById('shareModal').classList.remove('hidden');
+      document.getElementById('shareModal').classList.remove('hidden');
     });
-</script>
+  </script>
 <% } %>

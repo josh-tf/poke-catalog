@@ -7,6 +7,22 @@
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta
+            name="description"
+            content="Pokémon collection tracker and catalog app by <%= user?.username || 'Trainer' %>"
+        />
+        <link rel="icon" type="image/x-icon" href="favicon.ico" />
+
+        <style>
+            html,
+            body {
+                height: 100%;
+                overflow-x: hidden;
+            }
+            :focus-visible {
+                @apply ring-2 ring-offset-2 ring-pokemon-electric;
+            }
+        </style>
 
         <!-- Tailwind CSS -->
         <script src="https://cdn.tailwindcss.com"></script>
@@ -51,102 +67,176 @@
         <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     </head>
 
-    <body
-        class="font-jakarta bg-gradient-to-br from-white to-pokemon-fairy text-gray-900"
-    >
+    <body class="min-h-screen flex flex-col font-jakarta text-gray-900">
         <!-- Navbar -->
-        <nav
-            class="bg-pokemon-fire text-white px-4 py-3 flex justify-between items-center shadow"
-        >
-            <a href="/" class="text-xl font-pixel tracking-wider"
-                >Poké Catalog</a
+        <nav class="fixed top-0 left-0 right-0 z-40">
+            <!-- Animated Poké Ball Layer -->
+            <div
+                id="pokeball-layer"
+                class="pointer-events-none absolute inset-0 z-[99] overflow-hidden"
+            ></div>
+
+            <!-- Gradient + Content Layer -->
+            <div
+                class="animate-gradient-x bg-[linear-gradient(270deg,#E3350D,#F05030,#E3350D)] bg-[length:400%_400%] text-white px-4 py-3 flex justify-between items-center shadow"
             >
-            <div class="flex items-center gap-3">
-                <% if (user) { %>
-                <span class="text-sm font-medium"
-                    >Logged in as
-                    <%= user.displayName || user.username %></span
-                >
-                <% if (user.avatarUrl || user.avatar) { %>
-                <img
-                    src="<%= user.avatarUrl || `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` %>"
-                    alt="Avatar"
-                    class="w-8 h-8 rounded-full border-2 border-white"
-                />
-                <% } %>
                 <a
-                    href="/logout"
-                    class="btn btn-sm bg-white text-pokemon-fire font-bold hover:bg-pokemon-fire hover:text-white"
-                    >Logout</a
+                    href="/"
+                    class="text-xl font-pixel tracking-wider flex items-center gap-2"
                 >
-                <% } else { %>
-                <a
-                    href="/login"
-                    class="btn btn-sm bg-white text-pokemon-fire font-bold hover:bg-pokemon-fire hover:text-white"
-                    >Login with Discord</a
-                >
-                <% } %>
+                    <img
+                        src="/assets/img/pokeball.png"
+                        alt="Poké Ball"
+                        class="w-6 h-6 inline-block z-[999]"
+                    />
+                    Poké Catalog
+                </a>
+                <div class="flex items-center gap-3 z-[999]">
+                    <% if (user) { %>
+                    <span class="text-sm font-medium"
+                        >Logged in as
+                        <%= user.displayName || user.username %></span
+                    >
+                    <% if (user.avatarUrl || user.avatar) { %>
+                    <img
+                        src="<%= user.avatarUrl || `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` %>"
+                        alt="Avatar"
+                        class="w-8 h-8 rounded-full border-2 border-white"
+                    />
+                    <% } %>
+                    <a
+                        href="/logout"
+                        class="btn btn-sm bg-white text-pokemon-fire font-bold hover:bg-pokemon-fire hover:text-white"
+                        >Logout</a
+                    >
+                    <% } else { %>
+                    <a
+                        href="/login"
+                        class="btn btn-sm bg-white text-pokemon-fire font-bold hover:bg-pokemon-fire hover:text-white"
+                        >Login with Discord</a
+                    >
+                    <% } %>
+                </div>
             </div>
         </nav>
 
         <!-- Page Layout -->
-        <div class="flex min-h-screen">
+        <div class="flex flex-1 pt-[3.5rem]">
             <!-- Sidebar -->
-            <aside class="w-64 border-r hidden md:block p-4 bg-white">
+            <aside
+                class="border-l-0 border-pokemon-electric bg-[#fffce1] bg-[repeating-linear-gradient(to bottom,transparent,transparent_23px,#fdd835_24px)] w-64 border-r hidden md:block p-4 fixed top-[3.5rem] bottom-0 left-0 z-30 overflow-y-auto"
+            >
                 <nav class="space-y-2 font-medium text-sm">
                     <a
                         href="/"
-                        class="flex items-center text-pokemon-fire hover:bg-pokemon-fire hover:text-white px-3 py-2 rounded transition"
+                        class="flex items-center px-3 py-2 rounded transition <%= currentPath === '/' ? 'bg-pokemon-fire text-white font-bold' : 'text-pokemon-fire hover:bg-pokemon-fire hover:text-white' %>"
                     >
                         <i class="ti ti-home mr-2"></i> Dashboard
                     </a>
 
                     <a
                         href="/catalog"
-                        class="flex items-center text-pokemon-water hover:bg-pokemon-water hover:text-white px-3 py-2 rounded transition"
+                        class="flex items-center px-3 py-2 rounded transition <%= currentPath === '/catalog' ? 'bg-pokemon-water text-white font-bold' : 'text-pokemon-water hover:bg-pokemon-water hover:text-white' %>"
                     >
                         <i class="ti ti-book mr-2"></i> Catalog
                     </a>
 
                     <a
                         href="/collections"
-                        class="flex items-center text-pokemon-dark hover:bg-pokemon-dark hover:text-white px-3 py-2 rounded transition"
+                        class="flex items-center px-3 py-2 rounded transition <%= currentPath === '/collections' ? 'bg-pokemon-dark text-white font-bold' : 'text-pokemon-dark hover:bg-pokemon-dark hover:text-white' %>"
                     >
                         <i class="ti ti-archive mr-2"></i> Collections
                     </a>
 
                     <a
                         href="/sets"
-                        class="flex items-center text-pokemon-dragon hover:bg-pokemon-dragon hover:text-white px-3 py-2 rounded transition"
+                        class="flex items-center px-3 py-2 rounded transition <%= currentPath === '/sets' ? 'bg-pokemon-dragon text-white font-bold' : 'text-pokemon-dragon hover:bg-pokemon-dragon hover:text-white' %>"
                     >
                         <i class="ti ti-cards mr-2"></i> Sets
                     </a>
 
                     <a
                         href="/add"
-                        class="flex items-center text-pokemon-grass hover:bg-pokemon-grass hover:text-white px-3 py-2 rounded transition"
+                        class="flex items-center px-3 py-2 rounded transition <%= currentPath === '/add' ? 'bg-pokemon-grass text-white font-bold' : 'text-pokemon-grass hover:bg-pokemon-grass hover:text-white' %>"
                     >
                         <i class="ti ti-plus mr-2"></i> Add Item
                     </a>
 
                     <a
                         href="/user/<%= user ? user.id : '' %>"
-                        class="flex items-center text-pokemon-electric hover:bg-pokemon-electric hover:text-black px-3 py-2 rounded transition"
+                        class="flex items-center px-3 py-2 rounded transition <%= currentPath.startsWith('/user') ? 'bg-pokemon-electric text-black font-bold' : 'text-pokemon-electric hover:bg-pokemon-electric hover:text-black' %>"
                     >
                         <i class="ti ti-user mr-2"></i> Profile
                     </a>
 
                     <a
                         href="/preferences"
-                        class="flex items-center text-pokemon-psychic hover:bg-pokemon-psychic hover:text-white px-3 py-2 rounded transition"
+                        class="flex items-center px-3 py-2 rounded transition <%= currentPath === '/preferences' ? 'bg-pokemon-psychic text-white font-bold' : 'text-pokemon-psychic hover:bg-pokemon-psychic hover:text-white' %>"
                     >
                         <i class="ti ti-settings mr-2"></i> Preferences
                     </a>
                 </nav>
+                <div
+                    class="absolute left-0 bottom-0 mb-2 ml-2 w-48 h-48 select-none overflow-visible"
+                >
+                    <div class="relative w-full h-full">
+                        <img
+                            src="/assets/img/slowpoke.png"
+                            alt="Slowpoke"
+                            class="w-full opacity-20 ml-3 mt-2 select-none slowpoke-wiggle"
+                            draggable="false"
+                        />
+                    </div>
+                </div>
             </aside>
 
             <!-- Main Content -->
-            <main class="flex-1 p-6"><%- body %></main>
+            <main class="flex-1 ml-64 p-6 relative z-10">
+                <%- body %>
+
+                <!-- Background overlay (optional) -->
+                <div
+                    class="absolute inset-0 opacity-10 z-0 bg-no-repeat bg-center bg-cover pointer-events-none"
+                    style="
+                        background-image: url('/assets/img/bg.png');
+                        background-attachment: fixed;
+                    "
+                ></div>
+            </main>
         </div>
+
+        <!-- Footer (outside main, part of flex column) -->
+        <footer
+            class="text-xs text-center text-gray-500 py-6 font-pixel bg-white/70 border-t border-gray-200"
+        >
+            <div
+                class="flex flex-col sm:flex-row items-center justify-center gap-2"
+            >
+                <span
+                    >✨ Made with
+                    <span class="text-pokemon-psychic">❤️</span> by
+                    <span class="font-bold text-pokemon-fire">uki</span></span
+                >
+                <span class="hidden sm:inline">&middot;</span>
+                <span class="italic text-pokemon-electric">Poké Catalog</span>
+            </div>
+        </footer>
+
+        <script>
+            const layer = document.getElementById('pokeball-layer');
+            const pokeballCount = 12;
+            for (let i = 0; i < pokeballCount; i++) {
+                const ball = document.createElement('img');
+                ball.src = '/assets/img/pokeball.png';
+                ball.alt = 'Pokéball';
+                ball.className = 'absolute w-18 h-18 opacity-10';
+                ball.style.left = `${Math.random() * 100}%`;
+                ball.style.top = `-${Math.random() * 100}px`;
+                // Make the animation duration twice as slow
+                ball.style.animation = `fall ${(8 + Math.random() * 4) * 2}s linear infinite`;
+                ball.style.animationDelay = `${Math.random() * 4 * 2}s`;
+                layer.appendChild(ball);
+            }
+        </script>
     </body>
 </html>

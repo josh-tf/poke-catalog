@@ -1,84 +1,86 @@
-<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
-    Bulk Edit
-</h1>
+<h1 class="text-3xl font-bold text-gray-800 tracking-wide mb-6">Bulk Edit</h1>
 
 <form method="POST" action="/bulk-edit" class="space-y-6 mb-10 font-pixel">
     <% items.forEach(item => { %>
     <input type="hidden" name="ids" value="<%= item.id %>" />
     <% }) %>
 
-    <!-- Category Dropdown -->
-    <div>
-        <label
-            for="category"
-            class="block text-sm mb-2 text-pokemon-electric tracking-wide"
-        >
-            🔄 Update Category
-        </label>
-        <select
-            id="category"
-            name="category"
-            class="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pokemon-grass"
-        >
-            <option value="">-- Change Category --</option>
-            <% categories.forEach(cat => { %>
-            <option value="<%= cat.id %>"><%= cat.label %></option>
-            <% }) %>
-        </select>
-    </div>
+    <div
+        class="bg-white border border-gray-300 rounded-2xl p-6 shadow space-y-6"
+    >
+        <!-- Category Dropdown -->
+        <div>
+            <label
+                for="category"
+                class="block text-sm mb-2 font-semibold text-pokemon-electric tracking-wide"
+            >
+                🔄 Update Category
+            </label>
+            <select
+                id="category"
+                name="category"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pokemon-grass"
+            >
+                <option value="">-- Change Category --</option>
+                <% categories.forEach(cat => { %>
+                <option value="<%= cat.id %>"><%= cat.label %></option>
+                <% }) %>
+            </select>
+        </div>
 
-    <!-- Subcategory Dropdown -->
-    <div>
-        <label
-            for="subcategory"
-            class="block text-sm mb-2 text-pokemon-electric tracking-wide"
-        >
-            🔄 Update Subcategory
-        </label>
-        <select
-            id="subcategory"
-            name="subcategory"
-            class="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pokemon-grass"
-        >
-            <option value="">-- Change Subcategory --</option>
-            <% categories.forEach(cat => { %>
+        <!-- Subcategory Dropdown -->
+        <div>
+            <label
+                for="subcategory"
+                class="block text-sm mb-2 font-semibold text-pokemon-electric tracking-wide"
+            >
+                🔄 Update Subcategory
+            </label>
+            <select
+                id="subcategory"
+                name="subcategory"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pokemon-grass"
+            >
+                <option value="">-- Change Subcategory --</option>
+                <% categories.forEach(cat => { %>
                 <% if (cat.subcategories) { %>
-                    <optgroup label="<%= cat.label %>">
-                        <% cat.subcategories.forEach(sub => { %>
-                            <option value="<%= sub.id %>"><%= sub.label %></option>
-                        <% }) %>
-                    </optgroup>
+                <optgroup label="<%= cat.label %>">
+                    <% cat.subcategories.forEach(sub => { %>
+                    <option value="<%= sub.id %>"><%= sub.label %></option>
+                    <% }) %>
+                </optgroup>
                 <% } %>
-            <% }) %>
-        </select>
-    </div>
+                <% }) %>
+            </select>
+        </div>
 
-    <!-- Submit + Back + Delete Buttons -->
-    <div class="flex flex-wrap gap-3 mt-4">
-        <button
-            type="submit"
-            name="action"
-            value="update"
-            class="btn bg-pokemon-grass hover:bg-pokemon-grass/90 text-white"
-        >
-            ✅ Update Items
-        </button>
+        <!-- Submit + Back + Delete Buttons -->
+        <div class="flex flex-wrap gap-3 mt-4">
+            <button
+                type="submit"
+                name="action"
+                value="update"
+                class="btn bg-pokemon-grass hover:bg-pokemon-grass/90 text-white"
+            >
+                ✅ Update Items
+            </button>
 
-        <button
-            type="submit"
-            name="action"
-            value="delete"
-            class="btn bg-pokemon-fire hover:bg-pokemon-fire/90 text-white"
-            onclick="return confirm('Are you sure you want to delete all selected items?')"
-        >
-            🗑️ Delete Items
-        </button>
+            <button
+                type="submit"
+                name="action"
+                value="delete"
+                class="btn bg-pokemon-fire hover:bg-pokemon-fire/90 text-white"
+                onclick="return confirm('Are you sure you want to delete all selected items?')"
+            >
+                🗑️ Delete Items
+            </button>
 
-        <a
-            href="/"
-            class="btn bg-gray-300 hover:bg-gray-400 text-gray-800 inline-block"
-        >
-            ⬅ Back
-        </a>
+            <a
+                href="/"
+                class="btn bg-gray-300 hover:bg-gray-400 text-gray-800 inline-block"
+            >
+                ⬅ Back
+            </a>
+        </div>
     </div>
 </form>

@@ -1,11 +1,11 @@
-<h1 class="text-3xl font-pixel text-pokemon-psychic mb-3 tracking-wide flex items-center gap-3 flex-wrap">
+<h1 class="text-3xl font-bold text-gray-800 tracking-wide mb-6 flex items-center gap-3">
   <span><%= group.group %></span>
-  <span class="bg-pokemon-fire text-white text-xs font-mono px-2 py-1 rounded"><%= group.code %></span>
-<span class="bg-gray-800 text-gray-200 text-xs px-2 py-1 rounded">
-  <%= group.language === 'japanese' ? '🇯🇵 Japanese' : '🇦🇺 English' %>
-</span>
+  <span class="bg-pokemon-fire text-white text-xs font-mono px-2 py-1 rounded flex items-center"><%= group.code %></span>
+  <span class="bg-gray-800 text-gray-200 text-xs px-2 py-1 rounded flex items-center">
+    <%= group.language === 'japanese' ? '🇯🇵 Japanese' : '🇦🇺 English' %>
+  </span>
   <% if (typeof shareUrl !== 'undefined' && shareUrl) { %>
-    <button id="shareBtn" class="bg-blue-600 text-white px-2 py-1 rounded text-xs">Share</button>
+    <button id="shareBtn" class="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition flex items-center">Share</button>
   <% } %>
 </h1>
 
@@ -16,130 +16,149 @@
     <a href="/sets/era/<%= group.slug %>/bulk-edit" class="hover:underline text-blue-600">Bulk Edit</a>
   <% } %>
 </nav>
-<form class="mb-4">
-    <label>
-        Status
-        <select name="status" onchange="this.form.submit()" class="border ml-2 px-2 py-1">
-            <option value="" <%= !status ? 'selected' : '' %>>All</option>
-            <option value="finished" <%= status==='finished'?'selected':'' %>>Finished</option>
-            <option value="incomplete" <%= status==='incomplete'?'selected':'' %>>Incomplete</option>
-            <option value="notstarted" <%= status==='notstarted'?'selected':'' %>>Not Started</option>
-        </select>
-    </label>
+
+<form class="mb-6">
+  <label class="flex items-center gap-2">
+    <span>Status</span>
+    <select name="status" onchange="this.form.submit()" class="border px-2 py-1 rounded bg-white/50 relative z-10">
+      <option value="" <%= !status ? 'selected' : '' %>>All</option>
+      <option value="finished" <%= status==='finished'?'selected':'' %>>Finished</option>
+      <option value="incomplete" <%= status==='incomplete'?'selected':'' %>>Incomplete</option>
+      <option value="notstarted" <%= status==='notstarted'?'selected':'' %>>Not Started</option>
+    </select>
+  </label>
 </form>
+
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-    <div class="p-4 bg-white rounded border text-center">
-        <div class="text-sm text-gray-500">Completed Sets</div>
-        <div class="text-2xl font-semibold"><%= stats.completed %>/<%= stats.total %></div>
+  <div class="p-4 border-gray-200 relative z-10 bg-white/50 rounded-xl border text-center">
+    <div class="text-sm text-gray-500">Completed Sets</div>
+    <div class="text-2xl font-semibold"><%= stats.completed %>/<%= stats.total %></div>
+  </div>
+  <% Object.keys(stats.itemCounts).forEach(t => { %>
+    <div class="p-4 border-gray-200 relative z-10 bg-white/50 rounded-xl border text-center">
+      <div class="text-sm text-gray-500"><%= t %></div>
+      <div class="text-2xl font-semibold"><%= stats.itemCounts[t] %></div>
     </div>
-    <% Object.keys(stats.itemCounts).forEach(t => { %>
-    <div class="p-4 bg-white rounded border text-center">
-        <div class="text-sm text-gray-500"><%= t %></div>
-        <div class="text-2xl font-semibold"><%= stats.itemCounts[t] %></div>
-    </div>
-    <% }) %>
+  <% }) %>
 </div>
 
 <div class="grid md:grid-cols-2 gap-4">
-    <% sets.forEach(s => { %>
+  <% sets.forEach(s => { %>
     <% const prog = progressMap[s.code] || {}; const types = languageItemTypes[s.language]; %>
-    <div class="border rounded p-4 bg-white relative">
-        <% if (s.logo) { %>
-        <div
-        class="absolute top-1/2 right-2 -translate-y-1/2 pointer-events-none max-w-[240px] z-0"
-        style="
-            max-height: 96px;
-            -webkit-mask-image: linear-gradient(to left, black, transparent);
-            mask-image: linear-gradient(to left, black, transparent);
-        "
-        >
-        <img
-            src="<%= s.logo %>"
-            alt="<%= s.name %> logo"
-            class="opacity-30 object-contain h-16 w-auto max-w-full"
-        />
+    <div class="border rounded-xl p-4 border-gray-200 relative z-10 bg-white/50 relative shadow-sm">
+      <% if (s.logo) { %>
+        <div class="absolute top-1/2 right-2 -translate-y-1/2 pointer-events-none max-w-[240px] z-0" style="max-height: 96px; -webkit-mask-image: linear-gradient(to left, black, transparent); mask-image: linear-gradient(to left, black, transparent);">
+          <img src="<%= s.logo %>" alt="<%= s.name %> logo" class="opacity-30 object-contain h-16 w-auto max-w-full" />
         </div>
-        <% } %>
-        <div class="flex items-center gap-2 mb-2">
+      <% } %>
+      <div class="flex items-center gap-2 mb-2 relative z-10">
         <% if (s.symbol) { %>
-            <img src="<%= s.symbol %>" alt="" class="h-4 w-auto" />
+          <img src="<%= s.symbol %>" alt="" class="h-4 w-auto" />
         <% } %>
         <div class="flex items-center gap-2 flex-1">
-            <h3 class="font-semibold"><%= s.name %></h3>
-            <span class="bg-gray-200 text-gray-800 text-xs font-mono px-2 py-0.5 rounded z-10 relative">
-            <%= s.code.toUpperCase() %>
-            </span>
+          <h3 class="font-semibold"><%= s.name %></h3>
+          <span class="bg-gray-200 text-gray-800 text-xs font-mono px-2 py-0.5 rounded"><%= s.code.toUpperCase() %></span>
         </div>
-        </div>
-        <div class="flex flex-wrap gap-2 text-sm mb-2">
-            <% types.forEach(t => { %>
-            <span class="px-2 py-0.5 rounded text-xs font-semibold
-                <%= prog[t]
-                    ? 'bg-green-100 text-green-700 border border-green-300'
-                    : 'line-through bg-gray-100 text-gray-400 border border-gray-200' %>">
-                <%= t %>
-            </span>
-            <% }) %>
+      </div>
+      <div class="flex flex-wrap gap-2 text-sm mb-2 relative z-10">
+        <% types.forEach(t => { %>
+          <span class="px-2 py-0.5 rounded text-xs font-semibold border transition
+            <%= prog[t]
+              ? 'bg-green-100 text-green-700 border-green-300'
+              : 'line-through bg-gray-100 text-gray-400 border-gray-200' %>">
+            <%= t %>
+          </span>
+        <% }) %>
         <% if (canEdit) { %>
-        <button
-            type="button"
-            data-modal="<%= s.code %>"
-            class="px-2 py-0.5 bg-gray-100 text-gray-500 rounded text-xs font-medium hover:bg-gray-200 hover:text-blue-600 transition-colors border border-gray-200"
-            aria-label="Edit"
-        >
+          <button type="button" data-modal="<%= s.code %>" class="px-2 py-0.5 bg-gray-100 text-gray-500 rounded text-xs font-medium hover:bg-gray-200 hover:text-blue-600 border border-gray-200 transition-colors">
             <i class="ti ti-edit"></i>
-        </button>
-        <div id="modal-<%= s.code %>" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[9999]">
-            <div class="bg-white rounded p-4 w-full max-w-sm">
-                <form method="POST" action="/sets/<%= s.code %>/edit" class="space-y-2">
-                    <input type="hidden" name="returnTo" value="<%= currentUrl %>" />
-                    <% types.forEach(t => { %>
-                    <label class="flex items-center gap-2">
-                        <input type="checkbox" name="items" value="<%= t %>" <%= prog[t] ? 'checked' : '' %> />
-                        <%= t %>
-                    </label>
-                    <% }) %>
-                    <div class="flex gap-2 mt-2">
-                        <button class="btn btn-sm bg-blue-600 text-white">Save</button>
-                        <button type="button" data-close="<%= s.code %>" class="btn btn-sm bg-gray-300">Cancel</button>
-                    </div>
-                </form>
+          </button>
+        <% } %>
+      </div>
+    </div>
+
+      <% if (canEdit) { %>
+        <div id="shareModal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50 font-pixel">
+        <div class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md border-t-4 border-pokemon-electric space-y-4">
+            <h2 class="text-lg font-semibold text-pokemon-psychic">🔗 Share This URL</h2>
+            <input
+            id="shareUrl"
+            class="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pokemon-electric"
+            readonly
+            value="<%= shareUrl %>"
+            />
+            <div class="flex justify-end gap-2 pt-2">
+            <button
+                class="btn btn-sm bg-blue-600 hover:bg-blue-700 text-white font-semibold px-3 py-1.5 rounded"
+                onclick="navigator.clipboard.writeText(document.getElementById('shareUrl').value)"
+            >
+                📋 Copy
+            </button>
+            <button
+                class="btn btn-sm bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-3 py-1.5 rounded"
+                onclick="document.getElementById('shareModal').classList.add('hidden')"
+            >
+                ❌ Close
+            </button>
             </div>
         </div>
-        <% } %>
         </div>
-    </div>
-    <% }) %>
+
+        <div id="modal-<%= s.code %>" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[9999] font-pixel">
+        <div class="bg-white rounded-2xl p-6 shadow-xl w-full max-w-sm border-t-4 border-pokemon-electric space-y-4">
+            <h2 class="text-lg font-semibold text-pokemon-psychic">🛠 Edit Set: <%= s.name %></h2>
+            <form method="POST" action="/sets/<%= s.code %>/edit" class="space-y-3">
+            <input type="hidden" name="returnTo" value="<%= currentUrl %>" />
+            <% types.forEach(t => { %>
+                <label class="flex items-center gap-2">
+                <input type="checkbox" name="items" value="<%= t %>" <%= prog[t] ? 'checked' : '' %> />
+                <%= t %>
+                </label>
+            <% }) %>
+            <div class="flex justify-end gap-2 pt-2">
+                <button class="btn btn-sm bg-blue-600 hover:bg-blue-700 text-white font-semibold px-3 py-1.5 rounded">
+                💾 Save
+                </button>
+                <button type="button" data-close="<%= s.code %>" class="btn btn-sm bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-3 py-1.5 rounded">
+                ❌ Cancel
+                </button>
+            </div>
+            </form>
+        </div>
+        </div>
+      <% } %>
+  <% }) %>
 </div>
 
 <% if (canEdit) { %>
 <script>
 document.querySelectorAll('[data-modal]').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.getElementById('modal-' + btn.dataset.modal).classList.remove('hidden');
-    });
+  btn.addEventListener('click', () => {
+    document.getElementById('modal-' + btn.dataset.modal).classList.remove('hidden');
+  });
 });
 document.querySelectorAll('[data-close]').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.getElementById('modal-' + btn.dataset.close).classList.add('hidden');
-    });
+  btn.addEventListener('click', () => {
+    document.getElementById('modal-' + btn.dataset.close).classList.add('hidden');
+  });
 });
 </script>
 <% } %>
+
 <% if (typeof shareUrl !== 'undefined' && shareUrl) { %>
 <div id="shareModal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
-    <div class="bg-white p-4 rounded shadow w-full max-w-md">
-        <p class="mb-2">Share this URL:</p>
-        <input id="shareInput" class="w-full border p-2 rounded" readonly value="<%= shareUrl %>" />
-        <div class="mt-3 text-right space-x-2">
-            <button class="btn btn-sm bg-blue-600 text-white" onclick="navigator.clipboard.writeText(document.getElementById('shareInput').value)">Copy</button>
-            <button class="btn btn-sm bg-gray-300" onclick="document.getElementById('shareModal').classList.add('hidden')">Close</button>
-        </div>
+  <div class="bg-white p-4 rounded-xl shadow w-full max-w-md">
+    <p class="mb-2">Share this URL:</p>
+    <input id="shareInput" class="w-full border p-2 rounded" readonly value="<%= shareUrl %>" />
+    <div class="mt-3 text-right space-x-2">
+      <button class="btn btn-sm bg-blue-600 text-white" onclick="navigator.clipboard.writeText(document.getElementById('shareInput').value)">Copy</button>
+      <button class="btn btn-sm bg-gray-300" onclick="document.getElementById('shareModal').classList.add('hidden')">Close</button>
     </div>
+  </div>
 </div>
 <script>
-    document.getElementById('shareBtn').addEventListener('click', () => {
-        document.getElementById('shareModal').classList.remove('hidden');
-    });
+document.getElementById('shareBtn')?.addEventListener('click', () => {
+  document.getElementById('shareModal')?.classList.remove('hidden');
+});
 </script>
 <% } %>

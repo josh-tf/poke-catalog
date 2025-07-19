@@ -1,21 +1,55 @@
-<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
+<h1 class="text-3xl font-bold text-gray-800 tracking-wide mb-6">
     Create Collection
 </h1>
-<form method="POST" action="/collections/create" class="space-y-2">
-    <input
-        type="text"
-        name="name"
-        placeholder="Name"
-        class="w-full border p-2"
-        required
-    />
-    <textarea
-        name="description"
-        placeholder="Description"
-        class="w-full border p-2"
-    ></textarea>
-    <label class="flex items-center gap-2">
-        <input type="checkbox" name="public" /> Public
-    </label>
-    <button class="btn bg-blue-600 text-white">Save</button>
+
+<form
+    method="POST"
+    action="/collections/create"
+    class="space-y-6 mb-10 font-pixel"
+>
+    <div
+        class="bg-white border border-gray-300 rounded-2xl p-6 shadow space-y-4"
+    >
+        <div>
+            <label
+                for="name"
+                class="block text-sm mb-2 font-semibold text-pokemon-electric"
+                >Name</label
+            >
+            <input
+                type="text"
+                name="name"
+                id="name"
+                placeholder="Collection Name"
+                required
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-psychic"
+            />
+        </div>
+
+        <div>
+            <label
+                for="description"
+                class="block text-sm mb-2 font-semibold text-pokemon-electric"
+                >Description</label
+            >
+            <textarea
+                name="description"
+                id="description"
+                placeholder="A short description of your collection"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-water"
+            ></textarea>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <input type="checkbox" name="public" id="public" class="h-4 w-4" />
+            <label for="public" class="text-sm text-gray-700">Public</label>
+        </div>
+
+        <button
+            type="submit"
+            class="btn bg-pokemon-grass hover:bg-pokemon-grass/90 text-white font-pixel"
+        >
+            ✅ Save Collection
+        </button>
+    </div>
 </form>

@@ -1,155 +1,192 @@
-<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
+<h1 class="text-3xl font-bold text-gray-800 tracking-wide mb-6">
     My Catalog
 </h1>
 
 <!-- Action Bar -->
-<div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+<div class="rounded-xl border border-gray-200 relative z-10 bg-white/50 px-6 py-5 mb-6 shadow-sm">
+  <div class="flex flex-wrap items-center justify-between gap-4">
 
-    <!-- Left: Action Buttons -->
+    <!-- Left: Primary Actions -->
     <div class="flex flex-wrap items-center gap-2">
-        <a
-            href="/add"
-            class="btn bg-pokemon-fire hover:bg-pokemon-fire/90 text-white font-pixel"
-        >
-            ➕ Add New Item
-        </a>
-        <a
-            href="/bulk-add"
-            class="btn bg-pokemon-electric hover:bg-pokemon-electric/90 text-black font-pixel"
-        >
-            📥 Bulk Upload
-        </a>
+      <a href="/add" class="btn bg-pokemon-fire hover:bg-pokemon-fire/90 text-white font-pixel">
+        ➕ Add New Item
+      </a>
+      <a href="/bulk-add" class="btn bg-pokemon-electric hover:bg-pokemon-electric/90 text-black font-pixel">
+        📥 Bulk Upload
+      </a>
     </div>
 
-    <!-- Middle: View Options + Search -->
-    <div class="flex flex-wrap items-center gap-2">
-        <!-- View Toggle -->
-        <a
-            href="/catalog?view=list"
-            class="btn border border-gray-400 text-gray-800 font-pixel hover:bg-gray-200"
-        >
-            List View
-        </a>
-        <a
-            href="/catalog?view=grid"
-            class="btn border border-gray-400 text-gray-800 font-pixel hover:bg-gray-200"
-        >
-            Grid View
-        </a>
-
+    <!-- Middle: View Switch -->
+    <div class="flex items-center gap-2">
+      <a href="/catalog?view=list" class="btn border border-gray-300 text-gray-700 bg-white hover:bg-gray-100 font-pixel">
+        List View
+      </a>
+      <a href="/catalog?view=grid" class="btn border border-gray-300 text-gray-700 bg-white hover:bg-gray-100 font-pixel">
+        Grid View
+      </a>
     </div>
 
     <!-- Right: Filters -->
     <form method="get" class="flex flex-wrap items-center gap-2">
-        <input type="hidden" name="view" value="<%= view %>" />
-        <input
-            type="text"
-            name="q"
-            value="<%= q %>"
-            placeholder="Search items..."
-            class="text-sm px-3 py-2 border border-gray-300 rounded bg-white font-pixel text-gray-800 w-64"
-        />
+      <input type="hidden" name="view" value="<%= view %>" />
+      <input
+        type="text"
+        name="q"
+        value="<%= q %>"
+        placeholder="Search items..."
+        class="w-64 text-sm px-3 py-2 border border-gray-300 rounded bg-white text-gray-800 font-pixel"
+      />
 
-        <!-- Sort Field -->
-        <select
-            name="sort"
-            onchange="this.form.submit()"
-            class="text-sm px-3 py-2 border border-gray-300 rounded bg-white font-pixel text-gray-800"
-        >
-            <option value="title" <%= sort === 'title' ? 'selected' : '' %>>Title</option>
-            <option value="pricePaid" <%= sort === 'pricePaid' ? 'selected' : '' %>>Price Paid</option>
-            <option value="marketValue" <%= sort === 'marketValue' ? 'selected' : '' %>>Market Value</option>
-        </select>
+      <select
+        name="sort"
+        onchange="this.form.submit()"
+        class="text-sm px-3 py-2 border border-gray-300 rounded bg-white text-gray-800 font-pixel"
+      >
+        <option value="title" <%= sort === 'title' ? 'selected' : '' %>>Title</option>
+        <option value="pricePaid" <%= sort === 'pricePaid' ? 'selected' : '' %>>Price Paid</option>
+        <option value="marketValue" <%= sort === 'marketValue' ? 'selected' : '' %>>Market Value</option>
+      </select>
 
-        <!-- Order -->
-        <select
-            name="order"
-            onchange="this.form.submit()"
-            class="text-sm px-3 py-2 border border-gray-300 rounded bg-white font-pixel text-gray-800"
-        >
-            <option value="asc" <%= order === 'asc' ? 'selected' : '' %>>Asc</option>
-            <option value="desc" <%= order === 'desc' ? 'selected' : '' %>>Desc</option>
-        </select>
+      <select
+        name="order"
+        onchange="this.form.submit()"
+        class="text-sm px-3 py-2 border border-gray-300 rounded bg-white text-gray-800 font-pixel"
+      >
+        <option value="asc" <%= order === 'asc' ? 'selected' : '' %>>Asc</option>
+        <option value="desc" <%= order === 'desc' ? 'selected' : '' %>>Desc</option>
+      </select>
 
-        <!-- Category Filter -->
-        <select
-            name="category"
-            onchange="this.form.submit()"
-            class="text-sm px-3 py-2 border border-gray-300 rounded bg-white font-pixel text-gray-800"
-        >
-            <option value="" <%= !category ? 'selected' : '' %>>All Categories</option>
-            <% categories.forEach(cat => { %>
-            <option value="<%= cat.id %>" <%= category === cat.id ? 'selected' : '' %>><%= cat.label %></option>
+      <select
+        name="category"
+        onchange="this.form.submit()"
+        class="text-sm px-3 py-2 border border-gray-300 rounded bg-white text-gray-800 font-pixel"
+      >
+        <option value="" <%= !category ? 'selected' : '' %>>All Categories</option>
+        <% categories.forEach(cat => { %>
+          <option value="<%= cat.id %>" <%= category === cat.id ? 'selected' : '' %>><%= cat.label %></option>
+        <% }) %>
+      </select>
+
+      <select
+        name="subcategory"
+        onchange="this.form.submit()"
+        class="text-sm px-3 py-2 border border-gray-300 rounded bg-white text-gray-800 font-pixel"
+      >
+        <option value="" <%= !subcategory ? 'selected' : '' %>>(All Subcategories)</option>
+        <% categories.forEach(cat => { if (cat.subcategories) { %>
+          <optgroup label="<%= cat.label %>">
+            <% cat.subcategories.forEach(sub => { %>
+              <option value="<%= sub.id %>" <%= subcategory === sub.id ? 'selected' : '' %>><%= sub.label %></option>
             <% }) %>
-        </select>
-
-        <!-- Subcategory Filter -->
-        <select
-            name="subcategory"
-            onchange="this.form.submit()"
-            class="text-sm px-3 py-2 border border-gray-300 rounded bg-white font-pixel text-gray-800"
-        >
-            <option value="" <%= !subcategory ? 'selected' : '' %>>(All Subcategories)</option>
-            <% categories.forEach(cat => { %>
-                <% if (cat.subcategories) { %>
-                    <optgroup label="<%= cat.label %>">
-                        <% cat.subcategories.forEach(sub => { %>
-                            <option value="<%= sub.id %>" <%= subcategory === sub.id ? 'selected' : '' %>><%= sub.label %></option>
-                        <% }) %>
-                    </optgroup>
-                <% } %>
-            <% }) %>
-        </select>
+          </optgroup>
+        <% } }) %>
+      </select>
     </form>
+  </div>
 </div>
 
 <!-- Grid or List View -->
+<%
+  const zoomClassMap = {
+    '0.25': 'h-12',   // 3rem
+    '0.5': 'h-20',    // 5rem
+    '0.75': 'h-28',   // 7rem
+    '1': 'h-32',      // 8rem
+    '1.25': 'h-36',   // 9rem
+    '1.5': 'h-40',    // 10rem
+    '1.75': 'h-44',   // 11rem
+    '2': 'h-48',      // 12rem
+    '2.25': 'h-52',   // 13rem
+    '2.5': 'h-56',    // 14rem
+    '2.75': 'h-60',   // 15rem
+    '3': 'h-64',      // 16rem
+  };
+
+  const zoomKey = String(user?.imageZoom || 1);
+  const zoomClass = zoomClassMap[zoomKey] || 'h-48';
+%>
+
 <% if (view === 'grid') { %>
 <div id="catalogGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-    <% items.forEach(item => { %>
-    <div class="catalog-item bg-white rounded shadow overflow-hidden">
-        <% if (item.images?.length > 0) { %>
-        <img
-            src="<%= item.images[0] %>"
-            alt="Item Image"
-            class="w-full h-48 object-contain bg-gray-100"
-            style="transform: scale(<%= user?.imageZoom || 1 %>)"
-        />
-        <% } %>
-        <div class="p-4">
-            <h5 class="text-lg font-semibold">
-                <a
-                    href="/item/<%= item.id %>"
-                    class="text-blue-600 hover:underline"
-                    ><%= item.title %></a
-                >
-            </h5>
-            <p class="text-sm text-gray-600">
-                <%= (categories.find(c => c.id === item.category)?.label || 'Unknown') %>
-                <% if (item.subcategory) { %>
-                    —
-                    <%= (() => {
-  const cat = categories.find(c => c.subcategories?.some(s => s.id === item.subcategory));
-  return cat?.subcategories?.find(s => s.id === item.subcategory)?.label || '';
-})() %>
-                <% } %>
-            </p>
+  <% items.forEach(item => { %>
+    <div class="catalog-item rounded-xl border border-gray-200 relative z-10 bg-white/50 shadow-sm overflow-hidden transition hover:shadow-md">
+    <% if (item.images?.length > 0) { %>
+      <img
+        src="<%= item.images[0] %>"
+        alt="Item Image"
+        class="w-full object-contain bg-gray-100 <%= zoomClass %>"
+      />
+    <% } else { %>
+      <div class="w-full flex items-center justify-center bg-gray-100 text-gray-400 text-sm <%= zoomClass %>">
+        No Image
+      </div>
+    <% } %>
+
+      <div class="p-4 space-y-1">
+        <h5 class="text-base font-semibold text-gray-800">
+          <a href="/item/<%= item.id %>" class="hover:underline text-blue-600">
+            <%= item.title %>
+          </a>
+        </h5>
+        <p class="text-sm text-gray-600">
+          <%= (categories.find(c => c.id === item.category)?.label || 'Unknown') %>
+          <% if (item.subcategory) { %>
+            —
+            <%= (() => {
+              const cat = categories.find(c => c.subcategories?.some(s => s.id === item.subcategory));
+              return cat?.subcategories?.find(s => s.id === item.subcategory)?.label || '';
+            })() %>
+          <% } %>
+        </p>
+        <div class="text-sm text-gray-500">
+          Paid: <span class="font-medium">$<%= item.pricePaid %></span><br/>
+          Market: <span class="font-medium">$<%= item.marketValue %></span>
         </div>
+        <% if (item.flags?.length > 0) { %>
+        <div class="text-xs text-gray-400">Flags: <%= item.flags.join(', ') %></div>
+        <% } %>
+      </div>
     </div>
-    <% }) %>
+  <% }) %>
 </div>
 <% } else { %>
+<%
+  // Match the dropdown values to the zoomClassMap keys from catalog.ejs
+  const thumbZoomClassMap = {
+    '0.25': 'h-8 w-8',
+    '0.5': 'h-12 w-12',
+    '0.75': 'h-16 w-16',
+    '1': 'h-20 w-20',
+    '1.25': 'h-24 w-24',
+    '1.5': 'h-28 w-28',
+    '1.75': 'h-32 w-32',
+    '2': 'h-36 w-36',
+    '2.25': 'h-40 w-40',
+    '2.5': 'h-44 w-44',
+    '2.75': 'h-48 w-48',
+    '3': 'h-52 w-52'
+  };
+
+  const zoomKey = String(user?.imageZoom || 1);
+  const thumbZoomClass = thumbZoomClassMap[zoomKey] || 'h-20 w-20';
+%>
 <form method="GET" action="/bulk-edit" class="space-y-4 mb-6">
     <% items.forEach(item => { %>
-    <div class="catalog-item bg-white border border-gray-200 rounded px-4 py-3">
+    <div class="catalog-item relative z-10 bg-white/50 border border-gray-200 rounded px-4 py-3">
         <label class="flex items-center gap-4 w-full cursor-pointer">
             <input type="checkbox" name="ids" value="<%= item.id %>" class="shrink-0 mt-1" />
 
-            <% if (item.images?.length > 0) { %>
-            <img src="<%= item.images[0] %>" alt="Card image" class="h-20 w-20 object-contain bg-gray-100 rounded border shrink-0" style="transform: scale(<%= user?.imageZoom || 1 %>)" />
-            <% } else { %>
-            <div class="h-20 w-20 flex items-center justify-center bg-gray-100 text-gray-400 border rounded text-xs shrink-0">No Image</div>
-            <% } %>
+          <% if (item.images?.length > 0) { %>
+            <img
+              src="<%= item.images[0] %>"
+              alt="Card image"
+              class="object-contain bg-gray-100 rounded border shrink-0 <%= thumbZoomClass %>"
+            />
+          <% } else { %>
+            <div class="flex items-center justify-center bg-gray-100 text-gray-400 border rounded text-xs shrink-0 <%= thumbZoomClass %>">
+              No Image
+            </div>
+          <% } %>
 
             <div class="flex justify-between items-center flex-1">
                 <div>
@@ -177,38 +214,118 @@
     <% }) %>
     <button class="btn bg-yellow-500 text-white hover:bg-yellow-600">Bulk Edit</button>
 </form>
-
 <% } %>
 
 <!-- Category Chart -->
-<div class="mt-6 bg-white rounded shadow p-6">
+ <!-- Summary Stats -->
+<div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+  <div class="rounded-xl border border-gray-200 relative z-10 bg-white/50 px-4 py-5 text-center shadow-sm">
+    <p class="text-sm text-gray-500 font-pixel">Total Items</p>
+    <p class="text-2xl font-semibold text-gray-800"><%= items.length %></p>
+  </div>
+  <div class="rounded-xl border border-gray-200 relative z-10 bg-white/50 px-4 py-5 text-center shadow-sm">
+    <p class="text-sm text-gray-500 font-pixel">Total Paid</p>
+    <p class="text-2xl font-semibold text-gray-800">
+      $<%= items.reduce((sum, i) => sum + (i.pricePaid || 0), 0).toFixed(2) %>
+    </p>
+  </div>
+  <div class="rounded-xl border border-gray-200 relative z-10 bg-white/50 px-4 py-5 text-center shadow-sm">
+    <p class="text-sm text-gray-500 font-pixel">Total Market Value</p>
+    <p class="text-2xl font-semibold text-gray-800">
+      $<%= items.reduce((sum, i) => sum + (i.marketValue || 0), 0).toFixed(2) %>
+    </p>
+  </div>
+</div>
+
+<!-- Category Summary & Charts -->
+<div class="mt-6 grid gap-6 grid-cols-1 xl:grid-cols-2">
+  <!-- Donut Chart: Items by Category -->
+  <div class="rounded-xl border border-gray-200 relative z-10 bg-white/50 p-6 shadow-sm">
     <h4 class="text-lg font-pixel text-pokemon-grass mb-3">Items by Category</h4>
-    <div id="categoryChart" class="min-h-[250px]"></div>
+    <div id="categoryDonut" class="min-h-[250px]"></div>
+  </div>
+
+  <!-- Bar Chart: Price Paid by Category -->
+  <div class="rounded-xl border border-gray-200 relative z-10 bg-white/50 p-6 shadow-sm">
+    <h4 class="text-lg font-pixel text-pokemon-fire mb-3">Total Paid / Value per Category</h4>
+    <div id="categoryBar" class="min-h-[250px]"></div>
+  </div>
 </div>
 
 <script type="application/json" id="category-data">
-    <%- JSON.stringify(categoryData) %>
+  <%- JSON.stringify(categoryData) %>
 </script>
+
+<script type="application/json" id="categories-data">
+  <%- JSON.stringify(categories) %>
+</script>
+
 <script>
     const categoryData = JSON.parse(document.getElementById('category-data').textContent);
+    const categories = JSON.parse(document.getElementById('categories-data').textContent);
+
     const ids = Object.keys(categoryData);
-    const labels = ids.map((id) => {
-  const found = categories.find(c => c.id === id);
-  return found ? found.label : 'Unknown';
-});
-    const series = ids.map((id) => categoryData[id]);
-    const options = {
-        series: series,
-        labels: labels,
-        chart: {
-            type: 'donut',
-            height: 250,
-            fontFamily: 'Plus Jakarta Sans, sans-serif',
-        },
-        dataLabels: { enabled: false },
-        legend: { position: 'bottom' },
-    };
-    if (document.querySelector('#categoryChart')) {
-        new ApexCharts(document.querySelector('#categoryChart'), options).render();
-    }
+
+    const labels = ids.map(id => {
+    const found = categories.find(c => c.id === id);
+    return found ? found.label : 'Unknown';
+    });
+
+  const series = ids.map(id => categoryData[id].count || 0);
+  const priceSeries = ids.map(id => categoryData[id].totalPaid || 0);
+  const marketSeries = ids.map(id => categoryData[id].marketValue || 0);
+
+  // Donut: Item Count by Category
+  const donutOptions = {
+    series,
+    labels,
+    chart: {
+      type: 'donut',
+      height: 250,
+      fontFamily: 'Plus Jakarta Sans, sans-serif',
+    },
+    dataLabels: { enabled: false },
+    legend: { position: 'bottom' },
+  };
+
+  // Bar: Paid vs Value
+  const barOptions = {
+    chart: {
+      type: 'bar',
+      height: 250,
+      stacked: false,
+      toolbar: { show: false },
+      fontFamily: 'Plus Jakarta Sans, sans-serif',
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: '60%',
+      },
+    },
+    dataLabels: { enabled: false },
+    stroke: { show: true, width: 1, colors: ['#fff'] },
+    xaxis: { categories: labels },
+    yaxis: { title: { text: 'Amount ($)' } },
+    tooltip: {
+      y: {
+        formatter: val => `$${val.toFixed(2)}`
+      }
+    },
+    fill: { opacity: 1 },
+    colors: ['#F97316', '#10B981'], // fire and grass type colours
+    series: [
+      { name: 'Total Paid', data: priceSeries },
+      { name: 'Market Value', data: marketSeries },
+    ],
+    legend: { position: 'bottom' },
+  };
+
+  if (document.querySelector('#categoryDonut')) {
+    new ApexCharts(document.querySelector('#categoryDonut'), donutOptions).render();
+  }
+
+  if (document.querySelector('#categoryBar')) {
+    new ApexCharts(document.querySelector('#categoryBar'), barOptions).render();
+  }
 </script>

@@ -1,18 +1,143 @@
-<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">Edit Collection</h1>
-<form method="POST" action="/collections/<%= collection.userId %>/<%= collection.slug %>/edit" class="space-y-2">
-    <input type="text" name="name" value="<%= collection.name %>" class="w-full border p-2" required />
-    <textarea name="description" class="w-full border p-2"><%= collection.description || '' %></textarea>
-    <label class="flex items-center gap-2">
-        <input type="checkbox" name="public" <%= collection.public ? 'checked' : '' %> /> Public
-    </label>
-    <h2 class="font-semibold mt-4">Items</h2>
-    <div class="space-y-1">
-        <% items.forEach(i => { %>
-        <label class="flex items-center gap-2">
-            <input type="checkbox" name="items" value="<%= i.id %>" <%= i.collectionId === collection.id ? 'checked' : '' %> />
-            <%= i.title %>
-        </label>
-        <% }) %>
+<h1 class="text-3xl font-bold text-gray-800 tracking-wide mb-6">
+  Edit Collection
+</h1>
+
+<form method="POST" action="/collections/<%= collection.userId %>/<%= collection.slug %>/edit" class="space-y-6 mb-10 font-pixel">
+  <div class="bg-white border border-gray-300 rounded-2xl p-6 shadow space-y-4">
+    <!-- Collection Name -->
+    <div>
+      <label for="name" class="block text-sm mb-2 font-semibold text-pokemon-electric">Name</label>
+      <input
+        type="text"
+        name="name"
+        id="name"
+        value="<%= collection.name %>"
+        required
+        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-psychic"
+      />
     </div>
-    <button class="btn bg-blue-600 text-white">Save</button>
+
+    <!-- Description -->
+    <div>
+      <label for="description" class="block text-sm mb-2 font-semibold text-pokemon-electric">Description</label>
+      <textarea
+        name="description"
+        id="description"
+        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-water"
+      ><%= collection.description || '' %></textarea>
+    </div>
+
+    <!-- Visibility -->
+    <div class="flex items-center gap-2">
+      <input type="checkbox" name="public" id="public" class="h-4 w-4 text-pokemon-electric border-gray-300 rounded" <%= collection.public ? 'checked' : '' %> />
+      <label for="public" class="text-sm text-gray-700">Public</label>
+    </div>
+
+    <!-- Assign Items to Collection -->
+    <div>
+      <label for="itemSearch" class="block text-sm mb-2 font-semibold text-pokemon-electric">Add Items</label>
+      <input
+        type="text"
+        id="itemSearch"
+        placeholder="Search items..."
+        class="w-full mb-2 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-psychic"
+        oninput="filterAvailableItems()"
+      />
+
+      <div class="flex gap-4">
+        <!-- Available Items -->
+        <div class="w-1/2">
+          <h3 class="text-xs font-semibold text-gray-500 mb-2">Available Items</h3>
+          <ul id="availableItems" class="border border-gray-300 rounded-lg p-2 h-48 overflow-y-auto text-sm space-y-1 bg-gray-50"></ul>
+        </div>
+
+        <!-- Selected Items -->
+        <div class="w-1/2">
+          <h3 class="text-xs font-semibold text-gray-500 mb-2">Selected Items</h3>
+          <ul id="selectedItems" class="border border-gray-300 rounded-lg p-2 h-48 overflow-y-auto text-sm space-y-1 bg-gray-50"></ul>
+        </div>
+      </div>
+
+      <!-- Hidden input to capture selected item IDs -->
+      <input type="hidden" name="itemIds" id="itemIds" />
+    </div>
+
+    <!-- Submit Button -->
+    <div class="pt-2">
+      <button type="submit" class="btn bg-pokemon-grass hover:bg-pokemon-grass/90 text-white font-pixel">
+        ✅ Save Collection
+      </button>
+    </div>
+  </div>
 </form>
+
+<script>
+  const availableItems = [
+    <% items.forEach(item => { %>
+      { id: "<%= item.id %>", title: "<%= item.title.replace(/\"/g, '&quot;') %>", selected: <%= item.collectionId === collection.id %> },
+    <% }) %>
+  ];
+
+  const availableEl = document.getElementById('availableItems');
+  const selectedEl = document.getElementById('selectedItems');
+  const itemIdsInput = document.getElementById('itemIds');
+
+  const selectedItems = new Map();
+
+  function renderAvailableItems(filter = '') {
+    availableEl.innerHTML = '';
+    availableItems
+      .filter(i => i.title.toLowerCase().includes(filter.toLowerCase()) && !selectedItems.has(i.id))
+      .forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item.title;
+        li.className = 'cursor-pointer hover:bg-gray-200 px-2 py-1 rounded';
+        li.onclick = () => selectItem(item);
+        availableEl.appendChild(li);
+      });
+  }
+
+  function selectItem(item) {
+    if (!selectedItems.has(item.id)) {
+      selectedItems.set(item.id, item.title);
+      updateSelectedList();
+      updateHiddenInput();
+      renderAvailableItems(document.getElementById('itemSearch').value);
+    }
+  }
+
+  function removeItem(id) {
+    selectedItems.delete(id);
+    updateSelectedList();
+    updateHiddenInput();
+    renderAvailableItems(document.getElementById('itemSearch').value);
+  }
+
+  function updateSelectedList() {
+    selectedEl.innerHTML = '';
+    selectedItems.forEach((title, id) => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span>${title}</span> <button onclick="removeItem('${id}')" class="text-red-500 ml-2 text-xs">✖</button>`;
+      li.className = 'flex justify-between items-center px-2 py-1 hover:bg-red-50 rounded';
+      selectedEl.appendChild(li);
+    });
+  }
+
+  function updateHiddenInput() {
+    itemIdsInput.value = [...selectedItems.keys()].join(',');
+  }
+
+  function filterAvailableItems() {
+    const val = document.getElementById('itemSearch').value;
+    renderAvailableItems(val);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    availableItems.forEach(item => {
+      if (item.selected) selectedItems.set(item.id, item.title);
+    });
+    updateSelectedList();
+    updateHiddenInput();
+    renderAvailableItems();
+  });
+</script>

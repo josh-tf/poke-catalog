@@ -1,35 +1,57 @@
-<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
-    Collections
-</h1>
+<h1 class="text-3xl font-bold text-gray-800 tracking-wide mb-6">Collections</h1>
+
 <a
     href="/collections/create"
-    class="btn bg-blue-600 text-white mb-4 inline-block"
-    >New Collection</a
+    class="inline-block mb-6 btn bg-pokemon-electric text-black font-pixel hover:bg-pokemon-electric/90"
 >
+    ➕ New Collection
+</a>
+
 <% if (collections.length === 0) { %>
-<p>No collections yet.</p>
+<div
+    class="rounded-lg border border-dashed border-gray-200 relative z-10 bg-white/50 p-6 text-center text-gray-500 shadow-sm"
+>
+    No collections yet — start by creating one!
+</div>
 <% } else { %>
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     <% collections.forEach(c => { %>
-    <div class="border rounded p-2 bg-white shadow">
-        <div class="flex gap-1 mb-2">
-            <% if (c.images && c.images.length > 0) { %>
-            <% c.images.forEach(img => { %>
-            <img src="<%= img %>" class="w-8 h-8 object-contain" />
+    <div
+        class="rounded-xl border border-gray-200 relative z-10 bg-white/50 p-4 shadow-sm hover:shadow-md transition"
+    >
+        <!-- Image Row -->
+        <% if (c.images?.length > 0) { %>
+        <div class="flex gap-2 mb-3 overflow-hidden">
+            <% c.images.slice(0, 4).forEach(img => { %>
+            <img
+                src="<%= img %>"
+                alt="Collection preview"
+                class="w-10 h-10 object-contain bg-gray-100 border rounded"
+            />
             <% }) %>
-            <% } %>
         </div>
-        <h3 class="font-semibold">
+        <% } else { %>
+        <div
+            class="w-full h-10 mb-3 flex items-center justify-center text-gray-400 text-xs bg-gray-50 border rounded"
+        >
+            No Images
+        </div>
+        <% } %>
+
+        <!-- Title -->
+        <h3 class="text-lg font-semibold text-gray-800 mb-1">
             <a
                 href="/collections/<%= c.userId %>/<%= c.slug %>"
-                class="text-blue-600 hover:underline"
-                ><%= c.name %></a
+                class="hover:underline text-blue-600"
             >
+                <%= c.name %>
+            </a>
         </h3>
-        <p class="text-sm">
-            <%= c.itemCount %> items
-            <% if (!c.public) { %>
-            <span class="text-gray-500">(private)</span>
+
+        <!-- Meta -->
+        <p class="text-sm text-gray-600">
+            <%= c.itemCount %> item<%= c.itemCount !== 1 ? 's' : '' %> <% if
+            (!c.public) { %> • <span class="text-gray-400 italic">Private</span>
             <% } %>
         </p>
     </div>

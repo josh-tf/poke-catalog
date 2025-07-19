@@ -1,7 +1,7 @@
 <div
-    class="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-lg border-t-4 border-pokemon-electric space-y-6 font-pixel"
+    class="max-w-3xl mx-auto p-6 bg-white rounded-2xl shadow-lg border-t-4 border-pokemon-electric space-y-6 font-pixel"
 >
-    <h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
+    <h1 class="text-3xl font-bold text-gray-800 tracking-wide mb-6">
         <%= item.title %>
     </h1>
 
@@ -11,7 +11,7 @@
         <img
             src="<%= img %>"
             alt="Item image"
-            class="h-48 rounded border border-gray-200 object-contain bg-gray-50"
+            class="h-48 rounded-xl border border-gray-200 object-contain bg-gray-50"
             style="transform: scale(<%= user?.imageZoom || 1 %>)"
         />
         <% }) %>
@@ -21,77 +21,86 @@
     <% } %>
 
     <div class="text-gray-800 space-y-4 text-sm leading-relaxed">
-        <p>
+        <div class="rounded-xl border border-gray-200 px-4 py-3 bg-gray-50">
             <span class="font-semibold text-pokemon-electric">Category:</span>
-            <%= categories.find(c => c.id === item.category)?.label || '(none)' %>
+            <%= categories.find(c => c.id === item.category)?.label || '(none)'
+            %>
             <% if (item.subcategory) { %>
-            —
-            <%= (() => {
-  const cat = categories.find(c => c.subcategories?.some(s => s.id === item.subcategory));
-  return cat?.subcategories?.find(s => s.id === item.subcategory)?.label || '';
-})() %>
+            — <%= (() => { const cat = categories.find(c =>
+            c.subcategories?.some(s => s.id === item.subcategory)); return
+            cat?.subcategories?.find(s => s.id === item.subcategory)?.label ||
+            ''; })() %>
             <% } %>
-        </p>
+        </div>
 
-        <p>
+        <div class="rounded-xl border border-gray-200 px-4 py-3 bg-gray-50">
             <span class="font-semibold text-pokemon-electric"
                 >Description:</span
             >
             <%= item.desc?.trim() || '(none)' %>
-        </p>
+        </div>
 
         <div>
             <span class="block font-semibold text-pokemon-electric mb-1"
                 >Notes:</span
             >
-            <%
-  const notesContent = item.notes?.trim();
-  const hasNotes = !!notesContent;
-%>
+            <% const notesContent = item.notes?.trim(); const hasNotes = !!notesContent; %>
             <div
-                class="bg-yellow-100 border border-yellow-300 rounded-lg px-4 py-3 shadow-inner text-gray-700 text-sm leading-relaxed flex flex-col justify-start <%= hasNotes ? 'whitespace-pre-wrap' : 'whitespace-normal' %>"
+                class="bg-yellow-100 border border-yellow-300 rounded-xl px-4 py-3 shadow-inner text-gray-700 text-sm leading-relaxed <%= hasNotes ? 'whitespace-pre-wrap' : 'whitespace-normal' %>"
                 style="min-height: 3rem"
             >
                 <%- notesContent || '(none)' %>
             </div>
         </div>
 
-        <p>
-            <span class="font-semibold text-pokemon-electric">Flags:</span>
-            <%= item.flags?.length ? item.flags.join(', ') : '(none)' %>
-        </p>
+        <div class="grid sm:grid-cols-2 gap-4">
+            <div class="rounded-xl border border-gray-200 px-4 py-3 bg-gray-50">
+                <span class="font-semibold text-pokemon-electric">Flags:</span>
+                <%= item.flags?.length ? item.flags.join(', ') : '(none)' %>
+            </div>
 
-        <p>
-            <span class="font-semibold text-pokemon-electric">Purchase Date:</span>
-            <%= item.purchaseDate || '(unknown)' %>
-        </p>
+            <div class="rounded-xl border border-gray-200 px-4 py-3 bg-gray-50">
+                <span class="font-semibold text-pokemon-electric"
+                    >Purchase Date:</span
+                >
+                <%= item.purchaseDate || '(unknown)' %>
+            </div>
 
-        <p>
-            <span class="font-semibold text-pokemon-electric">Condition:</span>
-            <%= item.condition || '(none)' %>
-        </p>
+            <div class="rounded-xl border border-gray-200 px-4 py-3 bg-gray-50">
+                <span class="font-semibold text-pokemon-electric"
+                    >Condition:</span
+                >
+                <%= item.condition || '(none)' %>
+            </div>
 
-        <p>
-            <span class="font-semibold text-pokemon-electric">For Trade:</span>
-            <%= item.forTrade ? 'Yes' : 'No' %>
-        </p>
+            <div class="rounded-xl border border-gray-200 px-4 py-3 bg-gray-50">
+                <span class="font-semibold text-pokemon-electric"
+                    >For Trade:</span
+                >
+                <%= item.forTrade ? 'Yes' : 'No' %>
+            </div>
 
-        <p>
-            <span class="font-semibold text-pokemon-electric">For Sale:</span>
-            <%= item.forSale ? 'Yes' : 'No' %>
-        </p>
+            <div class="rounded-xl border border-gray-200 px-4 py-3 bg-gray-50">
+                <span class="font-semibold text-pokemon-electric"
+                    >For Sale:</span
+                >
+                <%= item.forSale ? 'Yes' : 'No' %>
+            </div>
 
-        <p>
-            <span class="font-semibold text-pokemon-electric">Price Paid:</span>
-            <%= typeof item.pricePaid === 'number' ? `$${item.pricePaid.toFixed(2)}` : '(none)' %>
-        </p>
+            <div class="rounded-xl border border-gray-200 px-4 py-3 bg-gray-50">
+                <span class="font-semibold text-pokemon-electric"
+                    >Price Paid:</span
+                >
+                <%= typeof item.pricePaid === 'number' ? `$${item.pricePaid.toFixed(2)}` : '(none)' %>
+            </div>
 
-        <p>
-            <span class="font-semibold text-pokemon-electric"
-                >Market Value:</span
-            >
-            <%= typeof item.marketValue === 'number' ? `$${item.marketValue.toFixed(2)}` : '(none)' %>
-        </p>
+            <div class="rounded-xl border border-gray-200 px-4 py-3 bg-gray-50">
+                <span class="font-semibold text-pokemon-electric"
+                    >Market Value:</span
+                >
+                <%= typeof item.marketValue === 'number' ? `$${item.marketValue.toFixed(2)}` : '(none)' %>
+            </div>
+        </div>
     </div>
 
     <div class="flex flex-wrap gap-3 pt-6 border-t border-gray-200">
@@ -115,10 +124,7 @@
             </button>
         </form>
 
-        <a
-            href="/"
-            class="btn bg-gray-300 hover:bg-gray-400 text-gray-800"
-        >
+        <a href="/" class="btn bg-gray-300 hover:bg-gray-400 text-gray-800">
             ⬅ Back
         </a>
     </div>

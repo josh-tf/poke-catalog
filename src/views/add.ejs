@@ -1,4 +1,4 @@
-<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
+<h1 class="text-3xl font-bold text-gray-800 tracking-wide mb-6">
     Add New Item
 </h1>
 
@@ -6,26 +6,33 @@
     method="POST"
     action="/add"
     enctype="multipart/form-data"
-    class="space-y-5 mb-10"
+    class="space-y-6 mb-10 max-w-xl bg-white/50 z-10 relative p-6 rounded-2xl border shadow"
 >
-    <!-- Card ID -->
+    <!-- Item ID -->
     <div>
+        <label for="id-input" class="block mb-1 text-sm font-semibold"
+            >Item ID</label
+        >
         <input
             id="id-input"
             name="id"
-            placeholder="Item ID (e.g. sv1s-101-087 or violet-ex-starter-deck)"
+            placeholder="e.g. sv1s-101-087 or violet-ex-starter-deck"
             required
-            class="w-full border border-gray-300 rounded px-4 py-2 text-sm font-pixel focus:outline-none focus:ring-2 focus:ring-pokemon-electric"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm font-pixel focus:outline-none focus:ring-2 focus:ring-pokemon-electric"
         />
         <div class="text-xs text-gray-500 id-feedback mt-1 font-pixel"></div>
     </div>
 
     <!-- Category -->
     <div>
+        <label for="category" class="block mb-1 text-sm font-semibold"
+            >Category</label
+        >
         <select
+            id="category"
             name="category"
             required
-            class="w-full border border-gray-300 rounded px-4 py-2 text-sm font-pixel bg-white focus:outline-none focus:ring-2 focus:ring-pokemon-grass"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm font-pixel bg-white focus:outline-none focus:ring-2 focus:ring-pokemon-grass"
         >
             <% categories.forEach(cat => { %>
             <option value="<%= cat.id %>"><%= cat.label %></option>
@@ -35,9 +42,13 @@
 
     <!-- Subcategory -->
     <div>
+        <label for="subcategory" class="block mb-1 text-sm font-semibold"
+            >Subcategory</label
+        >
         <select
+            id="subcategory"
             name="subcategory"
-            class="w-full border border-gray-300 rounded px-4 py-2 text-sm font-pixel bg-white focus:outline-none focus:ring-2 focus:ring-pokemon-grass"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm font-pixel bg-white focus:outline-none focus:ring-2 focus:ring-pokemon-grass"
         >
             <option value="">(none)</option>
             <% categories.forEach(cat => { %>
@@ -54,47 +65,54 @@
 
     <!-- Title -->
     <div>
+        <label for="title-input" class="block mb-1 text-sm font-semibold"
+            >Title</label
+        >
         <input
             id="title-input"
             name="title"
             placeholder="Title"
             required
-            class="w-full border border-gray-300 rounded px-4 py-2 text-sm font-pixel focus:outline-none focus:ring-2 focus:ring-pokemon-fire"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm font-pixel focus:outline-none focus:ring-2 focus:ring-pokemon-fire"
         />
     </div>
 
     <!-- Description -->
     <div>
+        <label class="block mb-1 text-sm font-semibold">Description</label>
         <input
             name="desc"
             placeholder="Description"
-            class="w-full border border-gray-300 rounded px-4 py-2 text-sm font-pixel focus:outline-none focus:ring-2 focus:ring-pokemon-water"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm font-pixel focus:outline-none focus:ring-2 focus:ring-pokemon-water"
         />
     </div>
 
     <!-- Notes -->
     <div>
+        <label class="block mb-1 text-sm font-semibold">Notes</label>
         <input
             name="notes"
             placeholder="Notes"
-            class="w-full border border-gray-300 rounded px-4 py-2 text-sm font-pixel focus:outline-none focus:ring-2 focus:ring-pokemon-psychic"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm font-pixel focus:outline-none focus:ring-2 focus:ring-pokemon-psychic"
         />
     </div>
 
     <!-- Purchase Date -->
     <div>
+        <label class="block mb-1 text-sm font-semibold">Purchase Date</label>
         <input
             type="date"
             name="purchaseDate"
-            class="w-full border border-gray-300 rounded px-4 py-2 text-sm font-pixel focus:outline-none focus:ring-2 focus:ring-pokemon-psychic"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm font-pixel focus:outline-none focus:ring-2 focus:ring-pokemon-psychic"
         />
     </div>
 
     <!-- Condition -->
     <div>
+        <label class="block mb-1 text-sm font-semibold">Condition</label>
         <select
             name="condition"
-            class="w-full border border-gray-300 rounded px-4 py-2 text-sm font-pixel bg-white focus:outline-none focus:ring-2 focus:ring-pokemon-psychic"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm font-pixel bg-white focus:outline-none focus:ring-2 focus:ring-pokemon-psychic"
         >
             <option value="">(condition)</option>
             <option value="mint">Mint</option>
@@ -115,43 +133,47 @@
 
     <!-- Flags -->
     <div>
+        <label class="block mb-1 text-sm font-semibold">Flags</label>
         <input
             name="flags"
             placeholder="Flags (comma separated)"
-            class="w-full border border-gray-300 rounded px-4 py-2 text-sm font-pixel focus:outline-none focus:ring-2 focus:ring-pokemon-dark"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm font-pixel focus:outline-none focus:ring-2 focus:ring-pokemon-dark"
         />
     </div>
 
     <!-- Price Paid -->
     <div>
+        <label class="block mb-1 text-sm font-semibold">Price Paid</label>
         <input
             name="pricePaid"
             type="number"
             step="0.01"
             placeholder="Price Paid"
-            class="w-full border border-gray-300 rounded px-4 py-2 text-sm font-pixel focus:outline-none focus:ring-2 focus:ring-pokemon-fairy"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm font-pixel focus:outline-none focus:ring-2 focus:ring-pokemon-fairy"
         />
     </div>
 
     <!-- Market Value -->
     <div>
+        <label class="block mb-1 text-sm font-semibold">Market Value</label>
         <input
             name="marketValue"
             type="number"
             step="0.01"
             placeholder="Market Value"
-            class="w-full border border-gray-300 rounded px-4 py-2 text-sm font-pixel focus:outline-none focus:ring-2 focus:ring-pokemon-dragon"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm font-pixel focus:outline-none focus:ring-2 focus:ring-pokemon-dragon"
         />
     </div>
 
     <!-- Image Upload -->
     <div>
+        <label class="block mb-1 text-sm font-semibold">Upload Images</label>
         <input
             type="file"
             name="images"
             accept="image/*"
             multiple
-            class="w-full border border-gray-300 rounded px-4 py-2 text-sm font-pixel file:mr-3 file:py-1 file:px-3 file:border file:rounded file:border-gray-300 file:bg-gray-100 file:text-sm file:text-gray-700 hover:file:bg-gray-200"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm font-pixel file:mr-3 file:py-1 file:px-3 file:border file:rounded file:border-gray-300 file:bg-gray-100 file:text-sm file:text-gray-700 hover:file:bg-gray-200"
         />
     </div>
 
