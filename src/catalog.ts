@@ -113,3 +113,67 @@ export async function updateMany(
         { where: { userId, id: { [Op.in]: ids } } },
     );
 }
+
+export interface SearchOptions {
+    query?: string;
+    category?: string;
+    subcategory?: string;
+    tag?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    sort?: 'title' | 'pricePaid' | 'marketValue';
+    order?: 'asc' | 'desc';
+}
+
+export async function searchCatalog(
+    userId: string,
+    opts: SearchOptions,
+): Promise<CatalogItem[]> {
+    let items = await loadCatalog(userId);
+
+    if (opts.query) {
+        const q = opts.query.toLowerCase();
+        items = items.filter(
+            (i) =>
+                i.title.toLowerCase().includes(q) ||
+                i.desc?.toLowerCase().includes(q),
+        );
+    }
+
+    if (opts.category) {
+        items = items.filter((i) => i.category === opts.category);
+    }
+    if (opts.subcategory) {
+        items = items.filter((i) => i.subcategory === opts.subcategory);
+    }
+    if (opts.tag) {
+        items = items.filter((i) => i.flags?.includes(opts.tag as Tag));
+    }
+    if (opts.minPrice !== undefined) {
+        items = items.filter(
+            (i) => (i.marketValue || 0) >= (opts.minPrice as number),
+        );
+    }
+    if (opts.maxPrice !== undefined) {
+        items = items.filter(
+            (i) => (i.marketValue || 0) <= (opts.maxPrice as number),
+        );
+    }
+
+    const sortField = opts.sort || 'title';
+    const order = opts.order === 'desc' ? 'desc' : 'asc';
+
+    items.sort((a, b) => {
+        let result = 0;
+        if (sortField === 'pricePaid') {
+            result = (a.pricePaid || 0) - (b.pricePaid || 0);
+        } else if (sortField === 'marketValue') {
+            result = (a.marketValue || 0) - (b.marketValue || 0);
+        } else {
+            result = a.title.localeCompare(b.title);
+        }
+        return order === 'desc' ? -result : result;
+    });
+
+    return items;
+}
