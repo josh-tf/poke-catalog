@@ -84,7 +84,7 @@ async function makeUniqueSlug(name: string, userId: string): Promise<string> {
 }
 
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 const uploadsPath = path.join(__dirname, '../public/uploads');
 if (!fs.existsSync(uploadsPath)) {
@@ -96,7 +96,7 @@ const CLIENT_ID = process.env.DISCORD_CLIENT_ID || '';
 const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || '';
 const CALLBACK_URL =
     process.env.DISCORD_CALLBACK_URL ||
-    'http://localhost:3000/auth/discord/callback';
+    `http://localhost:${PORT}/auth/discord/callback`;
 
 passport.use(
     new DiscordStrategy(
@@ -1056,7 +1056,7 @@ async function start() {
 
     app.listen(PORT, () => {
         console.log(
-            '🟢 Server running — visit http://localhost:3000 to view or add items.',
+            `🟢 Server running — visit http://localhost:${PORT} to view or add items.`,
         );
     });
 }
