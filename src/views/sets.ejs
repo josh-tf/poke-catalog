@@ -78,25 +78,3 @@
     });
 </script>
 <% } %>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    const counts = <%- JSON.stringify(totals.itemCounts) %>;
-    new Chart(document.getElementById('summaryChart'), {
-        type: 'doughnut',
-        data: {
-            labels: Object.keys(counts),
-            datasets: [{
-                data: Object.values(counts),
-                backgroundColor: [
-                    '#f87171',
-                    '#fb923c',
-                    '#34d399',
-                    '#60a5fa',
-                    '#a78bfa',
-                    '#f472b6'
-                ]
-            }]
-        },
-        options: { plugins: { legend: { display: false } } }
-    });
-</script>
