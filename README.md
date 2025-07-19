@@ -14,3 +14,7 @@ server port (defaults to `3000`). Then run `yarn dev` and visit
 - View detailed information for an item.
 - Edit or delete items, including managing images.
 - Select multiple items in the list view and apply bulk edits.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
