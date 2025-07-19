@@ -1,9 +1,9 @@
-<h1 class="page-title">
+<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
     <%= userProfile.displayName || userProfile.username %>'s Profile
 </h1>
 
 <% if (userProfile.profileBanner) { %>
-<img src="<%= userProfile.profileBanner %>" class="form-control" />
+<img src="<%= userProfile.profileBanner %>" class="w-full mb-6 rounded-md" />
 <% } %>
 
 <% if (userProfile.avatarUrl || userProfile.avatar) { %>
@@ -55,13 +55,13 @@
             <img
                 src="<%= i.images[0] %>"
                 data-id="<%= i.id %>"
-                class="form-control"
+                class="w-full h-24 object-contain rounded-md bg-gray-100 p-1 shadow-sm cursor-pointer item-thumb"
                 style="transform: scale(<%= user?.imageZoom || 1 %>)"
             />
             <% } else { %>
             <div
                 data-id="<%= i.id %>"
-                class="form-control"
+                class="w-full h-24 flex items-center justify-center rounded-md bg-gray-100 text-sm text-gray-500 cursor-pointer item-thumb"
             >
                 No Image
             </div>
@@ -115,7 +115,7 @@
             <button
                 type="button"
                 onclick="document.getElementById('itemModal').classList.add('hidden')"
-                class="btn btn-primary"
+                class="btn btn-sm bg-gray-300 mt-2"
             >
                 Close
             </button>
@@ -157,8 +157,8 @@
                   itemGrid.innerHTML = sortedItems.map(i => `
                     <div class="text-center">
                       ${i.images?.[0]
-                        ? `<img src="${i.images[0]}" data-id="${i.id}" class="form-control" style="transform: scale(${user?.imageZoom || 1})" />`
-                        : `<div data-id="${i.id}" class="form-control">No Image</div>`
+                        ? `<img src="${i.images[0]}" data-id="${i.id}" class="w-full h-24 object-contain rounded-md bg-gray-100 p-1 shadow-sm cursor-pointer item-thumb" style="transform: scale(${user?.imageZoom || 1})" />`
+                        : `<div data-id="${i.id}" class="w-full h-24 flex items-center justify-center rounded-md bg-gray-100 text-sm text-gray-500 cursor-pointer item-thumb">No Image</div>`
                       }
                       <p class="text-sm mt-2">${i.title}</p>
                     </div>
@@ -340,10 +340,10 @@
     <textarea
         name="content"
         rows="3"
-        class="form-control"
+        class="w-full border p-2 rounded"
         required
     ></textarea>
-    <button class="btn btn-primary">
+    <button class="btn bg-blue-600 text-white">
         Add Comment
     </button>
 </form>

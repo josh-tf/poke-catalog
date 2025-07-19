@@ -1,30 +1,30 @@
-<h1 class="page-title">
+<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
     Preferences
 </h1>
 <form method="POST" class="space-y-4 max-w-lg" enctype="application/x-www-form-urlencoded">
     <div>
         <label class="block text-sm mb-1">Display Name</label>
-        <input type="text" name="displayName" value="<%= user.displayName || '' %>" class="form-control" />
+        <input type="text" name="displayName" value="<%= user.displayName || '' %>" class="w-full border rounded px-3 py-2" />
     </div>
     <div>
         <label class="block text-sm mb-1">Avatar URL</label>
-        <input type="text" name="avatarUrl" value="<%= user.avatarUrl || '' %>" class="form-control" />
+        <input type="text" name="avatarUrl" value="<%= user.avatarUrl || '' %>" class="w-full border rounded px-3 py-2" />
     </div>
     <div>
         <label class="block text-sm mb-1">Profile Description</label>
-        <textarea name="profileDesc" rows="3" class="form-control"><%= user.profileDesc || '' %></textarea>
+        <textarea name="profileDesc" rows="3" class="w-full border rounded px-3 py-2"><%= user.profileDesc || '' %></textarea>
     </div>
     <div>
         <label class="block text-sm mb-1">Profile Banner URL</label>
-        <input type="text" name="profileBanner" value="<%= user.profileBanner || '' %>" class="form-control" />
+        <input type="text" name="profileBanner" value="<%= user.profileBanner || '' %>" class="w-full border rounded px-3 py-2" />
     </div>
     <div>
         <label class="block text-sm mb-1">Tagline</label>
-        <input type="text" name="tagline" value="<%= user.tagline || '' %>" class="form-control" />
+        <input type="text" name="tagline" value="<%= user.tagline || '' %>" class="w-full border rounded px-3 py-2" />
     </div>
     <div>
         <label class="block text-sm mb-1">Image Zoom</label>
-        <input type="number" step="0.1" min="0.5" max="3" name="imageZoom" value="<%= user.imageZoom || 1 %>" class="form-control" />
+        <input type="number" step="0.1" min="0.5" max="3" name="imageZoom" value="<%= user.imageZoom || 1 %>" class="w-full border rounded px-3 py-2" />
     </div>
-    <button type="submit" class="btn btn-primary">Save</button>
+    <button type="submit" class="btn bg-pokemon-grass text-white">Save</button>
 </form>

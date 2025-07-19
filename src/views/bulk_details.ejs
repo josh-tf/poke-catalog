@@ -1,4 +1,4 @@
-<h1 class="page-title">
+<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
     Add Details
 </h1>
 
@@ -19,7 +19,7 @@
         <!-- ID Field -->
         <div class="mb-3">
             <input
-                class="form-control"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-electric id-input"
                 name="id"
                 placeholder="ID (e.g. sv1v-087)"
             />
@@ -29,7 +29,7 @@
         <!-- Title Field -->
         <div class="mb-3">
             <input
-                class="form-control"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-fire title-input"
                 name="title"
                 placeholder="Title"
             />
@@ -38,7 +38,7 @@
         <!-- Description Field -->
         <div class="mb-3">
             <input
-                class="form-control"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-water"
                 name="desc"
                 placeholder="Description"
             />
@@ -49,7 +49,7 @@
             <input
                 type="date"
                 name="purchaseDate"
-                class="form-control"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-water"
             />
         </div>
 
@@ -57,7 +57,7 @@
         <div class="mb-3">
             <select
                 name="condition"
-                class="form-control"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pokemon-water"
             >
                 <option value="">(condition)</option>
                 <option value="mint">Mint</option>
@@ -81,7 +81,7 @@
             <select
                 name="category"
                 required
-                class="form-control"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pokemon-grass"
             >
                 <% categories.forEach(cat => { %>
                 <option value="<%= cat.id %>"><%= cat.label %></option>
@@ -93,7 +93,7 @@
         <div class="mb-3">
             <select
                 name="subcategory"
-                class="form-control"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pokemon-grass"
             >
                 <option value="">(none)</option>
                 <% categories.forEach(cat => { %>
@@ -114,7 +114,7 @@
                 type="number"
                 step="0.01"
                 name="pricePaid"
-                class="form-control"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-fairy"
                 placeholder="Price Paid"
             />
         </div>
@@ -125,7 +125,7 @@
                 type="number"
                 step="0.01"
                 name="marketValue"
-                class="form-control"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pokemon-dragon"
                 placeholder="Market Value"
             />
         </div>
@@ -136,13 +136,13 @@
     <div class="flex items-center gap-4 mt-4">
         <button
             type="submit"
-            class="btn btn-primary"
+            class="btn bg-pokemon-grass hover:bg-pokemon-grass/90 text-white font-pixel"
         >
             💾 Save All
         </button>
         <a
             href="/"
-            class="btn btn-primary"
+            class="btn bg-gray-300 hover:bg-gray-400 text-gray-800 font-pixel inline-block"
         >
             ⬅ Back
         </a>

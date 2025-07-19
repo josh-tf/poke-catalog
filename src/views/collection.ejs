@@ -1,4 +1,4 @@
-<h1 class="page-title">
+<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide">
     <%= collection.name %>
 </h1>
 <p class="mb-4"><%= collection.description %></p>
@@ -28,7 +28,7 @@
         <p class="mb-2">Share this URL:</p>
         <input
             id="shareUrl"
-            class="form-control"
+            class="w-full border p-2 rounded"
             readonly
             value="<%= shareUrl %>"
         />
@@ -101,8 +101,8 @@
         <div class="text-center">
           ${
               i.images?.[0]
-                  ? `<img src="${i.images[0]}" data-id="${i.id}" class="form-control" style="transform: scale(${zoom})" />`
-                  : `<div data-id="${i.id}" class="form-control">No Image</div>`
+                  ? `<img src="${i.images[0]}" data-id="${i.id}" class="w-full h-24 object-contain rounded-md bg-gray-100 p-1 shadow-sm cursor-pointer item-thumb" style="transform: scale(${zoom})" />`
+                  : `<div data-id="${i.id}" class="w-full h-24 flex items-center justify-center rounded-md bg-gray-100 text-sm text-gray-500 cursor-pointer item-thumb">No Image</div>`
           }
           <p class="text-sm mt-2">${i.title}</p>
         </div>
