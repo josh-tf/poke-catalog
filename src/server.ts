@@ -16,6 +16,7 @@ import {
     getItem,
     loadCatalog,
     parseJsonArray,
+    searchCatalog,
     updateItem,
     updateMany,
 } from './catalog';
@@ -84,7 +85,7 @@ async function makeUniqueSlug(name: string, userId: string): Promise<string> {
 }
 
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 const uploadsPath = path.join(__dirname, '../public/uploads');
 if (!fs.existsSync(uploadsPath)) {
@@ -96,7 +97,7 @@ const CLIENT_ID = process.env.DISCORD_CLIENT_ID || '';
 const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || '';
 const CALLBACK_URL =
     process.env.DISCORD_CALLBACK_URL ||
-    'http://localhost:3000/auth/discord/callback';
+    `http://localhost:${PORT}/auth/discord/callback`;
 
 passport.use(
     new DiscordStrategy(
@@ -253,31 +254,22 @@ app.get('/', async (req, res) => {
 // Catalog page - list items
 app.get('/catalog', async (req, res) => {
     const userId = (req.user as any)?.id;
-    let items = userId ? await loadCatalog(userId) : [];
     const view = (req.query.view as string) || 'list';
     const sort = (req.query.sort as string) || 'title';
     const order = (req.query.order as string) === 'desc' ? 'desc' : 'asc';
     const category = (req.query.category as string) || '';
     const subcategory = (req.query.subcategory as string) || '';
+    const q = (req.query.q as string) || '';
 
-    if (category) {
-        items = items.filter((item) => item.category === category);
-    }
-    if (subcategory) {
-        items = items.filter((item) => item.subcategory === subcategory);
-    }
-
-    items.sort((a, b) => {
-        let result = 0;
-        if (sort === 'pricePaid') {
-            result = (a.pricePaid || 0) - (b.pricePaid || 0);
-        } else if (sort === 'marketValue') {
-            result = (a.marketValue || 0) - (b.marketValue || 0);
-        } else {
-            result = a.title.localeCompare(b.title);
-        }
-        return order === 'desc' ? -result : result;
-    });
+    const items = userId
+        ? await searchCatalog(userId, {
+              query: q,
+              category,
+              subcategory,
+              sort: sort as any,
+              order: order as any,
+          })
+        : [];
 
     const categoryData: Record<CategoryId, number> = Object.fromEntries(
         categories.map((c) => [c.id, 0]),
@@ -294,6 +286,7 @@ app.get('/catalog', async (req, res) => {
         order,
         category,
         subcategory,
+        q,
         categoryData,
         categories,
     });
@@ -306,6 +299,34 @@ app.get('/check-id/:id', async (req, res) => {
     const items = userId ? await loadCatalog(userId) : [];
     const exists = items.some((item) => item.id === id);
     res.json({ exists });
+});
+
+app.get('/api/search', ensureAuth, async (req, res) => {
+    const userId = (req.user as any).id;
+    const { q, category, subcategory, tag } = req.query;
+    const minPrice = req.query.minPrice
+        ? parseFloat(req.query.minPrice as string)
+        : undefined;
+    const maxPrice = req.query.maxPrice
+        ? parseFloat(req.query.maxPrice as string)
+        : undefined;
+    const sort = req.query.sort as
+        | 'title'
+        | 'pricePaid'
+        | 'marketValue'
+        | undefined;
+    const order = req.query.order as 'asc' | 'desc' | undefined;
+    const items = await searchCatalog(userId, {
+        query: q as string,
+        category: category as string,
+        subcategory: subcategory as string,
+        tag: tag as string,
+        minPrice,
+        maxPrice,
+        sort,
+        order,
+    });
+    res.json(items);
 });
 
 // Form to add new item
@@ -360,6 +381,10 @@ app.post('/bulk-add/save', ensureAuth, async (req, res) => {
     const ids = toArray(req.body.id);
     const titles = toArray(req.body.title);
     const descs = toArray(req.body.desc);
+    const purchaseDates = toArray(req.body.purchaseDate);
+    const conditions = toArray(req.body.condition);
+    const forTrades = toArray(req.body.forTrade);
+    const forSales = toArray(req.body.forSale);
     const pricePaids = toArray(req.body.pricePaid);
     const marketValues = toArray(req.body.marketValue);
     const categoryIds = toArray(req.body.category);
@@ -378,6 +403,10 @@ app.post('/bulk-add/save', ensureAuth, async (req, res) => {
             category: safeCategory(categoryIds[i]),
             subcategory: safeSubcategory(subcategoryIds[i]),
             desc: descs[i],
+            purchaseDate: purchaseDates[i] || undefined,
+            condition: conditions[i] || undefined,
+            forTrade: !!forTrades[i],
+            forSale: !!forSales[i],
             pricePaid: parseFloat(pricePaids[i]) || 0,
             marketValue: parseFloat(marketValues[i]) || 0,
             images: [images[i]],
@@ -424,6 +453,10 @@ app.post('/add', ensureAuth, async (req, res) => {
         flags: req.body.flags
             ? req.body.flags.split(',').map((f: string) => f.trim())
             : [],
+        purchaseDate: req.body.purchaseDate || undefined,
+        condition: req.body.condition || undefined,
+        forTrade: !!req.body.forTrade,
+        forSale: !!req.body.forSale,
         pricePaid: parseFloat(req.body.pricePaid) || 0,
         marketValue: parseFloat(req.body.marketValue) || 0,
         images: savedPaths,
@@ -495,6 +528,10 @@ app.post('/item/:id/edit', ensureAuth, async (req, res) => {
         flags: req.body.flags
             ? req.body.flags.split(',').map((f: string) => f.trim())
             : [],
+        purchaseDate: req.body.purchaseDate || undefined,
+        condition: req.body.condition || undefined,
+        forTrade: !!req.body.forTrade,
+        forSale: !!req.body.forSale,
         pricePaid: parseFloat(req.body.pricePaid) || 0,
         marketValue: parseFloat(req.body.marketValue) || 0,
         images,
@@ -863,11 +900,14 @@ app.get('/sets', ensureAuth, async (req, res) => {
         english: filtered.filter((g) => g.language === 'english'),
     };
 
+    const shareUrl = `${req.protocol}://${req.get('host')}/user/${userId}/sets`;
+
     res.render('sets', {
         user: req.user,
         groupsByLang,
         totals,
         status: statusFilter,
+        shareUrl,
     });
 });
 
@@ -919,6 +959,8 @@ app.get('/sets/era/:slug', ensureAuth, async (req, res) => {
         }
     }
 
+    const shareUrl = `${req.protocol}://${req.get('host')}/user/${userId}/sets/era/${slug}`;
+
     res.render('sets_group', {
         user: req.user,
         group,
@@ -927,6 +969,7 @@ app.get('/sets/era/:slug', ensureAuth, async (req, res) => {
         stats,
         status: statusFilter,
         progressMap,
+        shareUrl,
     });
 });
 
@@ -1029,6 +1072,156 @@ app.post('/sets/era/:slug/bulk-edit', ensureAuth, async (req, res) => {
     res.redirect(`/sets/era/${slug}`);
 });
 
+// Public view of all set progress for a user
+app.get('/user/:id/sets', async (req, res) => {
+    const statusFilter = (req.query.status as string) || '';
+    const userId = req.params.id;
+    const progressRows = await SetProgress.findAll({ where: { userId } });
+    const progressMap: Record<string, Record<string, boolean> | undefined> = {};
+    for (const row of progressRows) {
+        progressMap[row.setCode] = row.progress ? JSON.parse(row.progress) : {};
+    }
+
+    const groupStats = sets.map((g) => {
+        const counts: Record<string, { have: number; total: number }> = {};
+        let finishedSets = 0;
+        let startedSets = 0;
+        for (const set of g.sets) {
+            const raw = progressMap[set.code];
+            const started = raw !== undefined;
+            const prog = raw || {};
+            const types = languageItemTypes[set.language];
+            const have = started ? types.filter((t) => prog[t]).length : 0;
+            const status = !started
+                ? 'notstarted'
+                : have === types.length
+                  ? 'finished'
+                  : 'incomplete';
+            if (started) {
+                startedSets += 1;
+            }
+            if (status === 'finished') {
+                finishedSets += 1;
+            }
+            for (const type of types) {
+                const c = counts[type] || { have: 0, total: 0 };
+                c.total += 1;
+                if (prog[type]) {
+                    c.have += 1;
+                }
+                counts[type] = c;
+            }
+            (set as any).status = status;
+        }
+        const status =
+            finishedSets === g.sets.length
+                ? 'finished'
+                : startedSets === 0
+                  ? 'notstarted'
+                  : 'incomplete';
+        return { ...g, counts, status };
+    });
+
+    const filtered = statusFilter
+        ? groupStats.filter((g) => g.status === statusFilter)
+        : groupStats;
+
+    const totals = {
+        totalSets: sets.reduce((a, g) => a + g.sets.length, 0),
+        completedSets: groupStats.reduce(
+            (a, g) =>
+                a +
+                g.sets.filter((s) => (s as any).status === 'finished').length,
+            0,
+        ),
+        itemCounts: Object.fromEntries(
+            Object.keys(languageItemTypes).flatMap((lang) =>
+                languageItemTypes[lang as keyof typeof languageItemTypes].map(
+                    (t) => [t, 0],
+                ),
+            ),
+        ) as Record<string, number>,
+    };
+
+    for (const g of groupStats) {
+        for (const [type, c] of Object.entries(g.counts)) {
+            totals.itemCounts[type] = (totals.itemCounts[type] || 0) + c.have;
+        }
+    }
+
+    const groupsByLang = {
+        japanese: filtered.filter((g) => g.language === 'japanese'),
+        english: filtered.filter((g) => g.language === 'english'),
+    };
+
+    res.render('sets', {
+        user: req.user,
+        groupsByLang,
+        totals,
+        status: statusFilter,
+    });
+});
+
+// Public view of a single era for a user
+app.get('/user/:id/sets/era/:slug', async (req, res) => {
+    const statusFilter = (req.query.status as string) || '';
+    const slug = req.params.slug;
+    const group = sets.find((g) => g.slug === slug);
+    if (!group) {
+        return res.status(404).send('Not found');
+    }
+    const userId = req.params.id;
+    const progressRows = await SetProgress.findAll({ where: { userId } });
+    const progressMap: Record<string, Record<string, boolean> | undefined> = {};
+    for (const row of progressRows) {
+        progressMap[row.setCode] = row.progress ? JSON.parse(row.progress) : {};
+    }
+
+    const setsWithStatus = group.sets.map((s) => {
+        const raw = progressMap[s.code];
+        const started = raw !== undefined;
+        const prog = raw || {};
+        const types = languageItemTypes[s.language];
+        const have = started ? types.filter((t) => prog[t]).length : 0;
+        const status = !started
+            ? 'notstarted'
+            : have === types.length
+              ? 'finished'
+              : 'incomplete';
+        return { ...s, status, progress: prog };
+    });
+
+    const filtered = statusFilter
+        ? setsWithStatus.filter((s) => s.status === statusFilter)
+        : setsWithStatus;
+
+    const stats = {
+        completed: setsWithStatus.filter((s) => s.status === 'finished').length,
+        total: group.sets.length,
+        itemCounts: Object.fromEntries(
+            languageItemTypes[group.language].map((t) => [t, 0]),
+        ) as Record<string, number>,
+    };
+
+    for (const s of setsWithStatus) {
+        for (const type of languageItemTypes[s.language]) {
+            if (s.progress[type]) {
+                stats.itemCounts[type] += 1;
+            }
+        }
+    }
+
+    res.render('sets_group', {
+        user: req.user,
+        group,
+        sets: filtered,
+        languageItemTypes,
+        stats,
+        status: statusFilter,
+        progressMap,
+    });
+});
+
 // ----- User Preferences -----
 app.get('/preferences', ensureAuth, async (req, res) => {
     res.render('preferences', { user: req.user });
@@ -1056,7 +1249,7 @@ async function start() {
 
     app.listen(PORT, () => {
         console.log(
-            '🟢 Server running — visit http://localhost:3000 to view or add items.',
+            `🟢 Server running — visit http://localhost:${PORT} to view or add items.`,
         );
     });
 }

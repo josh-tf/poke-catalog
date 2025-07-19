@@ -37,18 +37,18 @@
             Grid View
         </a>
 
-        <!-- Search Bar -->
-        <input
-            type="text"
-            id="searchInput"
-            placeholder="Search items..."
-            class="text-sm px-3 py-2 border border-gray-300 rounded bg-white font-pixel text-gray-800 w-64"
-        />
     </div>
 
     <!-- Right: Filters -->
     <form method="get" class="flex flex-wrap items-center gap-2">
         <input type="hidden" name="view" value="<%= view %>" />
+        <input
+            type="text"
+            name="q"
+            value="<%= q %>"
+            placeholder="Search items..."
+            class="text-sm px-3 py-2 border border-gray-300 rounded bg-white font-pixel text-gray-800 w-64"
+        />
 
         <!-- Sort Field -->
         <select
@@ -138,20 +138,6 @@
     </div>
     <% }) %>
 </div>
-<script>
-  let searchInput = document.getElementById('searchInput');
-  let allItems = Array.from(document.querySelectorAll('.catalog-item'));
-
-  if (searchInput && allItems.length > 0) {
-    searchInput.addEventListener('input', () => {
-      const query = searchInput.value.toLowerCase();
-    allItems.forEach(el => {
-      const title = el.querySelector('a').textContent.toLowerCase();
-      el.style.display = title.includes(query) ? '' : 'none';
-    });
-  });
-}
-</script>
 <% } else { %>
 <form method="GET" action="/bulk-edit" class="space-y-4 mb-6">
     <% items.forEach(item => { %>
@@ -192,15 +178,6 @@
     <button class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Bulk Edit</button>
 </form>
 
-<script>
-  searchInput.addEventListener('input', () => {
-    const query = searchInput.value.toLowerCase();
-    allItems.forEach(el => {
-      const title = el.querySelector('a').textContent.toLowerCase();
-      el.style.display = title.includes(query) ? '' : 'none';
-    });
-  });
-</script>
 <% } %>
 
 <!-- Category Chart -->

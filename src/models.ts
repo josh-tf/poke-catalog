@@ -88,6 +88,10 @@ export class Item extends Model<
     declare desc: string | null;
     declare notes: string | null;
     declare flags: string | null;
+    declare purchaseDate: string | null;
+    declare condition: string | null;
+    declare forTrade: CreationOptional<boolean>;
+    declare forSale: CreationOptional<boolean>;
     declare pricePaid: number | null;
     declare marketValue: number | null;
     declare images: string | null;
@@ -107,6 +111,10 @@ Item.init(
         desc: DataTypes.TEXT,
         notes: DataTypes.TEXT,
         flags: DataTypes.TEXT,
+        purchaseDate: DataTypes.DATEONLY,
+        condition: DataTypes.STRING,
+        forTrade: { type: DataTypes.BOOLEAN, defaultValue: false },
+        forSale: { type: DataTypes.BOOLEAN, defaultValue: false },
         pricePaid: DataTypes.FLOAT,
         marketValue: DataTypes.FLOAT,
         images: DataTypes.TEXT,

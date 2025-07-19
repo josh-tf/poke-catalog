@@ -10,6 +10,10 @@ export interface CatalogItem {
     desc?: string;
     notes?: string;
     flags?: Tag[];
+    purchaseDate?: string;
+    condition?: string;
+    forTrade?: boolean;
+    forSale?: boolean;
     pricePaid?: number;
     marketValue?: number;
     images?: string[];

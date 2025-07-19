@@ -62,6 +62,26 @@
         </p>
 
         <p>
+            <span class="font-semibold text-pokemon-electric">Purchase Date:</span>
+            <%= item.purchaseDate || '(unknown)' %>
+        </p>
+
+        <p>
+            <span class="font-semibold text-pokemon-electric">Condition:</span>
+            <%= item.condition || '(none)' %>
+        </p>
+
+        <p>
+            <span class="font-semibold text-pokemon-electric">For Trade:</span>
+            <%= item.forTrade ? 'Yes' : 'No' %>
+        </p>
+
+        <p>
+            <span class="font-semibold text-pokemon-electric">For Sale:</span>
+            <%= item.forSale ? 'Yes' : 'No' %>
+        </p>
+
+        <p>
             <span class="font-semibold text-pokemon-electric">Price Paid:</span>
             <%= typeof item.pricePaid === 'number' ? `$${item.pricePaid.toFixed(2)}` : '(none)' %>
         </p>

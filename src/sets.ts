@@ -207,7 +207,7 @@ export const sets: SetGroup[] = [
             },
             {
                 'name': 'Future Flash',
-                'code': 'sv4k',
+                'code': 'sv4m',
                 'language': 'japanese',
             },
             {
