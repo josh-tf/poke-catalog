@@ -33,9 +33,12 @@
     <% groupsByLang.japanese.forEach(g => { %>
     <a href="<%= baseUrl %>/era/<%= g.slug %>" class="block border rounded p-4 bg-white hover:bg-gray-100 transition">
         <h3 class="text-lg font-semibold mb-2 flex items-center gap-2">
-            <span class="bg-pokemon-fire text-white text-xs px-2 py-0.5 rounded"><%= g.code %></span>
+            <span class="bg-gray-200 text-gray-800 text-xs font-mono px-2 py-0.5 rounded z-10 relative" style="font-weight: normal;">
+            <%= g.code.toUpperCase() %>
+            </span>
             <%= g.group %>
         </h3>
+
         <div class="text-sm space-y-1">
             <% Object.keys(g.counts).forEach(t => { const c = g.counts[t]; %>
             <div><%= c.have %>/<%= c.total %> <%= t %> (<%= Math.round((c.have/c.total)*100) %>%)</div>
@@ -49,8 +52,8 @@
 <div class="grid md:grid-cols-2 gap-4">
     <% groupsByLang.english.forEach(g => { %>
     <a href="<%= baseUrl %>/era/<%= g.slug %>" class="block border rounded p-4 bg-white hover:bg-gray-100 transition">
-        <h3 class="text-lg font-semibold mb-2 flex items-center gap-2">
-            <span class="bg-pokemon-fire text-white text-xs px-2 py-0.5 rounded"><%= g.code %></span>
+        <span class="bg-gray-200 text-gray-800 text-xs font-mono px-2 py-0.5 rounded z-10 relative"></span><h3 class="text-lg font-semibold mb-2 flex items-center gap-2">
+            <span class="bg-gray-200 text-gray-800 text-xs font-mono px-2 py-0.5 rounded z-10 relative"><%= g.code %></span>
             <%= g.group %>
         </h3>
         <div class="text-sm space-y-1">

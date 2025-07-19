@@ -5,9 +5,7 @@
   <%= group.language === 'japanese' ? '🇯🇵 Japanese' : '🇦🇺 English' %>
 </span>
   <% if (typeof shareUrl !== 'undefined' && shareUrl) { %>
-    <button id="shareBtn" class="btn btn-sm bg-blue-600 hover:bg-blue-700 text-white transition">
-      Share
-    </button>
+    <button id="shareBtn" class="bg-blue-600 text-white px-2 py-1 rounded text-xs">Share</button>
   <% } %>
 </h1>
 
@@ -48,18 +46,18 @@
     <div class="border rounded p-4 bg-white relative">
         <% if (s.logo) { %>
         <div
-            class="absolute top-2 right-2 pointer-events-none"
-            style="
+        class="absolute top-1/2 right-2 -translate-y-1/2 pointer-events-none max-w-[240px] z-0"
+        style="
             max-height: 96px;
             -webkit-mask-image: linear-gradient(to left, black, transparent);
             mask-image: linear-gradient(to left, black, transparent);
-            "
+        "
         >
-            <img
+        <img
             src="<%= s.logo %>"
             alt="<%= s.name %> logo"
-            class="opacity-30 object-contain h-16"
-            />
+            class="opacity-30 object-contain h-16 w-auto max-w-full"
+        />
         </div>
         <% } %>
         <div class="flex items-center gap-2 mb-2">
@@ -68,8 +66,8 @@
         <% } %>
         <div class="flex items-center gap-2 flex-1">
             <h3 class="font-semibold"><%= s.name %></h3>
-            <span class="bg-gray-200 text-gray-800 text-xs font-mono px-2 py-0.5 rounded">
-            <%= s.code %>
+            <span class="bg-gray-200 text-gray-800 text-xs font-mono px-2 py-0.5 rounded z-10 relative">
+            <%= s.code.toUpperCase() %>
             </span>
         </div>
         </div>
