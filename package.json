@@ -1,6 +1,6 @@
 {
     "name": "poke-catalog",
-    "version": "0.0.2",
+    "version": "1.0.0",
     "description": "A Poké Catalog app for managing and viewing a collection of Pokémon related items. Built with Express, EJS, and TypeScript.",
     "author": "josh-tf",
     "license": "MIT",

@@ -8,6 +8,7 @@
         "Audino",
         "Charizard",
         "colours",
+        "DATEONLY",
         "descs",
         "Donalds",
         "Dragona",
@@ -31,9 +32,12 @@
         "SWSH",
         "Terastal",
         "Transdimensional",
+        "uncategorised",
         "VMAX",
         "VSTAR",
+        "xaxis",
         "Xerneas",
+        "yaxis",
         "Yveltal",
         "Zygarde"
     ]
