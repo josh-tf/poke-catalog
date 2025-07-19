@@ -97,7 +97,7 @@
     <div class="flex flex-wrap gap-3 pt-6 border-t border-gray-200">
         <a
             href="/item/<%= item.id %>/edit?returnTo=<%= encodeURIComponent(currentUrl) %>"
-            class="bg-pokemon-water hover:bg-pokemon-water/90 text-white px-4 py-2 rounded shadow transition"
+            class="btn bg-pokemon-water hover:bg-pokemon-water/90 text-white"
         >
             ✏️ Edit
         </a>
@@ -109,7 +109,7 @@
         >
             <button
                 type="submit"
-                class="bg-pokemon-fire hover:bg-pokemon-fire/90 text-white px-4 py-2 rounded shadow transition"
+                class="btn bg-pokemon-fire hover:bg-pokemon-fire/90 text-white"
             >
                 🗑 Delete
             </button>
@@ -117,7 +117,7 @@
 
         <a
             href="/"
-            class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded shadow transition"
+            class="btn bg-gray-300 hover:bg-gray-400 text-gray-800"
         >
             ⬅ Back
         </a>

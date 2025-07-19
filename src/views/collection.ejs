@@ -12,7 +12,7 @@
         Edit
     </a>
     <% if (collection.public) { %>
-    <button id="shareBtn" class="bg-blue-600 text-white px-3 py-1 rounded">
+    <button id="shareBtn" class="btn btn-sm bg-blue-600 text-white">
         Share
     </button>
     <% } %>
@@ -34,13 +34,13 @@
         />
         <div class="mt-3 text-right space-x-2">
             <button
-                class="px-3 py-1 bg-blue-600 text-white rounded"
+                class="btn btn-sm bg-blue-600 text-white"
                 onclick="navigator.clipboard.writeText(document.getElementById('shareUrl').value)"
             >
                 Copy
             </button>
             <button
-                class="px-3 py-1 bg-gray-300 rounded"
+                class="btn btn-sm bg-gray-300"
                 onclick="document.getElementById('shareModal').classList.add('hidden')"
             >
                 Close
@@ -226,7 +226,7 @@
         <button
             type="button"
             onclick="document.getElementById('itemModal').classList.add('hidden')"
-            class="px-3 py-1 bg-gray-300 rounded mt-2"
+            class="btn btn-sm bg-gray-300 mt-2"
         >
             Close
         </button>
@@ -250,7 +250,7 @@
         />
         <button
             onclick="document.getElementById('imagePreview').classList.add('hidden')"
-            class="absolute top-2 right-2 text-gray-700 hover:text-black bg-gray-100 hover:bg-gray-200 rounded-full px-3 py-1 text-sm shadow"
+            class="btn btn-sm absolute top-2 right-2 text-gray-700 hover:text-black bg-gray-100 hover:bg-gray-200 shadow"
         >
             ✕
         </button>
