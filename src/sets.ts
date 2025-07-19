@@ -7,8 +7,8 @@ export interface SetItem {
 }
 
 export const languageItemTypes: Record<Language, string[]> = {
-    english: ['booster bundle', 'elite trainer box', 'booster box'],
-    japanese: ['booster pack', 'booster box'],
+    english: ['Booster Bundle', 'Elite Trainer Box', 'Booster Box'],
+    japanese: ['Booster Pack', 'Booster Box'],
 };
 
 export interface SetGroup {

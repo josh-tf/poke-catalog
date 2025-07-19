@@ -786,7 +786,7 @@ app.get('/sets', ensureAuth, async (req, res) => {
     const statusFilter = (req.query.status as string) || '';
     const userId = (req.user as any).id;
     const progressRows = await SetProgress.findAll({ where: { userId } });
-    const progressMap: Record<string, Record<string, boolean>> = {};
+    const progressMap: Record<string, Record<string, boolean> | undefined> = {};
     for (const row of progressRows) {
         progressMap[row.setCode] = row.progress ? JSON.parse(row.progress) : {};
     }
@@ -794,16 +794,21 @@ app.get('/sets', ensureAuth, async (req, res) => {
     const groupStats = sets.map((g) => {
         const counts: Record<string, { have: number; total: number }> = {};
         let finishedSets = 0;
+        let startedSets = 0;
         for (const set of g.sets) {
-            const prog = progressMap[set.code] || {};
+            const raw = progressMap[set.code];
+            const started = raw !== undefined;
+            const prog = raw || {};
             const types = languageItemTypes[set.language];
-            const have = types.filter((t) => prog[t]).length;
-            const status =
-                have === 0
-                    ? 'notstarted'
-                    : have === types.length
-                      ? 'finished'
-                      : 'incomplete';
+            const have = started ? types.filter((t) => prog[t]).length : 0;
+            const status = !started
+                ? 'notstarted'
+                : have === types.length
+                  ? 'finished'
+                  : 'incomplete';
+            if (started) {
+                startedSets += 1;
+            }
             if (status === 'finished') {
                 finishedSets += 1;
             }
@@ -820,7 +825,7 @@ app.get('/sets', ensureAuth, async (req, res) => {
         const status =
             finishedSets === g.sets.length
                 ? 'finished'
-                : finishedSets === 0
+                : startedSets === 0
                   ? 'notstarted'
                   : 'incomplete';
         return { ...g, counts, status };
@@ -875,21 +880,22 @@ app.get('/sets/era/:slug', ensureAuth, async (req, res) => {
     }
     const userId = (req.user as any).id;
     const progressRows = await SetProgress.findAll({ where: { userId } });
-    const progressMap: Record<string, Record<string, boolean>> = {};
+    const progressMap: Record<string, Record<string, boolean> | undefined> = {};
     for (const row of progressRows) {
         progressMap[row.setCode] = row.progress ? JSON.parse(row.progress) : {};
     }
 
     const setsWithStatus = group.sets.map((s) => {
-        const prog = progressMap[s.code] || {};
+        const raw = progressMap[s.code];
+        const started = raw !== undefined;
+        const prog = raw || {};
         const types = languageItemTypes[s.language];
-        const have = types.filter((t) => prog[t]).length;
-        const status =
-            have === 0
-                ? 'notstarted'
-                : have === types.length
-                  ? 'finished'
-                  : 'incomplete';
+        const have = started ? types.filter((t) => prog[t]).length : 0;
+        const status = !started
+            ? 'notstarted'
+            : have === types.length
+              ? 'finished'
+              : 'incomplete';
         return { ...s, status, progress: prog };
     });
 
@@ -978,7 +984,7 @@ app.get('/sets/era/:slug/bulk-edit', ensureAuth, async (req, res) => {
     }
     const userId = (req.user as any).id;
     const progressRows = await SetProgress.findAll({ where: { userId } });
-    const progressMap: Record<string, Record<string, boolean>> = {};
+    const progressMap: Record<string, Record<string, boolean> | undefined> = {};
     for (const row of progressRows) {
         progressMap[row.setCode] = row.progress ? JSON.parse(row.progress) : {};
     }
