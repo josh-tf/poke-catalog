@@ -1,7 +1,7 @@
 <h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide flex items-center gap-3">
     <span><%= group.group %></span>
     <span class="bg-pokemon-fire text-white text-xs px-2 py-1 rounded"><%= group.code %></span>
-    <% if (shareUrl) { %>
+    <% if (typeof shareUrl !== 'undefined' && shareUrl) { %>
     <button id="shareBtn" class="bg-blue-600 text-white px-2 py-1 rounded text-xs">Share</button>
     <% } %>
 </h1>
@@ -79,7 +79,7 @@ document.querySelectorAll('[data-close]').forEach(btn => {
     });
 });
 </script>
-<% if (shareUrl) { %>
+<% if (typeof shareUrl !== 'undefined' && shareUrl) { %>
 <div id="shareModal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
     <div class="bg-white p-4 rounded shadow w-full max-w-md">
         <p class="mb-2">Share this URL:</p>
