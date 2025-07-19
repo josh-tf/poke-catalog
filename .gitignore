@@ -21,5 +21,4 @@ dist
 /public/uploads/
 /data/
 .env
-yarn.lock
 *.tsbuildinfo

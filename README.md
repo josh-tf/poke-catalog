@@ -15,9 +15,9 @@ server port (defaults to `3000`). Then run `yarn dev` and visit
 - Edit or delete items, including managing images.
 - Select multiple items in the list view and apply bulk edits.
 
-## Getting Started
+## Getting started
 
-1. Copy `env.template` to `.env` and fill in `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET` and `SESSION_SECRET`.
+1. Copy `env.template` to `.env` and fill in `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`, `DISCORD_CALLBACK_URL` and `SESSION_SECRET`.
 2. The SQLite database is stored in `data/db.sqlite`.
 
 ### Commands
@@ -27,4 +27,4 @@ server port (defaults to `3000`). Then run `yarn dev` and visit
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+The code is licensed under the [MIT License](LICENSE). Pokémon artwork and set images are not covered; see [NOTICE](NOTICE).
