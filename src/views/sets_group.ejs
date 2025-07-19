@@ -1,17 +1,23 @@
-<h1 class="text-3xl font-pixel text-pokemon-psychic mb-6 tracking-wide flex items-center gap-3">
-    <span><%= group.group %></span>
-    <span class="bg-pokemon-fire text-white text-xs px-2 py-1 rounded"><%= group.code %></span>
-    <% if (typeof shareUrl !== 'undefined' && shareUrl) { %>
-    <button id="shareBtn" class="bg-blue-600 text-white px-2 py-1 rounded text-xs">Share</button>
-    <% } %>
+<h1 class="text-3xl font-pixel text-pokemon-psychic mb-3 tracking-wide flex items-center gap-3 flex-wrap">
+  <span><%= group.group %></span>
+  <span class="bg-pokemon-fire text-white text-xs font-mono px-2 py-1 rounded"><%= group.code %></span>
+<span class="bg-gray-800 text-gray-200 text-xs px-2 py-1 rounded">
+  <%= group.language === 'japanese' ? '🇯🇵 Japanese' : '🇦🇺 English' %>
+</span>
+  <% if (typeof shareUrl !== 'undefined' && shareUrl) { %>
+    <button id="shareBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs transition">
+      Share
+    </button>
+  <% } %>
 </h1>
-<div class="mb-4">
-    <a href="<%= baseUrl %>" class="text-blue-600 hover:underline">&larr; Back to Eras</a>
-    <% if (canEdit) { %>
-    |
-    <a href="/sets/era/<%= group.slug %>/bulk-edit" class="text-blue-600 hover:underline">Bulk Edit</a>
-    <% } %>
-</div>
+
+<nav class="mb-6 text-sm flex items-center gap-2 text-gray-600">
+  <a href="<%= baseUrl %>" class="hover:underline text-blue-600">&larr; Back to Eras</a>
+  <% if (canEdit) { %>
+    <span>|</span>
+    <a href="/sets/era/<%= group.slug %>/bulk-edit" class="hover:underline text-blue-600">Bulk Edit</a>
+  <% } %>
+</nav>
 <form class="mb-4">
     <label>
         Status
@@ -40,16 +46,33 @@
     <% sets.forEach(s => { %>
     <% const prog = progressMap[s.code] || {}; const types = languageItemTypes[s.language]; %>
     <div class="border rounded p-4 bg-white relative">
-        <div class="flex items-center gap-2 mb-2">
-            <% if (s.symbol) { %>
-            <img src="<%= s.symbol %>" alt="" class="h-4 w-auto" />
-            <% } %>
-            <h3 class="font-semibold flex-1"><%= s.name %></h3>
-            <span class="bg-gray-200 px-2 py-0.5 rounded text-xs"><%= s.code %></span>
-        </div>
         <% if (s.logo) { %>
-        <img src="<%= s.logo %>" alt="<%= s.name %> logo" class="mb-2 max-h-8 object-contain object-left w-full" style="max-height:32px; text-align:left;" />
+        <div
+            class="absolute top-2 right-2 pointer-events-none"
+            style="
+            max-height: 96px;
+            -webkit-mask-image: linear-gradient(to left, black, transparent);
+            mask-image: linear-gradient(to left, black, transparent);
+            "
+        >
+            <img
+            src="<%= s.logo %>"
+            alt="<%= s.name %> logo"
+            class="opacity-30 object-contain h-16"
+            />
+        </div>
         <% } %>
+        <div class="flex items-center gap-2 mb-2">
+        <% if (s.symbol) { %>
+            <img src="<%= s.symbol %>" alt="" class="h-4 w-auto" />
+        <% } %>
+        <div class="flex items-center gap-2 flex-1">
+            <h3 class="font-semibold"><%= s.name %></h3>
+            <span class="bg-gray-200 text-gray-800 text-xs font-mono px-2 py-0.5 rounded">
+            <%= s.code %>
+            </span>
+        </div>
+        </div>
         <div class="flex flex-wrap gap-2 text-sm mb-2">
             <% types.forEach(t => { %>
             <span class="px-2 py-0.5 rounded text-xs font-semibold
@@ -59,15 +82,16 @@
                 <%= t %>
             </span>
             <% }) %>
-        </div>
         <% if (canEdit) { %>
         <button
             type="button"
             data-modal="<%= s.code %>"
-            class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-            Edit
+            class="px-2 py-0.5 bg-gray-100 text-gray-500 rounded text-xs font-medium hover:bg-gray-200 hover:text-blue-600 transition-colors border border-gray-200"
+            aria-label="Edit"
+        >
+            <i class="ti ti-edit"></i>
         </button>
-        <div id="modal-<%= s.code %>" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4">
+        <div id="modal-<%= s.code %>" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[9999]">
             <div class="bg-white rounded p-4 w-full max-w-sm">
                 <form method="POST" action="/sets/<%= s.code %>/edit" class="space-y-2">
                     <% types.forEach(t => { %>
@@ -84,6 +108,7 @@
             </div>
         </div>
         <% } %>
+        </div>
     </div>
     <% }) %>
 </div>
@@ -119,21 +144,3 @@ document.querySelectorAll('[data-close]').forEach(btn => {
     });
 </script>
 <% } %>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    const counts = <%- JSON.stringify(stats.itemCounts) %>;
-    new Chart(document.getElementById('eraChart'), {
-        type: 'doughnut',
-        data: {
-            labels: Object.keys(counts),
-            datasets: [{
-                data: Object.values(counts),
-                backgroundColor: [
-                    '#f87171', '#fb923c', '#34d399',
-                    '#60a5fa', '#a78bfa', '#f472b6'
-                ]
-            }]
-        },
-        options: { plugins: { legend: { display: false } } }
-    });
-</script>

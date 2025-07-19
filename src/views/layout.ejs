@@ -92,46 +92,52 @@
         <div class="flex min-h-screen">
             <!-- Sidebar -->
             <aside class="w-64 border-r hidden md:block p-4 bg-white">
-                <nav class="space-y-2">
+                <nav class="space-y-2 font-medium text-sm">
                     <a
                         href="/"
-                        class="flex items-center text-pokemon-fire font-medium hover:bg-pokemon-fire hover:text-white px-3 py-2 rounded transition"
+                        class="flex items-center text-pokemon-fire hover:bg-pokemon-fire hover:text-white px-3 py-2 rounded transition"
                     >
                         <i class="ti ti-home mr-2"></i> Dashboard
                     </a>
+
                     <a
                         href="/catalog"
                         class="flex items-center text-pokemon-water hover:bg-pokemon-water hover:text-white px-3 py-2 rounded transition"
                     >
                         <i class="ti ti-book mr-2"></i> Catalog
                     </a>
+
                     <a
                         href="/collections"
-                        class="flex items-center hover:bg-gray-100 px-3 py-2 rounded"
+                        class="flex items-center text-pokemon-dark hover:bg-pokemon-dark hover:text-white px-3 py-2 rounded transition"
                     >
                         <i class="ti ti-archive mr-2"></i> Collections
                     </a>
+
                     <a
                         href="/sets"
-                        class="flex items-center hover:bg-gray-100 px-3 py-2 rounded"
+                        class="flex items-center text-pokemon-dragon hover:bg-pokemon-dragon hover:text-white px-3 py-2 rounded transition"
                     >
                         <i class="ti ti-cards mr-2"></i> Sets
                     </a>
+
                     <a
                         href="/add"
                         class="flex items-center text-pokemon-grass hover:bg-pokemon-grass hover:text-white px-3 py-2 rounded transition"
                     >
                         <i class="ti ti-plus mr-2"></i> Add Item
                     </a>
+
                     <a
                         href="/user/<%= user ? user.id : '' %>"
                         class="flex items-center text-pokemon-electric hover:bg-pokemon-electric hover:text-black px-3 py-2 rounded transition"
                     >
                         <i class="ti ti-user mr-2"></i> Profile
                     </a>
+
                     <a
                         href="/preferences"
-                        class="flex items-center hover:bg-gray-100 px-3 py-2 rounded"
+                        class="flex items-center text-pokemon-psychic hover:bg-pokemon-psychic hover:text-white px-3 py-2 rounded transition"
                     >
                         <i class="ti ti-settings mr-2"></i> Preferences
                     </a>
