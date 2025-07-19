@@ -1,7 +1,10 @@
 # poke-catalog
 
-Simple Express + EJS application to track Pokémon items. Run `yarn dev` and
-visit `http://localhost:3000`.
+Simple Express + EJS application to track Pokémon items.
+
+Copy `env.template` to `.env` and fill in the values. Set `PORT` to change the
+server port (defaults to `3000`). Then run `yarn dev` and visit
+`http://localhost:3000` (or your chosen port).
 
 ## Features
 
