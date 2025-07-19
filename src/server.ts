@@ -928,6 +928,7 @@ app.get('/sets', ensureAuth, async (req, res) => {
         shareUrl,
         baseUrl: '/sets',
         canEdit: true,
+        currentUrl: req.originalUrl,
     });
 });
 
@@ -992,6 +993,7 @@ app.get('/sets/era/:slug', ensureAuth, async (req, res) => {
         shareUrl,
         baseUrl: '/sets',
         canEdit: true,
+        currentUrl: req.originalUrl,
     });
 });
 
@@ -1004,11 +1006,14 @@ app.get('/sets/:code/edit', ensureAuth, async (req, res) => {
     const set = allSets.find((s) => s.code === code)!;
     const row = await SetProgress.findOne({ where: { userId, setCode: code } });
     const progress = row && row.progress ? JSON.parse(row.progress) : {};
+    const returnTo =
+        (req.query.returnTo as string) || req.get('Referer') || '/sets';
     res.render('set_edit', {
         user: req.user,
         set,
         languageItemTypes,
         progress,
+        returnTo,
     });
 });
 
@@ -1038,7 +1043,12 @@ app.post('/sets/:code/edit', ensureAuth, async (req, res) => {
             progress: JSON.stringify(progress),
         });
     }
-    res.redirect('/sets');
+    const returnTo = req.body.returnTo;
+    if (returnTo && typeof returnTo === 'string' && returnTo.startsWith('/')) {
+        res.redirect(returnTo);
+    } else {
+        res.redirect('/sets');
+    }
 });
 
 app.get('/sets/era/:slug/bulk-edit', ensureAuth, async (req, res) => {
