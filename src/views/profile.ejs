@@ -99,6 +99,9 @@
             <div id="modalExtra" class="space-y-1 text-sm mb-3 hidden">
                 <div>Paid: $<span id="modalPaid"></span></div>
                 <div>Market: $<span id="modalMarket"></span></div>
+                <div>Purchased: <span id="modalDate"></span></div>
+                <div>Condition: <span id="modalCondition"></span></div>
+                <div>Trade: <span id="modalTrade"></span> | Sale: <span id="modalSale"></span></div>
                 <div class="flex gap-2">
                     <a id="viewLink" href="#" class="text-blue-600 underline"
                         >View Item</a
@@ -188,6 +191,10 @@
                       if (isOwner) {
                         document.getElementById('modalPaid').textContent = item.pricePaid || '';
                         document.getElementById('modalMarket').textContent = item.marketValue || '';
+                        document.getElementById('modalDate').textContent = item.purchaseDate || '';
+                        document.getElementById('modalCondition').textContent = item.condition || '';
+                        document.getElementById('modalTrade').textContent = item.forTrade ? 'Yes' : 'No';
+                        document.getElementById('modalSale').textContent = item.forSale ? 'Yes' : 'No';
                         document.getElementById('viewLink').href = '/item/' + item.id;
                         document.getElementById('editLink').href = '/item/' + item.id + '/edit';
                         document.getElementById('modalExtra').classList.remove('hidden');
@@ -241,6 +248,10 @@
                             if (isOwner) {
                               document.getElementById('modalPaid').textContent = item.pricePaid || '';
                               document.getElementById('modalMarket').textContent = item.marketValue || '';
+                              document.getElementById('modalDate').textContent = item.purchaseDate || '';
+                              document.getElementById('modalCondition').textContent = item.condition || '';
+                              document.getElementById('modalTrade').textContent = item.forTrade ? 'Yes' : 'No';
+                              document.getElementById('modalSale').textContent = item.forSale ? 'Yes' : 'No';
                               document.getElementById('viewLink').href = '/item/' + item.id;
                               document.getElementById('editLink').href = '/item/' + item.id + '/edit';
                               document.getElementById('modalExtra').classList.remove('hidden');

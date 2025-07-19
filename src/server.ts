@@ -360,6 +360,10 @@ app.post('/bulk-add/save', ensureAuth, async (req, res) => {
     const ids = toArray(req.body.id);
     const titles = toArray(req.body.title);
     const descs = toArray(req.body.desc);
+    const purchaseDates = toArray(req.body.purchaseDate);
+    const conditions = toArray(req.body.condition);
+    const forTrades = toArray(req.body.forTrade);
+    const forSales = toArray(req.body.forSale);
     const pricePaids = toArray(req.body.pricePaid);
     const marketValues = toArray(req.body.marketValue);
     const categoryIds = toArray(req.body.category);
@@ -378,6 +382,10 @@ app.post('/bulk-add/save', ensureAuth, async (req, res) => {
             category: safeCategory(categoryIds[i]),
             subcategory: safeSubcategory(subcategoryIds[i]),
             desc: descs[i],
+            purchaseDate: purchaseDates[i] || undefined,
+            condition: conditions[i] || undefined,
+            forTrade: !!forTrades[i],
+            forSale: !!forSales[i],
             pricePaid: parseFloat(pricePaids[i]) || 0,
             marketValue: parseFloat(marketValues[i]) || 0,
             images: [images[i]],
@@ -424,6 +432,10 @@ app.post('/add', ensureAuth, async (req, res) => {
         flags: req.body.flags
             ? req.body.flags.split(',').map((f: string) => f.trim())
             : [],
+        purchaseDate: req.body.purchaseDate || undefined,
+        condition: req.body.condition || undefined,
+        forTrade: !!req.body.forTrade,
+        forSale: !!req.body.forSale,
         pricePaid: parseFloat(req.body.pricePaid) || 0,
         marketValue: parseFloat(req.body.marketValue) || 0,
         images: savedPaths,
@@ -495,6 +507,10 @@ app.post('/item/:id/edit', ensureAuth, async (req, res) => {
         flags: req.body.flags
             ? req.body.flags.split(',').map((f: string) => f.trim())
             : [],
+        purchaseDate: req.body.purchaseDate || undefined,
+        condition: req.body.condition || undefined,
+        forTrade: !!req.body.forTrade,
+        forSale: !!req.body.forSale,
         pricePaid: parseFloat(req.body.pricePaid) || 0,
         marketValue: parseFloat(req.body.marketValue) || 0,
         images,
