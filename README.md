@@ -11,3 +11,7 @@ visit `http://localhost:3000`.
 - View detailed information for an item.
 - Edit or delete items, including managing images.
 - Select multiple items in the list view and apply bulk edits.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
